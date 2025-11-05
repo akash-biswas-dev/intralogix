@@ -1,0 +1,19 @@
+services:
+  postgres:
+    container_name: intralogix-sql
+    image: postgres:17.5-alpine3.22
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=intralogix
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=intralogix-db
+  mongo:
+    container_name: intralogix-mongo
+    image: mongo:8.0-noble
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=intralogix
+      - MONGO_INITDB_ROOT_PASSWORD=password
+      - MONGO_INITDB_DATABASE=intralogix-db

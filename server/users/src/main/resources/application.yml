@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: users
+  config:
+    import: optional:configserver:${spring.cloud.config.uri}
+  cloud:
+    config:
+      uri: http://localhost:8888
+  data:
+    mongodb:
+      uri: mongodb://intralogix:password@localhost:27017/intralogix-db?authSource=admin
+      auto-index-creation: true
+server:
+  port: 8501
+
+
