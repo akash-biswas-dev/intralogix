@@ -11,12 +11,10 @@ public interface JwtService {
 
     UserDetails extractUserDetails(String token);
 
-    String generateToken(String userId, Collection<? extends GrantedAuthority> authorities,
+    String generateRefreshToken(String userId, Collection<? extends GrantedAuthority> authorities,
                          Map<String, Object> extraPayload);
 
     String generateToken(UserDetails userDetails, Map<String, Object> extraPayload);
-
-    String generateToken(String userId);
 
     String generateToken(UserDetails userDetails);
 

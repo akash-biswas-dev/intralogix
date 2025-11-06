@@ -13,10 +13,9 @@ import org.springframework.data.mongodb.core.index.Indexed;
 @Setter
 public class UserProfile {
 
-    private String user_id;
     @Indexed(name = "first_name")
     private String firstName;
     @Indexed(name = "last_name")
     private String lastName;
-    private String gender;
+    private Gender gender;
 }

@@ -20,7 +20,9 @@ public class JwtConfig {
         Long expiration = environment.getProperty("jwt.expiration", Long.class);
         Long refreshExpiration = environment.getProperty("jwt.refresh-expiration", Long.class);
 
-        assert secret != null &&  expiration != null && refreshExpiration != null && issuer != null;
+        if(secret == null ||  expiration == null || refreshExpiration == null ||  issuer == null){
+            throw new IllegalStateException("Jwt properties cant be null");
+        }
 
         return new JwtServiceImpl(
                 secret,

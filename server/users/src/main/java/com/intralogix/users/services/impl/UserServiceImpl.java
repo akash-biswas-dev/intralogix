@@ -9,6 +9,7 @@ import com.intralogix.users.dtos.response.UserProfileResponse;
 import com.intralogix.users.dtos.response.UserResponse;
 import com.intralogix.users.exception.DatabaseOperationException;
 import com.intralogix.users.exception.UserNotFoundException;
+import com.intralogix.users.models.Role;
 import com.intralogix.users.models.UserProfile;
 import com.intralogix.users.models.Users;
 import com.intralogix.users.repository.UsersRepository;
@@ -41,6 +42,7 @@ public class UserServiceImpl implements AuthService, UserService {
                 .joinedOn(LocalDate.now())
                 .isAccountEnabled(false)
                 .isAccountNonExpired(true)
+                .role(Role.USER)
                 .isAccountNonLocked(true)
                 .build();
         try {
@@ -58,7 +60,7 @@ public class UserServiceImpl implements AuthService, UserService {
         UserProfile newUserProfile = UserProfile.builder()
                 .firstName(userProfileDetails.firstName())
                 .lastName(userProfileDetails.lastName())
-                .gender(userProfileDetails.gender().name())
+                .gender(userProfileDetails.gender())
                 .build();
         savedUser.setUserProfile(newUserProfile);
         savedUser.setIsAccountEnabled(true);
@@ -96,13 +98,13 @@ public class UserServiceImpl implements AuthService, UserService {
                 users.getUserProfile().getFirstName(),
                 users.getUserProfile().getLastName(),
                 users.getDateOfBirth().toString(),
-                users.getUserProfile().getGender(),
+                users.getUserProfile().getGender().name(),
                 users.getJoinedOn().toString()
         );
     }
 
     private UserResponse generateUserResponse(Users users) {
-        return new UserResponse(users.getUsername(), users.getJoinedOn());
+        return new UserResponse(users.getRealUsername(), users.getJoinedOn());
     }
 
     @Override
@@ -119,6 +121,10 @@ public class UserServiceImpl implements AuthService, UserService {
         }catch (NoSuchElementException ex){
             log.error("Invalid username, no user found with this username or email: {}", userCredentials.emailOrUsername());
             throw new BadCredentialsException("Invalid username or email: " + userCredentials.emailOrUsername());
+        }
+
+        if(!passwordEncoder.matches(userCredentials.password(), users.getPassword())) {
+            throw new BadCredentialsException("Invalid username or password");
         }
 
         String accessToken = jwtService.generateToken(users);

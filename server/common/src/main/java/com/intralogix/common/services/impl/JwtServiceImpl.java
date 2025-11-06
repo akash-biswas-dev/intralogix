@@ -82,7 +82,7 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public String generateToken(String userId, Collection<? extends GrantedAuthority> grantedAuthorities,
+    public String generateRefreshToken(String userId, Collection<? extends GrantedAuthority> grantedAuthorities,
                                 Map<String, Object> extraPayload) {
         Map<String, Object> extraClaims = new HashMap<>();
 
@@ -99,7 +99,7 @@ public class JwtServiceImpl implements JwtService {
         }
         extraPayload.keySet().forEach(eachKey -> extraClaims.put(eachKey, extraPayload.get(eachKey)));
 
-        return buildToken(userId, extraClaims, expiration);
+        return buildToken(userId, extraClaims, refreshExpiration);
     }
 
     @Override
@@ -123,14 +123,10 @@ public class JwtServiceImpl implements JwtService {
         return buildToken(userDetails.getUsername(), extraPayload, expiration);
     }
 
-    @Override
-    public String generateToken(String userId) {
-        return generateToken(userId, List.of(new SimpleGrantedAuthority("ROLE_USER")), new HashMap<>());
-    }
 
     @Override
     public String generateRefreshToken(String userId) {
-        return buildToken(userId, new HashMap<>(), refreshExpiration);
+        return generateRefreshToken(userId, List.of(), new HashMap<>());
     }
 
     @Override

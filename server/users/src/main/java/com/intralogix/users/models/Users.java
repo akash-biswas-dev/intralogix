@@ -23,8 +23,10 @@ public class Users implements UserDetails {
     @Id
     private String id;
     @Indexed(unique = true)
+    @Getter(AccessLevel.NONE)
     private String username;
     private String email;
+    @Getter(AccessLevel.NONE)
     private String password;
     @Indexed(name = "joined_on")
     private LocalDate joinedOn;
@@ -45,6 +47,22 @@ public class Users implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(String.format("ROLE_%s",this.role.name())));
     }
+
+    @Override
+    public String getPassword() {
+        return this.password;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.id;
+    }
+
+
+    public String getRealUsername(){
+        return this.username;
+    }
+
 
     @Override
     public boolean isAccountNonLocked() {
