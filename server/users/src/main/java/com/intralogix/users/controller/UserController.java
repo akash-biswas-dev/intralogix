@@ -3,7 +3,7 @@ package com.intralogix.users.controller;
 
 import com.intralogix.common.response.PageResponse;
 import com.intralogix.users.dtos.response.UserProfileResponse;
-import com.intralogix.users.dtos.response.UserResponse;
+import com.intralogix.common.response.UserResponse;
 import com.intralogix.users.services.UserService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -36,12 +36,13 @@ public class UserController {
 
     @GetMapping(value = "/workspaces/{workspaceId}")
     public ResponseEntity<PageResponse<UserResponse>> getAllUsersForAWorkspace(
+            @PathVariable String workspaceId,
             @RequestParam(name = "page", required = false, defaultValue = "1") Integer page ,
             @RequestParam(name = "pageSize", required = false, defaultValue = "20") Integer size,
             @RequestParam(name = "sortOn", required = false, defaultValue = "JOINED_ON") SortParameter parameter ,
             @RequestParam(name = "direction", required = false, defaultValue = "ASC") Sort.Direction direction){
-//        userService.findAllUsers(page,size);
-        return null;
+        PageResponse<UserResponse> pageResponse = userService.findAllUsers(workspaceId ,page,size,parameter.getFieldName(), direction);
+        return new ResponseEntity<>(pageResponse, HttpStatus.OK);
     }
 
     @GetMapping(value = "/sort-parameters")

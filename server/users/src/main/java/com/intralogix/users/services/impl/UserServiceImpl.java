@@ -1,12 +1,13 @@
 package com.intralogix.users.services.impl;
 
 import com.intralogix.common.services.JwtService;
+import com.intralogix.users.clients.WorkspaceClient;
 import com.intralogix.users.dtos.requests.NewUserRequest;
 import com.intralogix.users.dtos.requests.UserCredentials;
 import com.intralogix.users.dtos.requests.UserProfileDTO;
 import com.intralogix.users.dtos.response.AuthTokens;
 import com.intralogix.users.dtos.response.UserProfileResponse;
-import com.intralogix.users.dtos.response.UserResponse;
+import com.intralogix.common.response.UserResponse;
 import com.intralogix.users.exception.DatabaseOperationException;
 import com.intralogix.users.exception.UserNotFoundException;
 import com.intralogix.users.models.Role;
@@ -22,6 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.NoSuchElementException;
 @Service
 @Slf4j
@@ -31,6 +33,7 @@ public class UserServiceImpl implements AuthService, UserService {
     private final UsersRepository usersRepository;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
+    private final WorkspaceClient workspaceClient;
 
     @Override
     public UserResponse saveUser(NewUserRequest userRequest) {
@@ -79,6 +82,12 @@ public class UserServiceImpl implements AuthService, UserService {
     public UserProfileResponse getUserProfile(String userId) {
         return generateUserProfileResponse(fetchUserFromDBUsingUserId(userId));
     }
+
+    @Override
+    public List<UserResponse> getAllUsersWithId(List<String> userIds) {
+        return usersRepository.findAllById(userIds).stream().map(this::generateUserResponse).toList();
+    }
+
 
     private Users fetchUserFromDBUsingUserId(String userId) throws UserNotFoundException{
         final Users user;

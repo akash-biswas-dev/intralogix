@@ -20,29 +20,30 @@ CREATE TYPE group_type AS ENUM (
 
 CREATE TABLE workspaces
 (
-    id             uuid PRIMARY KEY default gen_random_uuid(),
-    workspace_name VARCHAR(50),
+    owned_by       VARCHAR(100) NOT NULL ,
+    workspace_name VARCHAR(50) NOT NULL ,
     description    VARCHAR(1000),
-    owned_by       VARCHAR(100),
     created_on     DATE,
-    workspace_type workspace_type NOT NULL
+    workspace_type workspace_type NOT NULL,
+    PRIMARY KEY (owned_by,workspace_name)
 );
 
 CREATE TABLE users_on_workspace
 (
-    workspace_id uuid,
-    user_id      VARCHAR(100),
+
+    user_id       VARCHAR(100) NOT NULL ,
+    workspace_name VARCHAR(50) NOT NULL ,
+    owned_by      VARCHAR(100) NOT NULL ,
     joined_on    DATE NOT NULL,
-    PRIMARY KEY (workspace_id, user_id),
-    FOREIGN KEY (workspace_id) REFERENCES workspaces (id) ON DELETE CASCADE
+    PRIMARY KEY (workspace_name, user_id, owned_by)
 );
 
 CREATE TABLE groups
 (
-    group_name   VARCHAR(50),
-    workspace_id uuid,
+    group_name   VARCHAR(50) NOT NULL ,
+    workspace_name VARCHAR(50) NOT NULL ,
+    owned_by VARCHAR(50) NOT NULL ,
     group_type   group_type NOT NULL,
     created_on   DATE       NOT NULL,
-    PRIMARY KEY (group_name, workspace_id),
-    FOREIGN KEY (workspace_id) REFERENCES workspaces (id) ON DELETE CASCADE
+    PRIMARY KEY (group_name, workspace_name,owned_by)
 );

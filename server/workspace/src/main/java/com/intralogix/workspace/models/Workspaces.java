@@ -2,29 +2,50 @@ package com.intralogix.workspace.models;
 
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 @Entity
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
-@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "workspaces")
 public class Workspaces {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
-    @Column(name = "workspace_name")
-    private String name;
+    @EmbeddedId
+    private WorkspaceId workspaceId;
+
     private String description;
-    @Column(name = "owned_by")
-    private String ownedBy;
-    @Column(name = "created_on")
+    @Column(name = "created_on", nullable = false, updatable = false)
     private LocalDate createdOn;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "workspace_type", nullable = false)
+    private WorkspaceType workspaceType;
+
+    public Workspaces(
+            String ownedBy,
+            String name,
+            String description,
+            WorkspaceType workspaceType,
+            LocalDate createdOn) {
+        this.workspaceId = new WorkspaceId(ownedBy,name);
+        this.description = description;
+        this.workspaceType = workspaceType;
+        this.createdOn = createdOn;
+    }
+
+    public String getWorkspaceName(){
+        return this.workspaceId.getWorkspaceName();
+    }
+    public String getOwnerId(){
+        return this.workspaceId.getOwnerId();
+    }
 }
 

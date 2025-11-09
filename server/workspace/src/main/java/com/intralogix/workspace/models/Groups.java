@@ -21,15 +21,17 @@ public class Groups {
     @EmbeddedId
     private GroupsId groupsId;
 
-    @ManyToOne
-    @MapsId(value = "workspaceId")
-    @JoinColumn(name = "workspace_id")
-    public Workspaces workspaces;
-
     @CreatedDate
+    @Column(name = "created_on", nullable = false,updatable = false)
     public LocalDate createdOn;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "group_type")
     public GroupType groupType;
+
+    public Groups(String ownerId, String workspaceName,String groupName,GroupType groupType) {
+        this.groupsId = new GroupsId(ownerId,workspaceName,groupName);
+        this.groupType = groupType;
+    }
 
 }

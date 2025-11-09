@@ -29,6 +29,7 @@
             <artifactId>spring-security-core</artifactId>
             <version>6.5.5</version>
         </dependency>
+
 <!--        Jwt dependencies -->
 
         <dependency>

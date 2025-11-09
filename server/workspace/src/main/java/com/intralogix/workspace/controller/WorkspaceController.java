@@ -1,6 +1,7 @@
 package com.intralogix.workspace.controller;
 
 import com.intralogix.common.response.PageResponse;
+import com.intralogix.common.response.UserResponse;
 import com.intralogix.workspace.dtos.requests.NewWorkspaceRequest;
 import com.intralogix.workspace.dtos.response.WorkspaceResponse;
 import com.intralogix.workspace.services.WorkspaceService;
@@ -60,5 +61,16 @@ public class WorkspaceController {
     @PostMapping
     public ResponseEntity<WorkspaceResponse> createNewWorkspace(@RequestHeader("X-User-Id") String userId, @RequestBody NewWorkspaceRequest newWorkspace){
         return new ResponseEntity<>(workspaceService.createWorkspace(userId,newWorkspace), HttpStatus.CREATED);
+    }
+
+    @GetMapping(value = "{workspaceId}/users")
+    public ResponseEntity<PageResponse<UserResponse>> getAllUserWithWorkspace(
+            @PathVariable String workspaceId,
+            @RequestParam(name = "page", required = false, defaultValue = "1") Integer page ,
+            @RequestParam(name = "pageSize", required = false, defaultValue = "20") Integer size,
+            @RequestParam(name = "direction", required = false, defaultValue = "ASC") Sort.Direction direction
+    ){
+        PageResponse<UserResponse> usersList =  workspaceService.findAllUsersInWorkspace(workspaceId,page,size,direction);
+        return ResponseEntity.ok(usersList);
     }
 }

@@ -16,7 +16,11 @@ import java.util.UUID;
 @NoArgsConstructor
 public class UsersOnWorkspaceId implements Serializable {
 
-    private UUID workspaceId;
     @Column(name = "user_id")
     private String userId;
+    @Column(name = "owned_by")
+    private String ownerId;
+    @Column(name = "workspace_name")
+    private String workspaceName;
+
 }

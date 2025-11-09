@@ -1,4 +1,4 @@
-package com.intralogix.users.dtos.response;
+package com.intralogix.common.response;
 
 import java.time.LocalDate;
 
