@@ -1,6 +1,6 @@
 package com.intralogix.workspace.repository;
 
-import com.intralogix.workspace.dtos.dao.WorkspaceMembers;
+import com.intralogix.workspace.dtos.dao.UsersOnWorkspaceMembers;
 import com.intralogix.workspace.models.UsersOnWorkspace;
 import com.intralogix.workspace.models.WorkspaceType;
 import com.intralogix.workspace.models.Workspaces;
@@ -61,7 +61,7 @@ class UsersOnWorkspaceRepositoryTest {
             entityManager.persist(usersOnWorkspace);
         });
 
-        Page<WorkspaceMembers> workspaceMembers = repository.findById_OwnerIdAndId_WorkspaceName(
+        Page<UsersOnWorkspaceMembers> workspaceMembers = repository.findById_OwnerIdAndId_WorkspaceName(
                 this.testWorkspaces.getOwnerId(),
                 this.testWorkspaces.getWorkspaceName(),
                 PageRequest.of(
@@ -73,8 +73,8 @@ class UsersOnWorkspaceRepositoryTest {
 
         assertEquals(users.size(), workspaceMembers.getTotalElements());
 
-        List<WorkspaceMembers> savedWorkspaceMembers = workspaceMembers.getContent();
-        savedWorkspaceMembers.forEach(member -> {
+        List<UsersOnWorkspaceMembers> savedUsersOnWorkspaceMembers = workspaceMembers.getContent();
+        savedUsersOnWorkspaceMembers.forEach(member -> {
             assertTrue(users.contains(member.getId_UserId()));
             assertNotNull(member.getJoinedOn());
         });
