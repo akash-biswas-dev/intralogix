@@ -2,12 +2,11 @@
 import { Eye, EyeClosed } from "lucide-react";
 import { Input } from "./ui/input";
 import { ChangeEvent, useState } from "react";
-import { Button } from "./ui/button";
 export default function PasswordInputWithToggle({
   onChange,
   placeholder,
 }: {
-  placeholder: string;
+  placeholder?: string;
   onChange: (eve: ChangeEvent<HTMLInputElement>) => void;
 }) {
   const [inputType, setInputType] = useState<"password" | "text">("password");
