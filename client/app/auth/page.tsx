@@ -3,6 +3,7 @@ import PasswordInputWithToggle from "@/components/PasswordInputWithToggel";
 import { Button } from "@/components/ui/button";
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -13,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import google from "@/public/google-logo.webp";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Auth() {
   const [userCredential, setUserCredentials] = useState<{
@@ -29,6 +31,13 @@ export default function Auth() {
       <CardHeader>
         <CardTitle>Intralogix</CardTitle>
         <CardDescription>Enter your login credentials</CardDescription>
+        <CardAction>
+          <Link href="/auth/sign-up">
+            <Button type="button" variant="outline">
+              Sign Up
+            </Button>
+          </Link>
+        </CardAction>
       </CardHeader>
       <CardContent>
         <form onSubmit={onSubmit}>
