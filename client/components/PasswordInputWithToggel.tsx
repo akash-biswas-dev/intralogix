@@ -1,14 +1,10 @@
-"use state";
+"use client";
 import { Eye, EyeClosed } from "lucide-react";
 import { Input } from "./ui/input";
-import { ChangeEvent, useState } from "react";
+import { useState, ComponentProps } from "react";
 export default function PasswordInputWithToggle({
-  onChange,
-  placeholder,
-}: {
-  placeholder?: string;
-  onChange: (eve: ChangeEvent<HTMLInputElement>) => void;
-}) {
+  ...props
+}: ComponentProps<"input">) {
   const [inputType, setInputType] = useState<"password" | "text">("password");
 
   const updateInputType = () => {
@@ -20,11 +16,11 @@ export default function PasswordInputWithToggle({
   };
   return (
     <div className="w-full relative">
-      <Input type={inputType} onChange={onChange} placeholder={placeholder} />
+      <Input {...props} type={inputType} />
       <button
         onClick={updateInputType}
         type="button"
-        className="absolute top-1/2 right-2 cursor-pointer -translate-y-1/2"
+        className="absolute top-1/2 right-3 cursor-pointer -translate-y-1/2"
       >
         {inputType === "password" ? (
           <Eye onClick={updateInputType} />

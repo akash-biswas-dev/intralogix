@@ -9,28 +9,25 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useActionState } from "react";
 import { Field, FieldGroup, FieldLabel, FieldSet } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { useState } from "react";
+import { NewUserFormState, signUp } from "./../action";
+import { DatePicker } from "@/components/DatePicker";
 
 export default function SignUp() {
-  const [userform, setUserForm] = useState<{
-    email?: string;
-    username?: string;
-    password?: string;
-    confirmPassword?: string;
-  }>({});
-
-  const onSubmit = () => {
-    console.log(userform);
-  };
-
+  const initialState: NewUserFormState = {};
+  const [state, action] = useActionState(signUp, initialState);
   return (
     <Card className="w-full max-w-md top-1/2 left-1/2 -translate-1/2 absolute">
       <CardHeader>
         <CardTitle>Intralogix</CardTitle>
-        <CardDescription>Enter your login credentials</CardDescription>
+        <CardDescription
+          className={state.message ? "text-red-600 font-bold" : ""}
+        >
+          {state.message ? state.message : "Enter your login credentials"}
+        </CardDescription>
         <CardAction>
           <Link href="/auth">
             <Button type="button" variant="outline">
@@ -40,56 +37,32 @@ export default function SignUp() {
         </CardAction>
       </CardHeader>
       <CardContent>
-        <form onSubmit={onSubmit}>
+        <form action={action}>
           <FieldSet>
             <FieldGroup>
               <Field>
-                <FieldLabel>Email</FieldLabel>
-                <Input
-                  type="email"
-                  onChange={(eve) =>
-                    setUserForm((pre) => ({
-                      ...pre,
-                      email: eve.target.value,
-                    }))
-                  }
-                />
+                <FieldLabel htmlFor="email">Email</FieldLabel>
+                <Input id="email" name="email" type="email" />
               </Field>
               <Field>
-                <FieldLabel>Username</FieldLabel>
-                <Input
-                  type="text"
-                  onChange={(eve) =>
-                    setUserForm((pre) => ({
-                      ...pre,
-                      username: eve.target.value,
-                    }))
-                  }
-                />
+                <FieldLabel htmlFor="user-username">Username</FieldLabel>
+                <Input id="user-username" name="username" type="text" />
               </Field>
-              <Field>
-                <FieldLabel>Password</FieldLabel>
-                <Input
-                  type="password"
-                  onChange={(eve) =>
-                    setUserForm((pre) => ({
-                      ...pre,
-                      password: eve.target.value,
-                    }))
-                  }
-                />
-              </Field>
-              <Field>
-                <FieldLabel>Confirm Password</FieldLabel>
-                <PasswordInputWithToggle
-                  onChange={(eve) =>
-                    setUserForm((pre) => ({
-                      ...pre,
-                      confirmPassword: eve.target.value,
-                    }))
-                  }
-                />
-              </Field>
+              <div className="flex gap-4">
+                <Field>
+                  <FieldLabel htmlFor="user-password">Password</FieldLabel>
+                  <Input id="user-password" name="password" type="password" />
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="user-confirm-password">
+                    Confirm Password
+                  </FieldLabel>
+                  <PasswordInputWithToggle
+                    name="confirmPassword"
+                    id="user-confirm-password"
+                  />
+                </Field>
+              </div>
               <Field orientation="horizontal">
                 <Button type="submit">Sign Up</Button>
               </Field>

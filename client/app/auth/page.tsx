@@ -9,28 +9,37 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Field, FieldGroup, FieldLabel, FieldSet } from "@/components/ui/field";
+import {
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldSet,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
 import google from "@/public/google-logo.webp";
 import Image from "next/image";
 import Link from "next/link";
+import { login, LoginFormState } from "./action";
+import { useActionState } from "react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { DatePicker } from "@/components/DatePicker";
 
 export default function Auth() {
-  const [userCredential, setUserCredentials] = useState<{
-    email?: string;
-    password?: string;
-  }>({});
-
-  const onSubmit = () => {
-    console.log(userCredential);
-  };
+  const initialState: LoginFormState = {};
+  const [state, formAction] = useActionState(login, initialState);
 
   return (
     <Card className="w-full max-w-md top-1/2 left-1/2 -translate-1/2 absolute">
       <CardHeader>
         <CardTitle>Intralogix</CardTitle>
-        <CardDescription>Enter your login credentials</CardDescription>
+        {state.message ? (
+          <CardDescription className="text-red-600 font-bold">
+            {state.message}
+          </CardDescription>
+        ) : (
+          <CardDescription>Enter your login credentials</CardDescription>
+        )}
         <CardAction>
           <Link href="/auth/sign-up">
             <Button type="button" variant="outline">
@@ -40,35 +49,51 @@ export default function Auth() {
         </CardAction>
       </CardHeader>
       <CardContent>
-        <form onSubmit={onSubmit}>
+        <form action={formAction}>
           <FieldSet>
             <FieldGroup>
               <Field>
-                <FieldLabel>Username or Email</FieldLabel>
+                <FieldLabel htmlFor="username-or-email">
+                  Username or Email
+                </FieldLabel>
                 <Input
+                  id="username-or-email"
                   type="text"
-                  onChange={(eve) =>
-                    setUserCredentials((pre) => ({
-                      ...pre,
-                      email: eve.target.value,
-                    }))
+                  name="usernameOrEmail"
+                  className={
+                    state.fields?.usernameOrEmail ? "outline-red-600" : ""
                   }
                 />
+                {state.fields?.usernameOrEmail && (
+                  <FieldDescription className="text-red-600 font-bold">
+                    {state.fields.usernameOrEmail}
+                  </FieldDescription>
+                )}
               </Field>
               <Field>
-                <FieldLabel>Password</FieldLabel>
+                <FieldLabel htmlFor="password">Password</FieldLabel>
                 <PasswordInputWithToggle
-                  onChange={(eve) =>
-                    setUserCredentials((pre) => ({
-                      ...pre,
-                      password: eve.target.value,
-                    }))
-                  }
+                  id="password"
+                  name="password"
+                  className={state.fields?.password ? "outline-red-600" : ""}
                 />
+
+                {state.fields?.password && (
+                  <FieldDescription className="text-red-600 font-bold">
+                    {state.fields.password}
+                  </FieldDescription>
+                )}
+              </Field>
+              <Field orientation="horizontal">
+                <Checkbox name="rememberMe" id="remember-me"></Checkbox>
+                <FieldLabel htmlFor="remember-me" className="cursor-pointer">
+                  Remember Me
+                </FieldLabel>
               </Field>
               <Field orientation="horizontal">
                 <Button type="submit">Sign In</Button>
               </Field>
+
               <Button
                 type="button"
                 variant="outline"
