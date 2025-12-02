@@ -23,7 +23,6 @@ import Link from "next/link";
 import { login, LoginFormState } from "./action";
 import { useActionState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { DatePicker } from "@/components/DatePicker";
 
 export default function Auth() {
   const initialState: LoginFormState = {};

@@ -14,7 +14,6 @@ import { Field, FieldGroup, FieldLabel, FieldSet } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { NewUserFormState, signUp } from "./../action";
-import { DatePicker } from "@/components/DatePicker";
 
 export default function SignUp() {
   const initialState: NewUserFormState = {};

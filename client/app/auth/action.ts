@@ -53,6 +53,7 @@ export async function login(
       {
         accessToken: string;
         refreshToken: null | string;
+        isAccountEnabled: boolean;
       },
       {
         usernameOrEmail: string;
@@ -77,22 +78,27 @@ export async function login(
     }
 
     const cookieStore = await cookies();
-    const { accessToken, refreshToken } = data;
+    const { isAccountEnabled, accessToken, refreshToken } = data;
     cookieStore.set(ACCESS_TOKEN, accessToken);
     if (rememberMe && refreshToken !== null) {
       cookieStore.set(REFRESH_TOKEN, refreshToken);
     }
-    redirect("/dashboard");
+    if (!isAccountEnabled) {
+      throw new AccountNotEnabledError();
+    }
   } catch (err) {
-    if (err instanceof Error) {
+    if (err instanceof AccountNotEnabledError) {
+      return redirect("/dashboard/user-profile/update");
+    } else if (err instanceof Error) {
       return {
         message: err.message,
       };
     }
-    console.error(String(err));
   }
-  return {};
+  return redirect("/dashboard");
 }
+
+class AccountNotEnabledError extends Error {}
 
 const NewUserForm = z.object({
   username: z.string().min(5, { error: "The username min length must be 5." }),
