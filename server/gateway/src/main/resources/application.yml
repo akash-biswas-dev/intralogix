@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: gateway
+  config:
+    import: optional:configserver:${spring.cloud.config.uri}
+  cloud:
+    config:
+      uri: http://localhost:8888
+server:
+  port: 9000
+jwt:
+  secret: 1A50EF4F7AB1F6069BC04EEABFA52D66257D47E7FBBE0D7C1C20D2D88E9489C5
+  expiration: 86400000 # 1 day
+  refresh-expiration:  1296000000 # 15 days
+  issuer: http://localhost:9000
+services:
+  users: http://localhost:8501
+  workspace: http://localhost:8502
