@@ -4,6 +4,7 @@ package com.intralogix.users.models;
 import lombok.*;
 import org.springframework.data.mongodb.core.index.Indexed;
 
+import java.time.LocalDate;
 
 
 @Builder
@@ -18,4 +19,6 @@ public class UserProfile {
     @Indexed(name = "last_name")
     private String lastName;
     private Gender gender;
+    @Indexed(name = "date_of_birth")
+    private LocalDate dateOfBirth;
 }

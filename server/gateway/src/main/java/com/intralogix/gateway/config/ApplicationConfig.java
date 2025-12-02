@@ -15,7 +15,6 @@ public class ApplicationConfig {
     private final Environment environment;
 
 
-
     @Bean
     JwtService jwtService(Environment environment){
         String secret = environment.getProperty("jwt.secret");

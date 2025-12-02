@@ -1,6 +1,6 @@
 package com.intralogix.users.services;
 
-import com.intralogix.users.dtos.requests.UserProfileDTO;
+import com.intralogix.users.dtos.requests.UserProfileRequest;
 import com.intralogix.users.dtos.response.UserProfileResponse;
 import com.intralogix.users.models.Gender;
 import com.intralogix.users.models.Role;
@@ -19,7 +19,7 @@ import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static  org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class UserServiceTest {
@@ -46,7 +46,6 @@ class UserServiceTest {
                 .isAccountNonLocked(true)
                 .isAccountNonExpired(true)
                 .isAccountEnabled(false)
-                .dateOfBirth(LocalDate.parse("1999-11-27"))
                 .role(Role.USER)
                 .joinedOn(LocalDate.now())
                 .build();
@@ -55,22 +54,21 @@ class UserServiceTest {
     @Test
     void shouldUpdateUserDetails() {
 
-        UserProfileDTO newUserProfile = new UserProfileDTO("firstName","lastName",Gender.MALE);
+        UserProfileRequest newUserProfile = new UserProfileRequest("firstName", "lastName", Gender.MALE);
 
         when(usersRepository.findById(this.defaultUser.getId())).thenReturn(Optional.of(this.defaultUser));
 
         Users savedUser = this.defaultUser;
         savedUser.setUserProfile(UserProfile.builder()
-                        .gender(newUserProfile.gender())
-                        .firstName(newUserProfile.firstName())
-                        .lastName(newUserProfile.lastName())
+                .gender(newUserProfile.gender())
+                .firstName(newUserProfile.firstName())
+                .lastName(newUserProfile.lastName())
                 .build());
 
         when(usersRepository.save(savedUser)).thenReturn(savedUser);
 
         UserProfileResponse userProfileResponse = userService.updateUserDetails(this.defaultUser.getId(), newUserProfile);
 
-        assertEquals(userProfileResponse.dateOfBirth(), this.defaultUser.getDateOfBirth().toString());
         assertEquals(userProfileResponse.firstName(), newUserProfile.firstName());
         assertEquals(userProfileResponse.lastName(), newUserProfile.lastName());
         assertEquals(userProfileResponse.gender(), newUserProfile.gender().name());

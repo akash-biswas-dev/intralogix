@@ -30,8 +30,6 @@ public class Users implements UserDetails {
     private String password;
     @Indexed(name = "joined_on")
     private LocalDate joinedOn;
-    @Indexed(name = "date_on_birth")
-    private LocalDate dateOfBirth;
     @Indexed(name = "is_account_enabled")
     private Boolean isAccountEnabled;
     @Indexed(name ="is_account_non_expired")

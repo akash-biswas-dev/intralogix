@@ -39,7 +39,6 @@ class UsersRepositoryTest {
                 .isAccountNonLocked(true)
                 .isAccountNonExpired(true)
                 .isAccountEnabled(false)
-                .dateOfBirth(LocalDate.parse("1999-11-27"))
                 .role(Role.USER)
                 .joinedOn(LocalDate.now())
                 .build());

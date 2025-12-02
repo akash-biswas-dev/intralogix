@@ -5,38 +5,34 @@ import com.intralogix.users.dtos.requests.UserCredentials;
 import com.intralogix.users.dtos.response.AuthTokens;
 import com.intralogix.users.models.Role;
 import com.intralogix.users.models.Users;
-import com.intralogix.users.repository.UsersRepository;
+import com.intralogix.users.services.impl.AuthServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.LocalDate;
-import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
 
-    @MockitoBean
-    private UsersRepository usersRepository;
+    @Mock
+    private UserService userService;
 
-    @Autowired
+    @Mock
     private PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private AuthService authService;
+    @InjectMocks
+    private AuthServiceImpl authService;
 
-    @Autowired
+    @Mock
     private JwtService jwtService;
 
     private Users savedUser;
@@ -47,34 +43,37 @@ class AuthServiceTest {
                 .id("mongo-id")
                 .email("test@mail.com")
                 .username("test")
-                .password(passwordEncoder.encode("test"))
+                .password("test")
                 .isAccountNonLocked(true)
                 .isAccountNonExpired(true)
                 .isAccountEnabled(false)
-                .dateOfBirth(LocalDate.parse("1999-11-27"))
                 .role(Role.USER)
                 .joinedOn(LocalDate.now())
                 .build();
     }
 
     @Test
-    void generateAuthTokensWhenUserUsernameAndPasswordIsCorrect(){
-        UserCredentials userCredentials = new UserCredentials("test","test");
-        when(usersRepository.findByEmailOrUsernameIgnoreCase(any(String.class),any(String.class))).thenReturn(Optional.of(this.savedUser));
+    void generateAuthTokensWhenUserUsernameAndPasswordIsCorrect() {
 
+        String testToken = "testToken";
+        UserCredentials userCredentials = new UserCredentials("test", "test");
 
-        AuthTokens authTokens = this.authService.login(userCredentials);
+        when(userService.findUserByEmailOrUsername(userCredentials.usernameOrEmail()))
+                .thenReturn(this.savedUser);
+        when(passwordEncoder.matches(userCredentials.password(), savedUser.getPassword())).thenReturn(Boolean.TRUE);
 
-        UserDetails authorizedUser = jwtService.extractUserDetails(authTokens.accessToken());
-        UserDetails refreshTokenUser = jwtService.extractUserDetails(authTokens.refreshToken());
+        when(jwtService.generateToken(this.savedUser)).thenReturn(testToken);
+       when(jwtService.generateRefreshToken(this.savedUser.getId())).thenReturn(testToken);
 
-        assertEquals(authorizedUser.getUsername(), this.savedUser.getUsername());
-        authorizedUser.getAuthorities().forEach(authority ->
-                assertTrue(this.savedUser.getAuthorities().contains(new SimpleGrantedAuthority(authority.getAuthority()))));
+        AuthTokens authTokensWithRemember = this.authService.login(userCredentials,true);
 
+        assertEquals(testToken, authTokensWithRemember.accessToken());
+        assertEquals(testToken, authTokensWithRemember.refreshToken());
+        assertEquals(this.savedUser.isEnabled(),authTokensWithRemember.isAccountEnabled());
 
-        assertEquals(refreshTokenUser.getUsername(), this.savedUser.getUsername());
-        refreshTokenUser.getAuthorities().forEach(authority ->
-                assertTrue(this.savedUser.getAuthorities().contains(new SimpleGrantedAuthority(authority.getAuthority()))));
+        AuthTokens authTokensWithoutRemember = this.authService.login(userCredentials,false);
+
+        assertEquals(testToken, authTokensWithoutRemember.accessToken());
+        assertNull(authTokensWithoutRemember.refreshToken());
     }
 }

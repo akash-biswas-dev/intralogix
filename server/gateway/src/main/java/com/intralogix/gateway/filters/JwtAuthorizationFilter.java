@@ -49,12 +49,15 @@ public class JwtAuthorizationFilter implements GatewayFilter {
             headers.replace("User-Role", userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList());
         }catch (AccountNotEnabledException ex) {
             log.warn("Account not enabled yet with account id: {}", ex.getMessage());
+            ServerHttpResponse response = exchange.getResponse();
+            response.setStatusCode(HttpStatus.TEMPORARY_REDIRECT);
+            response.getHeaders().set(HttpHeaders.LOCATION, "/users/user-profile");
+            return response.setComplete();
+        }catch (Exception ex){
+            ServerHttpResponse response = exchange.getResponse();
+            response.setStatusCode(HttpStatus.UNAUTHORIZED);
+            response.getHeaders().set("WWW-Authenticate", "Bearer");
         }
-
-//        catch (Exception ex){
-//            ex.getCause().
-//            log.error("Invalid bearer token: {}", ex.getMessage());
-//        }
 
         return chain.filter(exchange);
     }
