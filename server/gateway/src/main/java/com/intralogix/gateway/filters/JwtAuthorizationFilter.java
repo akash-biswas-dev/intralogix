@@ -2,6 +2,7 @@ package com.intralogix.gateway.filters;
 
 import com.intralogix.common.services.JwtService;
 import com.intralogix.gateway.exceptions.AccountNotEnabledException;
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
@@ -40,12 +41,13 @@ public class JwtAuthorizationFilter implements GatewayFilter {
             return response.writeWith(Mono.just(wrapped));
         }
         try {
-            UserDetails userDetails = jwtService.extractUserDetails(authorization);
+            String token = authorization.substring(7);
+            UserDetails userDetails = jwtService.extractUserDetails(token);
             if(!userDetails.isEnabled()) {
                 throw new AccountNotEnabledException(userDetails.getUsername());
             }
             HttpHeaders headers = request.getHeaders();
-            headers.replace(HttpHeaders.AUTHORIZATION, List.of(userDetails.getUsername()));
+            headers.replace("X-User-Id", List.of(userDetails.getUsername()));
             headers.replace("User-Role", userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList());
         }catch (AccountNotEnabledException ex) {
             log.warn("Account not enabled yet with account id: {}", ex.getMessage());
@@ -53,7 +55,13 @@ public class JwtAuthorizationFilter implements GatewayFilter {
             response.setStatusCode(HttpStatus.TEMPORARY_REDIRECT);
             response.getHeaders().set(HttpHeaders.LOCATION, "/users/user-profile");
             return response.setComplete();
-        }catch (Exception ex){
+        }catch (ExpiredJwtException ex){
+            log.error("Token expired {}",ex.getMessage());
+            ServerHttpResponse response = exchange.getResponse();
+            response.setStatusCode(HttpStatus.PROXY_AUTHENTICATION_REQUIRED);
+            return  response.setComplete();
+        }
+        catch (Exception ex){
             ServerHttpResponse response = exchange.getResponse();
             response.setStatusCode(HttpStatus.UNAUTHORIZED);
             response.getHeaders().set("WWW-Authenticate", "Bearer");
