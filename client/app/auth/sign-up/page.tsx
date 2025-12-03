@@ -13,11 +13,47 @@ import { useActionState } from "react";
 import { Field, FieldGroup, FieldLabel, FieldSet } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { NewUserFormState, signUp } from "./../action";
+import { NewUserForm } from "@/schemas/users";
+import useAxios from "@/context/AxiosContext";
+import { useRouter } from "next/navigation";
 
 export default function SignUp() {
+  const axios = useAxios();
+  const router = useRouter();
+  if (!axios) {
+    throw new Error("Context Error");
+  }
+  const signUp = async (
+    _state: NewUserFormState,
+    formdata: FormData,
+  ): Promise<NewUserFormState> => {
+    // TODO:Fix this
+    const result = NewUserForm.safeParse({
+      email: formdata.get("email"),
+      username: formdata.get("username"),
+      password: formdata.get("password"),
+    });
+
+    if (result.error) {
+      return {};
+    }
+
+    const newUser = result.data;
+
+    const res = await axios.post("/api/v1/auth/register", newUser);
+
+    const { status } = res;
+    if (status === 201) {
+      router.push("/dashboard");
+      return {};
+    }
+    return {};
+  };
+
   const initialState: NewUserFormState = {};
+
   const [state, action] = useActionState(signUp, initialState);
+
   return (
     <Card className="w-full max-w-md top-1/2 left-1/2 -translate-1/2 absolute">
       <CardHeader>
@@ -72,3 +108,12 @@ export default function SignUp() {
     </Card>
   );
 }
+
+export type NewUserFormState = {
+  message?: string;
+  fields?: {
+    email?: string;
+    password?: string;
+    username?: string;
+  };
+};

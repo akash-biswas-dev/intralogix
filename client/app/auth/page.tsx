@@ -20,13 +20,52 @@ import { Input } from "@/components/ui/input";
 import google from "@/public/google-logo.webp";
 import Image from "next/image";
 import Link from "next/link";
-import { login, LoginFormState } from "./action";
+
 import { useActionState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { UserCredentials } from "@/schemas/users";
+import { login } from "./action";
+import * as z from "zod";
 
 export default function Auth() {
+  const loginAction = async (
+    _previousState: LoginFormState,
+    formdata: FormData,
+  ): Promise<LoginFormState> => {
+    const result = UserCredentials.safeParse({
+      usernameOrEmail: formdata.get("usernameOrEmail"),
+      password: formdata.get("password"),
+    });
+
+    if (!result.success) {
+      const err = z.treeifyError(result.error);
+      const errors: LoginFormState = {
+        fields: {
+          usernameOrEmail:
+            err.properties?.usernameOrEmail &&
+            "Enter a valid username or email.",
+          password:
+            err.properties?.password && "Password length min 8 and max 15.",
+        },
+      };
+      return errors;
+    }
+
+    const rememberMe = formdata.get("rememberMe") ? true : false;
+
+    const { usernameOrEmail, password } = result.data;
+
+    const res = await login({ usernameOrEmail, password, rememberMe });
+    if (res === null) {
+      return {
+        message: "Some error occurred",
+      };
+    }
+    return {};
+  };
+
   const initialState: LoginFormState = {};
-  const [state, formAction] = useActionState(login, initialState);
+  const [state, formAction] = useActionState(loginAction, initialState);
 
   return (
     <Card className="w-full max-w-md top-1/2 left-1/2 -translate-1/2 absolute">
@@ -112,3 +151,11 @@ export default function Auth() {
     </Card>
   );
 }
+
+export type LoginFormState = {
+  message?: string;
+  fields?: {
+    usernameOrEmail?: string;
+    password?: string;
+  };
+};

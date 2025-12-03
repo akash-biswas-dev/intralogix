@@ -10,8 +10,8 @@
         <module name="config-server" />
         <module name="workspace" />
         <module name="common" />
-        <module name="users" />
         <module name="gateway" />
+        <module name="users" />
       </profile>
     </annotationProcessing>
   </component>

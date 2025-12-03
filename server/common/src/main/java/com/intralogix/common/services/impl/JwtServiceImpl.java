@@ -1,29 +1,21 @@
 package com.intralogix.common.services.impl;
 
-import java.nio.charset.StandardCharsets;
-import java.security.Key;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.Function;
-
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-
+import com.intralogix.common.dtos.AccessToken;
+import com.intralogix.common.dtos.AuthToken;
 import com.intralogix.common.services.JwtService;
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.security.Key;
+import java.util.*;
+import java.util.function.Function;
 
 public class JwtServiceImpl implements JwtService {
 
@@ -76,40 +68,9 @@ public class JwtServiceImpl implements JwtService {
                 authorities);
     }
 
-    @Override
-    public boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
-    }
 
     @Override
-    public String generateRefreshToken(String userId, Collection<? extends GrantedAuthority> grantedAuthorities,
-                                Map<String, Object> extraPayload) {
-        Map<String, Object> extraClaims = new HashMap<>();
-
-        List<String> authorities = getAuthorities(grantedAuthorities);
-
-        extraClaims.put(AUTHORITIES, authorities);
-        extraClaims.put(ACCOUNT_ENABLED, true);
-        extraClaims.put(ACCOUNT_NON_EXPIRED, true);
-        extraClaims.put(CREDENTIALS_NON_EXPIRED, true);
-        extraClaims.put(ACCOUNT_NON_LOCKED, true);
-
-        if (Objects.isNull(extraPayload) || extraPayload.isEmpty()) {
-            return buildToken(userId, extraClaims, expiration);
-        }
-        extraPayload.keySet().forEach(eachKey -> extraClaims.put(eachKey, extraPayload.get(eachKey)));
-
-        return buildToken(userId, extraClaims, refreshExpiration);
-    }
-
-    @Override
-    public String generateToken(UserDetails userDetails) {
-        return generateToken(userDetails, new HashMap<>());
-
-    }
-
-    @Override
-    public String generateToken(UserDetails userDetails, Map<String, Object> extraClaims) {
+    public AccessToken generateAccessToken(UserDetails userDetails, Map<String, Object> extraClaims) {
         Map<String, Object> extraPayload = new HashMap<>();
 
         List<String> authorities = getAuthorities(userDetails.getAuthorities());
@@ -120,45 +81,32 @@ public class JwtServiceImpl implements JwtService {
         extraPayload.put(ACCOUNT_NON_LOCKED, userDetails.isAccountNonLocked());
 
         extraClaims.keySet().forEach(eachKey -> extraPayload.put(eachKey, extraClaims.get(eachKey)));
-        return buildToken(userDetails.getUsername(), extraPayload, expiration);
-    }
-
-
-    @Override
-    public String generateRefreshToken(String userId) {
-        return generateRefreshToken(userId, List.of(), new HashMap<>());
+        String token = buildToken(userDetails.getUsername(), extraPayload, expiration);
+        return new AccessToken(token,userDetails.isEnabled());
     }
 
     @Override
-    public Long getRefreshTokenExpiration() {
-        return refreshExpiration;
+    public AuthToken generateToken(String userId, Boolean longAged) {
+        long expiration = longAged ? this.refreshExpiration : this.expiration;
+        String token = buildToken(userId, new HashMap<>(), expiration);
+        return new AuthToken(token, (int)expiration/1000);
+    }
+
+    @Override
+    public String getSubject(String token) {
+        return extractClaim(token, Claims::getSubject);
     }
 
     private static List<String> getAuthorities(Collection<? extends GrantedAuthority> authorities) {
         return authorities.stream().map(GrantedAuthority::getAuthority).toList();
     }
 
-    public String generateSecret(String id) throws NoSuchAlgorithmException {
-        MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
-        String data = String.format("%s-%s-%s", id, secret, System.currentTimeMillis());
-        byte[] encodedHash = messageDigest.digest(data.getBytes(StandardCharsets.UTF_8));
 
-        StringBuilder hexString = new StringBuilder(2 * encodedHash.length);
-        for (byte hash : encodedHash) {
-            String hex = Integer.toHexString(0xff & hash);
-            if (hex.length() == 1) {
-                hexString.append('0');
-            }
-            hexString.append(hex);
-        }
-        return hexString.toString().toUpperCase();
-    }
-
-    private String buildToken(String userId, Map<String, Object> claims, Long expiredAfter) {
+    private String buildToken(String subject, Map<String, Object> claims, Long expiredAfter) {
         return Jwts.builder()
                 .setClaims(claims)
                 .setIssuer(issuer)
-                .setSubject(userId)
+                .setSubject(subject)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expiredAfter))
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
@@ -181,10 +129,6 @@ public class JwtServiceImpl implements JwtService {
     private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
-    }
-
-    private Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
     }
 
 }

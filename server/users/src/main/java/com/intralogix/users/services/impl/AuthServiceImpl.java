@@ -1,8 +1,10 @@
 package com.intralogix.users.services.impl;
 
+import com.intralogix.common.dtos.AccessToken;
+import com.intralogix.common.dtos.AuthToken;
+
 import com.intralogix.common.services.JwtService;
 import com.intralogix.users.dtos.requests.UserCredentials;
-import com.intralogix.users.dtos.response.AuthTokens;
 import com.intralogix.users.exception.UserNotFoundException;
 import com.intralogix.users.models.Users;
 import com.intralogix.users.services.AuthService;
@@ -13,6 +15,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.NoSuchElementException;
 
 @Service
@@ -25,26 +28,31 @@ public class AuthServiceImpl implements AuthService {
     private final JwtService jwtService;
 
     @Override
-    public AuthTokens login(UserCredentials userCredentials, Boolean rememberMe) {
+    public AuthToken login(UserCredentials userCredentials, Boolean rememberMe) {
         final Users users;
         try {
-           users = userService.findUserByEmailOrUsername(userCredentials.usernameOrEmail());
-        }catch(NoSuchElementException e){
+            users = userService.findUserByEmailOrUsername(userCredentials.usernameOrEmail());
+        } catch (NoSuchElementException e) {
             String msg = String.format("User not found with username %s", userCredentials.usernameOrEmail());
             log.error(msg);
             throw new UserNotFoundException(msg);
         }
 
-        if(!passwordEncoder.matches(userCredentials.password(), users.getPassword())) {
+        if (!passwordEncoder.matches(userCredentials.password(), users.getPassword())) {
             throw new BadCredentialsException("Invalid username or password");
         }
+        return jwtService.generateToken(users.getId(), rememberMe);
+    }
 
-        String accessToken = jwtService.generateToken(users);
-        if(!rememberMe) {
-            return new AuthTokens(accessToken,null, users.getIsAccountEnabled());
+    @Override
+    public AccessToken refreshAccessToken(String userId) {
+        final Users users;
+        try{
+            users = userService.findUserByEmailOrUsername(userId);
+        }catch (NoSuchElementException e){
+            log.error("User not found with user id {}", userId);
+            throw new UserNotFoundException("User not found");
         }
-        String  refreshToken = jwtService.generateRefreshToken(users.getId());
-
-        return new  AuthTokens(accessToken, refreshToken, users.getIsAccountEnabled());
+        return jwtService.generateAccessToken(users, new HashMap<>());
     }
 }

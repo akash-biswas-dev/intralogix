@@ -2,6 +2,7 @@ package com.intralogix.gateway.config;
 
 
 import com.intralogix.gateway.filters.JwtAuthorizationFilter;
+import com.intralogix.gateway.filters.RefreshAccessTokenFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
@@ -14,12 +15,18 @@ import org.springframework.core.env.Environment;
 public class GatewayConfig {
 
     private final JwtAuthorizationFilter jwtAuthorizationFilter;
+    private final RefreshAccessTokenFilter refreshAccessTokenFilter;
     private final ApplicationConfig.RegisteredServiceURLs registeredServiceURLs;
 
     @Bean
     RouteLocator routeLocator(RouteLocatorBuilder routeLocatorBuilder, Environment environment){
 
         return routeLocatorBuilder.routes()
+                .route("refresh-token",r->r
+                        .path("/api/v1/auth/refresh-token")
+                        .filters(f->f.filter(refreshAccessTokenFilter))
+                        .uri(registeredServiceURLs.userService())
+                )
                 .route("auth-route",r->r
                         .path("/api/v1/auth/**")
                         .filters(f->f.rewritePath("/users/","/"))
