@@ -28,30 +28,31 @@ public class RefreshAccessTokenFilter implements GatewayFilter {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
+        ServerHttpResponse response = exchange.getResponse();
+
         String token = request.getHeaders().getFirst("X-Refresh-Token");
-        if (token == null) {
-            ServerHttpResponse response = exchange.getResponse();
-            response.getHeaders().set("WWW-Authenticate", "X-Refresh-Token");
-            response.getHeaders().set("X-Message", "Token not found");
-            return response.setComplete();
-        }
-        try{
-           String userId = jwtService.getSubject(token);
-           request.getHeaders().replace("X-User-Id", List.of(userId));
-        }catch (ExpiredJwtException ex){
-            log.error("Refresh token expired {}",ex.getMessage());
-            ServerHttpResponse response = exchange.getResponse();
-            response.setStatusCode(HttpStatus.UNAUTHORIZED);
-            response.getHeaders().set("WWW-Authenticate", "X-Refresh-Token");
+
+        try {
+            if (token == null) {
+                throw new RuntimeException("Null token");
+            }
+            String userId = jwtService.getSubject(token);
+            ServerHttpRequest updatedRequest = request
+                    .mutate()
+                    .headers((headers) -> {
+                        headers.set("X-User-Id", userId);
+                    }).build();
+            log.info("Refreshing access token for user {}", userId);
+            return chain.filter(exchange.mutate().request(updatedRequest).build());
+        } catch (ExpiredJwtException ex) {
+            log.error("Refresh token expired {}", ex.getMessage());
             response.getHeaders().set("X-Message", "Token expired");
-            return response.setComplete();
-        }catch (Exception ex){
-            log.error("Refresh token error {}",ex.getMessage());
-            ServerHttpResponse response = exchange.getResponse();
-            response.getHeaders().set("WWW-Authenticate", "X-Refresh-Token");
+        } catch (Exception ex) {
+            log.error("Refresh token error with message: {}", ex.getMessage());
             response.getHeaders().set("X-Message", "Token error");
-            return response.setComplete();
         }
-        return chain.filter(exchange);
+        response.setStatusCode(HttpStatus.UNAUTHORIZED);
+        response.getHeaders().set("WWW-Authenticate", "X-Refresh-Token");
+        return response.setComplete();
     }
 }

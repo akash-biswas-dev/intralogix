@@ -3,6 +3,7 @@ package com.intralogix.users.services.impl;
 import com.intralogix.common.dtos.AccessToken;
 import com.intralogix.common.dtos.AuthToken;
 
+import com.intralogix.common.exceptions.AccountNotEnabledException;
 import com.intralogix.common.services.JwtService;
 import com.intralogix.users.dtos.requests.UserCredentials;
 import com.intralogix.users.exception.UserNotFoundException;
@@ -45,13 +46,16 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public AccessToken refreshAccessToken(String userId) {
+    public String refreshAccessToken(String userId) {
         final Users users;
         try{
-            users = userService.findUserByEmailOrUsername(userId);
+            users = userService.findUserById(userId);
         }catch (NoSuchElementException e){
             log.error("User not found with user id {}", userId);
             throw new UserNotFoundException("User not found");
+        }
+        if(!users.isEnabled()){
+            throw new AccountNotEnabledException(userId);
         }
         return jwtService.generateAccessToken(users, new HashMap<>());
     }

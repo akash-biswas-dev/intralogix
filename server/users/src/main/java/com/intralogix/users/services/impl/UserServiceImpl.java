@@ -38,6 +38,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Users findUserById(String id) {
+        return fetchUserFromDBUsingUserId(id);
+    }
+
+    @Override
     public UserResponse saveUser(NewUserRequest userRequest) {
         Users newUser = Users.builder()
                 .email(userRequest.email())
@@ -116,6 +121,4 @@ public class UserServiceImpl implements UserService {
     private UserResponse generateUserResponse(Users users) {
         return new UserResponse(users.getRealUsername(), users.getJoinedOn());
     }
-
-
 }

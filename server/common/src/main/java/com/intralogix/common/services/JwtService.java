@@ -10,9 +10,11 @@ import java.util.Map;
 public interface JwtService {
 
 
-    AccessToken generateAccessToken(UserDetails userDetails, Map<String, Object> extraPayload);
+    String generateAccessToken(UserDetails userDetails, Map<String, Object> extraPayload);
 
     AuthToken generateToken(String userId, Boolean longAged);
+
+    String generateToken(String userId, Integer duration);
 
     String getSubject(String token);
 

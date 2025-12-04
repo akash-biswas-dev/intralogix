@@ -1,14 +1,12 @@
 package com.intralogix.gateway.filters;
 
 import com.intralogix.common.services.JwtService;
-import com.intralogix.gateway.exceptions.AccountNotEnabledException;
+import com.intralogix.common.exceptions.AccountNotEnabledException;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
-import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
@@ -30,43 +28,39 @@ public class JwtAuthorizationFilter implements GatewayFilter {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
+        ServerHttpResponse response = exchange.getResponse();
+
         String authorization = request.getHeaders().getFirst("Authorization");
 
-        if(authorization == null || !authorization.startsWith("Bearer ")) {
-            ServerHttpResponse response = exchange.getResponse();
-            response.setStatusCode(HttpStatus.UNAUTHORIZED);
-            response.getHeaders().set("WWW-Authenticate", "Bearer");
-            byte[] responseBytes = "Unauthorized".getBytes();
-            DataBuffer wrapped = response.bufferFactory().wrap(responseBytes);
-            return response.writeWith(Mono.just(wrapped));
-        }
         try {
+
+            if(authorization == null || !authorization.startsWith("Bearer ")) {
+                throw new RuntimeException("Authorization header is invalid");
+            }
+
             String token = authorization.substring(7);
             UserDetails userDetails = jwtService.extractUserDetails(token);
             if(!userDetails.isEnabled()) {
                 throw new AccountNotEnabledException(userDetails.getUsername());
             }
-            HttpHeaders headers = request.getHeaders();
-            headers.replace("X-User-Id", List.of(userDetails.getUsername()));
-            headers.replace("User-Role", userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList());
+            ServerHttpRequest modifiedRequest = request.mutate()
+                    .headers((headers)->{
+                        headers.replace("X-User-Id",List.of(userDetails.getUsername()));
+                        List<String> permissions = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
+                        headers.replace("X-User-Permissions",permissions);
+                    }).build();
+            return chain.filter(exchange.mutate().request(modifiedRequest).build());
         }catch (AccountNotEnabledException ex) {
             log.warn("Account not enabled yet with account id: {}", ex.getMessage());
-            ServerHttpResponse response = exchange.getResponse();
-            response.setStatusCode(HttpStatus.TEMPORARY_REDIRECT);
-            response.getHeaders().set(HttpHeaders.LOCATION, "/users/user-profile");
-            return response.setComplete();
+            response.setStatusCode(HttpStatus.UNAUTHORIZED);
         }catch (ExpiredJwtException ex){
             log.error("Token expired {}",ex.getMessage());
-            ServerHttpResponse response = exchange.getResponse();
             response.setStatusCode(HttpStatus.PROXY_AUTHENTICATION_REQUIRED);
-            return  response.setComplete();
         }
         catch (Exception ex){
-            ServerHttpResponse response = exchange.getResponse();
             response.setStatusCode(HttpStatus.UNAUTHORIZED);
-            response.getHeaders().set("WWW-Authenticate", "Bearer");
+            response.getHeaders().set("WWW-Authenticate", "X-Refresh-Token");
         }
-
-        return chain.filter(exchange);
+        return response.setComplete();
     }
 }

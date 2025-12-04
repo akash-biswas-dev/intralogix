@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 const SERVER_ADDRESS =
   process.env.SERVER_BACKEND_URL || "http://localhost:9000";
 
-export default async function POST() {
+export async function POST() {
   const cookieStore = await cookies();
 
   const tokenCookie = cookieStore.get("refresh-token");
@@ -18,21 +18,35 @@ export default async function POST() {
   });
 
   if (!tokenCookie) {
+    console.error("No token found!");
     return badResponse;
   }
 
-  const res = await axios.post(`${SERVER_ADDRESS}/api/v1/refresh-token`, null, {
-    headers: {
-      "X-Refresh-Token": tokenCookie.value,
+  const res = await axios.post(
+    `${SERVER_ADDRESS}/api/v1/auth/refresh-token`,
+    null,
+    {
+      headers: {
+        "X-Refresh-Token": tokenCookie.value,
+      },
+      validateStatus: () => true,
     },
-    validateStatus: () => true,
-  });
+  );
   const { data, status } = res;
-  if (status !== 201) {
-    return badResponse;
+  if (status === 401) {
+    cookieStore.delete("refresh-token");
+  }
+  if (status === 201) {
+    return new Response(data, {
+      status: 201,
+    });
   }
 
-  return new Response(data, {
-    status: 201,
-  });
+  if (status === 307) {
+    return new Response(JSON.stringify(data), {
+      status: status,
+    });
+  }
+
+  return badResponse;
 }

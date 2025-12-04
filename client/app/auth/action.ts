@@ -36,10 +36,10 @@ export async function login({
     return null;
   }
   const cookieStore = await cookies();
-  const { refreshToken, age } = data;
+  const { token, age } = data;
 
-  cookieStore.set("refresh-token", refreshToken, {
-    path: "/api/auth/refresh-token",
+  cookieStore.set("refresh-token", token, {
+    path: "/api/refresh-token",
     httpOnly: true,
     maxAge: age,
   });

@@ -13,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping(value = "/api/v1/auth")
 @RequiredArgsConstructor
@@ -34,10 +36,10 @@ public class AuthController {
         return new ResponseEntity<>(authTokens, HttpStatus.CREATED);
     }
 
-    @PostMapping(value = "refresh-token")
-    public ResponseEntity<AccessToken> refreshToken(@RequestHeader(name = "X-Refresh-Token") String userId){
-        AccessToken accessToken = authService.refreshAccessToken(userId);
-        return new ResponseEntity<>(accessToken, HttpStatus.CREATED);
+    @PostMapping(value = "/refresh-token")
+    public ResponseEntity<Map<String,String>> refreshToken(@RequestHeader(name = "X-User-Id") String userId){
+        String accessToken = authService.refreshAccessToken(userId);
+        return new ResponseEntity<>(Map.of("token",accessToken), HttpStatus.CREATED);
     }
 
 }

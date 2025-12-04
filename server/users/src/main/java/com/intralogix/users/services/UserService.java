@@ -12,6 +12,8 @@ public interface UserService {
 
     Users findUserByEmailOrUsername(String emailOrUsername);
 
+    Users findUserById(String id);
+
     UserResponse saveUser(NewUserRequest newUser);
 
     UserProfileResponse updateUserDetails(String userId, UserProfileRequest userProfileDetails);

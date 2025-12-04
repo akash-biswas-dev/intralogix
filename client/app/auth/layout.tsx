@@ -1,5 +1,13 @@
+import { AuthContextProvider } from "@/context/AuthContext";
 import { ReactNode } from "react";
+import { AuthrizationCheck } from "../../context/AuthorizationCheck";
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
-  return <div className="w-full min-h-screen relative">{children}</div>;
+  return (
+    <AuthContextProvider>
+      <AuthrizationCheck>
+        <div className="w-full min-h-screen relative">{children}</div>
+      </AuthrizationCheck>
+    </AuthContextProvider>
+  );
 }

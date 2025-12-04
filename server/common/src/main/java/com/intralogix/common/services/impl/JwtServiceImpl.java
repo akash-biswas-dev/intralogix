@@ -70,7 +70,7 @@ public class JwtServiceImpl implements JwtService {
 
 
     @Override
-    public AccessToken generateAccessToken(UserDetails userDetails, Map<String, Object> extraClaims) {
+    public String generateAccessToken(UserDetails userDetails, Map<String, Object> extraClaims) {
         Map<String, Object> extraPayload = new HashMap<>();
 
         List<String> authorities = getAuthorities(userDetails.getAuthorities());
@@ -81,8 +81,7 @@ public class JwtServiceImpl implements JwtService {
         extraPayload.put(ACCOUNT_NON_LOCKED, userDetails.isAccountNonLocked());
 
         extraClaims.keySet().forEach(eachKey -> extraPayload.put(eachKey, extraClaims.get(eachKey)));
-        String token = buildToken(userDetails.getUsername(), extraPayload, expiration);
-        return new AccessToken(token,userDetails.isEnabled());
+        return buildToken(userDetails.getUsername(), extraPayload, expiration);
     }
 
     @Override
@@ -90,6 +89,11 @@ public class JwtServiceImpl implements JwtService {
         long expiration = longAged ? this.refreshExpiration : this.expiration;
         String token = buildToken(userId, new HashMap<>(), expiration);
         return new AuthToken(token, (int)expiration/1000);
+    }
+
+    @Override
+    public String generateToken(String userId, Integer duration) {
+        return buildToken(userId,new HashMap<>(),duration*1000L);
     }
 
     @Override

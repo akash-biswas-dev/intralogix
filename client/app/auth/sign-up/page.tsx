@@ -14,15 +14,12 @@ import { Field, FieldGroup, FieldLabel, FieldSet } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { NewUserForm } from "@/schemas/users";
-import useAxios from "@/context/AxiosContext";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 
 export default function SignUp() {
-  const axios = useAxios();
   const router = useRouter();
-  if (!axios) {
-    throw new Error("Context Error");
-  }
+
   const signUp = async (
     _state: NewUserFormState,
     formdata: FormData,
@@ -61,7 +58,7 @@ export default function SignUp() {
         <CardDescription
           className={state.message ? "text-red-600 font-bold" : ""}
         >
-          {state.message ? state.message : "Enter your login credentials"}
+          {state.message ? state.message : "Enter your deatails."}
         </CardDescription>
         <CardAction>
           <Link href="/auth">

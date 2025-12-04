@@ -40,18 +40,4 @@ public class UserController {
         return ResponseEntity.ok(Arrays.stream(SortParameter.values()).map(parameter -> Map.of(parameter.getValue(), parameter.name())).toList());
     }
 
-    @GetMapping(value = "/user-profile")
-    public ResponseEntity<UserProfileResponse> getUserProfile(
-            @RequestHeader String userId) {
-        UserProfileResponse userResponse = userService.getUserProfile(userId);
-        return new ResponseEntity<>(userResponse, HttpStatus.OK);
-    }
-
-    @PostMapping(value = "/user-profile")
-    public ResponseEntity<UserProfileResponse> updateProfile(
-            @RequestHeader String userId,
-            @RequestBody UserProfileRequest userProfile) {
-        UserProfileResponse userProfileResponse = userService.updateUserDetails(userId, userProfile);
-        return new ResponseEntity<>(userProfileResponse, HttpStatus.CREATED);
-    }
 }
