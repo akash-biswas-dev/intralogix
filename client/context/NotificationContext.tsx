@@ -31,14 +31,14 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const resumeTimer = () => {
     timerRef.current = setInterval(() => {
       setNotifications((pre) => {
+        if (pre.length === 0 && timerRef.current !== null) {
+          clearInterval(timerRef.current);
+          return [];
+        }
         const updatedArray = [...pre];
         updatedArray.shift();
         return updatedArray;
       });
-
-      if (notifications.length === 0 && timerRef.current !== null) {
-        clearInterval(timerRef.current);
-      }
     }, 5000);
   };
 
