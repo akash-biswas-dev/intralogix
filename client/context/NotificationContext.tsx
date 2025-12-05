@@ -1,3 +1,4 @@
+"use client";
 import {
   AlertCircle,
   AlertTriangle,
@@ -5,23 +6,77 @@ import {
   Info,
   X,
 } from "lucide-react";
-import { createContext, ReactNode, useState } from "react";
+import {
+  createContext,
+  ReactNode,
+  useEffect,
+  useState,
+  useRef,
+  useContext,
+} from "react";
 
-const NotificationContext = createContext({});
+const NotificationContext = createContext<{
+  addNotification: (args: {
+    title: string;
+    message: string;
+    type: NotificationType;
+  }) => void;
+}>({ addNotification: () => {} });
 
-export default function NotificationProvider({
-  children,
-}: {
-  children: ReactNode;
-}) {
-  const [notifications, setNotification] = useState<Notification[]>([]);
+export function NotificationProvider({ children }: { children: ReactNode }) {
+  const [notifications, setNotifications] = useState<Notification[]>([]);
 
-  const pauseTimer = () => {};
-  const resumeTimer = () => {};
-  const removeNotification = (id: string) => {};
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const resumeTimer = () => {
+    timerRef.current = setInterval(() => {
+      setNotifications((pre) => {
+        const updatedArray = [...pre];
+        updatedArray.shift();
+        return updatedArray;
+      });
+
+      if (notifications.length === 0 && timerRef.current !== null) {
+        clearInterval(timerRef.current);
+      }
+    }, 5000);
+  };
+
+  const pauseTimer = () => {
+    if (timerRef.current === null) {
+      return;
+    }
+    clearInterval(timerRef.current);
+  };
+
+  const removeNotification = (id: number) => {
+    setNotifications((pre) => {
+      return pre.filter((noti) => noti.id !== id);
+    });
+  };
+
+  const addNotification = ({
+    title,
+    message,
+    type,
+  }: {
+    title: string;
+    message: string;
+    type: NotificationType;
+  }) => {
+    setNotifications((pre) => {
+      if (pre.length == 5) {
+        pre.shift();
+      }
+      return [...pre, { id: Date.now() + Math.random(), title, message, type }];
+    });
+    if (timerRef.current === null) {
+      resumeTimer();
+    }
+  };
 
   return (
-    <NotificationContext value={{}}>
+    <NotificationContext value={{ addNotification }}>
       {children}
 
       {/* Notification Container */}
@@ -58,6 +113,10 @@ export default function NotificationProvider({
       </div>
     </NotificationContext>
   );
+}
+
+export default function useNotificationContext() {
+  return useContext(NotificationContext);
 }
 
 const getNotificationStyles = (type: NotificationType) => {
@@ -105,7 +164,7 @@ const getNotificationStyles = (type: NotificationType) => {
 };
 export type NotificationType = "success" | "error" | "info" | "warning";
 export type Notification = {
-  id: string;
+  id: number;
   title: string;
   message: string;
   type: NotificationType;

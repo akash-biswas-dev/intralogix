@@ -46,11 +46,13 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
         // Case when account created but not enabled.
         const body = await res.json();
         setTemporaryAuth(body.token);
-        router.push("/update-profile/");
+        router.push("/update-profile");
       }
 
       if (res.status !== 201) {
         // Create a notification that operation not successful.
+        // TODO: Send a notification.
+        return;
       }
 
       const body = await res.json();
@@ -83,7 +85,7 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
         isUserAuthorized: isUserAuthorized,
       }}
     >
-      {!isUserAnyTypeAuthorized && children}
+      {isUserAnyTypeAuthorized && children}
     </AuthContext>
   );
 };

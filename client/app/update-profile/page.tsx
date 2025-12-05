@@ -11,6 +11,7 @@ export default function UpdateProfile() {
   const { temporaryAuth } = useAuthContext();
 
   useEffect(() => {
+    console.log("The temporary auth ", temporaryAuth);
     if (!temporaryAuth) {
       router.push("/auth");
     }

@@ -1,6 +1,6 @@
 import { AuthContextProvider } from "@/context/AuthContext";
 import { ReactNode } from "react";
-import { AuthrizationCheck } from "../../context/AuthorizationCheck";
+import { AuthrizationCheck } from "./AuthorizationCheck";
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
