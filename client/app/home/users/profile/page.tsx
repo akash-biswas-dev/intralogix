@@ -3,11 +3,9 @@ import useAuthContext from "@/context/AuthContext";
 import { useEffect } from "react";
 
 export default function UserProfile() {
-  const { isUserAuthorized } = useAuthContext();
-
-  const isAuthorized = isUserAuthorized();
+  const { authorization } = useAuthContext();
 
   useEffect(() => {}, []);
 
-  return <>{isAuthorized && <div>User profile</div>}</>;
+  return <>{authorization && <div>User profile</div>}</>;
 }

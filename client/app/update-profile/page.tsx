@@ -1,21 +1,20 @@
-"use client";
 
 import UserProfileUpdate from "@/components/UserProfileUpdate";
-import useAuthContext from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { isUserAuthorized } from "../auth/action";
+import { redirect } from "next/navigation";
 
-export default function UpdateProfile() {
+export default async function UpdateProfile() {
   // This route is only for the first time when user not enabled.
-  const router = useRouter();
-  const { temporaryAuth } = useAuthContext();
+  const authorization = await isUserAuthorized();
 
-  useEffect(() => {
-    console.log("The temporary auth ", temporaryAuth);
-    if (!temporaryAuth) {
-      router.push("/auth");
-    }
-  }, [temporaryAuth, router]);
+  if (!authorization) { 
+    redirect("/auth")
 
-  return <>{temporaryAuth && <UserProfileUpdate />}</>;
+  } 
+
+  if (!authorization.isTemporary) {
+    redirect("/home");
+  }
+
+  return <>{<UserProfileUpdate authorization={authorization.authorization} />}</>;
 }

@@ -1,11 +1,17 @@
+"use client";
+
 const UserProfileUpdate = ({
-  userProfileData,
-  action,
+  initialData,
+  authorization
 }: {
-  userProfileData?: UserProfile;
-  action?: (formdata: FormData) => void;
+    initialData?: UserProfile;
+    authorization: string;
 }) => {
-  console.log(userProfileData);
+
+  const action = (formData:FormData) => {
+
+  }
+
   return <form action={action}>Update profile component.</form>;
 };
 

@@ -6,6 +6,7 @@ const SERVER_ADDRESS =
   process.env.SERVER_BACKEND_URL || "http://localhost:9000";
 
 export async function POST() {
+  console.log("Requesting....");
   const cookieStore = await cookies();
 
   const tokenCookie = cookieStore.get("refresh-token");
@@ -37,14 +38,22 @@ export async function POST() {
     cookieStore.delete("refresh-token");
   }
   if (status === 201) {
-    return new Response(data, {
+    const body = {
+      authorization: data.token,
+      isTemporary: false,
+    };
+    return new Response(JSON.stringify(body), {
       status: 201,
     });
   }
 
   if (status === 307) {
-    return new Response(JSON.stringify(data), {
-      status: status,
+    const body = {
+      authorization: data.token,
+      isTemporary: true,
+    };
+    return new Response(JSON.stringify(body), {
+      status: 201,
     });
   }
 

@@ -1,13 +1,20 @@
-import { AuthContextProvider } from "@/context/AuthContext";
 import { ReactNode } from "react";
-import { AuthrizationCheck } from "./AuthorizationCheck";
+import { isUserAuthorized } from "./action";
+import { redirect } from "next/navigation";
 
-export default function AuthLayout({ children }: { children: ReactNode }) {
+export default async function AuthLayout({ children }: { children: ReactNode }) {
+
+  const authorization = await isUserAuthorized();
+
+  if (authorization) {
+    if (authorization.isTemporary) {
+      redirect("/update-profile")
+    } else {
+      redirect("/")
+    }
+  }
+
   return (
-    <AuthContextProvider>
-      <AuthrizationCheck>
         <div className="w-full min-h-screen relative">{children}</div>
-      </AuthrizationCheck>
-    </AuthContextProvider>
   );
 }

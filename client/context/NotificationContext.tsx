@@ -6,14 +6,7 @@ import {
   Info,
   X,
 } from "lucide-react";
-import {
-  createContext,
-  ReactNode,
-  useEffect,
-  useState,
-  useRef,
-  useContext,
-} from "react";
+import { createContext, ReactNode, useContext, useRef, useState } from "react";
 
 const NotificationContext = createContext<{
   addNotification: (args: {

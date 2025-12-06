@@ -1,13 +1,19 @@
 "use client";
 import ax, { AxiosInstance } from "axios";
+
 import { createContext, ReactNode, useContext } from "react";
 import useAuthContext from "./AuthContext";
+
+import { isUserAuthorized } from "@/app/auth/action";
+import { useRouter } from "next/navigation";
 
 const BASE_URL = process.env.BACKEND_URL || "http://localhost:9000";
 
 const AxiosContext = createContext<undefined | AxiosInstance>(undefined);
 
 export function AxiosProvider({ children }: { children: ReactNode }) {
+
+  const router = useRouter();
   const { authorization, updateAuthorization } = useAuthContext();
 
   const axiosInstance = ax.create({
@@ -28,30 +34,23 @@ export function AxiosProvider({ children }: { children: ReactNode }) {
       const { respone } = error;
       if (respone.status === 407) {
         // Retry to generate the tokens using refresh token.
-        const res = await fetch("/api/refresh-token", {
-          method: "post",
-        });
-
-        const { status } = res;
-        if (status === 401) {
+        const auth = await isUserAuthorized();
+        if (!auth) {
           updateAuthorization(undefined);
           return Promise.reject(error);
         }
-        const body = await res.json();
-        updateAuthorization(body.token);
+        const { authorization, isTemporary } = auth;
+        if (isTemporary) {
+          router.replace("/update-profile");
+        }
+        updateAuthorization(authorization);
         return axiosInstance(error.config);
       }
       return Promise.reject(error);
-    },
+    }
   );
 
-  return (
-    <>
-      {authorization && (
-        <AxiosContext value={axiosInstance}>{children}</AxiosContext>
-      )}
-    </>
-  );
+  return <AxiosContext value={axiosInstance}>{children}</AxiosContext>;
 }
 export default function useAxios() {
   return useContext(AxiosContext);
