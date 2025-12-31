@@ -2,10 +2,9 @@ package com.intralogix.users.controller;
 
 
 import com.intralogix.common.dtos.AuthToken;
+import com.intralogix.common.response.UserResponse;
 import com.intralogix.users.dtos.requests.NewUserRequest;
 import com.intralogix.users.dtos.requests.UserCredentials;
-import com.intralogix.common.response.UserResponse;
-import com.intralogix.common.dtos.AccessToken;
 import com.intralogix.users.services.AuthService;
 import com.intralogix.users.services.UserService;
 import lombok.RequiredArgsConstructor;
