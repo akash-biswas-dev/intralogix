@@ -5,12 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.intralogix</groupId>
-        <artifactId>server</artifactId>
+        <artifactId>intralogix-server</artifactId>
         <version>0.0.1</version>
     </parent>
 
     <groupId>com.intralogix.gateway</groupId>
-    <artifactId>gateway</artifactId>
+    <artifactId>intralogix-gateway</artifactId>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -31,7 +31,7 @@
         </dependency>
         <dependency>
             <groupId>com.intralogix.common</groupId>
-            <artifactId>common</artifactId>
+            <artifactId>intralogix-common</artifactId>
             <version>0.0.1</version>
         </dependency>
 

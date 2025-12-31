@@ -5,12 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.intralogix</groupId>
-        <artifactId>server</artifactId>
+        <artifactId>intralogix-server</artifactId>
         <version>0.0.1</version>
     </parent>
 
     <groupId>com.intralogix.users</groupId>
-    <artifactId>users</artifactId>
+    <artifactId>intralogix-users</artifactId>
 
     <dependencies>
         <dependency>
@@ -23,7 +23,7 @@
         </dependency>
         <dependency>
             <groupId>com.intralogix.common</groupId>
-            <artifactId>common</artifactId>
+            <artifactId>intralogix-common</artifactId>
             <version>0.0.1</version>
         </dependency>
 

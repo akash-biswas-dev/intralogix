@@ -5,12 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.intralogix</groupId>
-        <artifactId>server</artifactId>
+        <artifactId>intralogix-server</artifactId>
         <version>0.0.1</version>
     </parent>
 
     <groupId>com.intralogix.configserver</groupId>
-    <artifactId>config-server</artifactId>
+    <artifactId>intralogix-config-server</artifactId>
 
     <properties>
         <maven.compiler.source>25</maven.compiler.source>
