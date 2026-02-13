@@ -3,6 +3,7 @@ package com.intralogix.gateway.filters;
 import com.intralogix.common.services.JwtService;
 import com.intralogix.common.exceptions.AccountNotEnabledException;
 import io.jsonwebtoken.ExpiredJwtException;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
@@ -25,8 +26,9 @@ public class JwtAuthorizationFilter implements GatewayFilter {
 
     private final JwtService jwtService;
 
+    @NonNull
     @Override
-    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+    public Mono<Void> filter(ServerWebExchange exchange, @NonNull GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
         ServerHttpResponse response = exchange.getResponse();
 
@@ -34,33 +36,25 @@ public class JwtAuthorizationFilter implements GatewayFilter {
 
         try {
 
-            if(authorization == null || !authorization.startsWith("Bearer ")) {
+            if (authorization == null || !authorization.startsWith("Bearer ")) {
                 throw new RuntimeException("Authorization header is invalid");
             }
 
             String token = authorization.substring(7);
-            UserDetails userDetails = jwtService.extractUserDetails(token);
-            if(!userDetails.isEnabled()) {
-                throw new AccountNotEnabledException(userDetails.getUsername());
-            }
-            ServerHttpRequest modifiedRequest = request.mutate()
-                    .headers((headers)->{
-                        headers.replace("X-User-Id",List.of(userDetails.getUsername()));
-                        List<String> permissions = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
-                        headers.replace("X-User-Permissions",permissions);
-                    }).build();
-            return chain.filter(exchange.mutate().request(modifiedRequest).build());
-        }catch (AccountNotEnabledException ex) {
-            log.warn("Account not enabled yet with account id: {}", ex.getMessage());
-            response.setStatusCode(HttpStatus.UNAUTHORIZED);
-        }catch (ExpiredJwtException ex){
-            log.error("Token expired {}",ex.getMessage());
-            response.setStatusCode(HttpStatus.PROXY_AUTHENTICATION_REQUIRED);
+            final String userId;
+
+        } catch (Exception ex) {
+
         }
-        catch (Exception ex){
-            response.setStatusCode(HttpStatus.UNAUTHORIZED);
-            response.getHeaders().set("WWW-Authenticate", "X-Refresh-Token");
-        }
+
+        ServerHttpRequest modifiedRequest = request.mutate()
+                .headers((headers) -> {
+                    headers.replace("X-User-Id", List.of(userDetails.getUsername()));
+                    List<String> permissions = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
+                    headers.replace("X-User-Permissions", permissions);
+                }).build();
+        return chain.filter(exchange.mutate().request(modifiedRequest).build());
+
         return response.setComplete();
     }
 }

@@ -1,0 +1,9 @@
+services:
+  mongo:
+    container_name: intralogix-mongo
+    image: mongo:8.0-noble
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=dev
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    ports:
+      - "27017:27017"

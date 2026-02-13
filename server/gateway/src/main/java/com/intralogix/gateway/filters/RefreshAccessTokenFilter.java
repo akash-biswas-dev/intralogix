@@ -2,6 +2,7 @@ package com.intralogix.gateway.filters;
 
 import com.intralogix.common.services.JwtService;
 import io.jsonwebtoken.ExpiredJwtException;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -11,8 +12,6 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
-
-import java.util.List;
 
 
 @Component
@@ -25,8 +24,9 @@ public class RefreshAccessTokenFilter implements GatewayFilter {
         this.jwtService = jwtService;
     }
 
+    @NonNull
     @Override
-    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+    public Mono<Void> filter(ServerWebExchange exchange, @NonNull GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
         ServerHttpResponse response = exchange.getResponse();
 
@@ -36,7 +36,7 @@ public class RefreshAccessTokenFilter implements GatewayFilter {
             if (token == null) {
                 throw new RuntimeException("Null token");
             }
-            String userId = jwtService.getSubject(token);
+            String userId = jwtService.getUserId(token);
             ServerHttpRequest updatedRequest = request
                     .mutate()
                     .headers((headers) -> {

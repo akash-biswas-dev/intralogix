@@ -28,8 +28,6 @@ public class ApplicationConfig {
 
         return new JwtServiceImpl(
                 secret,
-                expiration,
-                refreshExpiration,
                 issuer
         );
     }

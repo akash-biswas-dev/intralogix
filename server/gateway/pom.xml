@@ -3,20 +3,22 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
-        <groupId>com.intralogix</groupId>
-        <artifactId>intralogix-server</artifactId>
-        <version>0.0.1</version>
+        <groupId>com.thecodingengineer.intralogix</groupId>
+        <artifactId>intralogix</artifactId>
+        <version>1.0.0</version>
     </parent>
 
     <groupId>com.intralogix.gateway</groupId>
-    <artifactId>intralogix-gateway</artifactId>
+    <artifactId>gateway</artifactId>
+    <version>0.0.1</version>
+
 
     <properties>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.version>21</java.version>
         <jwt.version>0.11.5</jwt.version>
+        <spring-cloud.version>2025.1.0</spring-cloud.version>
     </properties>
 
 
@@ -29,12 +31,37 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-config-client</artifactId>
         </dependency>
+
+<!--        Common dependencies.-->
         <dependency>
             <groupId>com.intralogix.common</groupId>
-            <artifactId>intralogix-common</artifactId>
+            <artifactId>common</artifactId>
             <version>0.0.1</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+            <version>1.18.42</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
