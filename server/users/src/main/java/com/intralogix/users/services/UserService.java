@@ -1,24 +1,10 @@
 package com.intralogix.users.services;
 
-import com.intralogix.users.dtos.requests.NewUserRequest;
-import com.intralogix.users.dtos.requests.UserProfileRequest;
-import com.intralogix.users.dtos.response.UserProfileResponse;
-import com.intralogix.common.response.UserResponse;
-import com.intralogix.users.models.Users;
-
-import java.util.List;
+import reactor.core.publisher.Mono;
 
 public interface UserService {
 
-    Users findUserByEmailOrUsername(String emailOrUsername);
+    Mono<Void> createUser(String email, String password);
 
-    Users findUserById(String id);
 
-    UserResponse saveUser(NewUserRequest newUser);
-
-    UserProfileResponse updateUserDetails(String userId, UserProfileRequest userProfileDetails);
-
-    UserProfileResponse getUserProfile(String userId);
-
-    List<UserResponse> getAllUsersWithId(List<String> strings);
 }

@@ -7,5 +7,4 @@ import com.intralogix.users.dtos.requests.UserCredentials;
 public interface AuthService {
     AuthToken login(UserCredentials userCredentials, Boolean rememberMe);
 
-    String refreshAccessToken(String userId);
 }

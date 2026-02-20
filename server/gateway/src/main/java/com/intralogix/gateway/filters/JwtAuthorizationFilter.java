@@ -1,14 +1,11 @@
 package com.intralogix.gateway.filters;
 
-import com.intralogix.common.services.JwtService;
-import com.intralogix.common.exceptions.AccountNotEnabledException;
-import io.jsonwebtoken.ExpiredJwtException;
+import com.intralogix.common.jwt.JwtService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.core.GrantedAuthority;

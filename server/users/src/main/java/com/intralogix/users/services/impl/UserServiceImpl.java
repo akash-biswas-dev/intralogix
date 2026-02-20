@@ -1,7 +1,8 @@
 package com.intralogix.users.services.impl;
 
 import com.intralogix.common.response.UserResponse;
-import com.intralogix.common.services.JwtService;
+import com.intralogix.common.jwt.JwtService;
+import com.intralogix.users.UsersMain;
 import com.intralogix.users.dtos.requests.NewUserRequest;
 import com.intralogix.users.dtos.requests.UserProfileRequest;
 import com.intralogix.users.dtos.response.UserProfileResponse;
@@ -14,8 +15,10 @@ import com.intralogix.users.repository.UsersRepository;
 import com.intralogix.users.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -30,6 +33,20 @@ public class UserServiceImpl implements UserService {
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
 
+    @Override
+    public Mono<Void> createUser(String email, String password) {
+        Users newUser = Users.builder()
+                .email(email)
+                .password(passwordEncoder.encode(password))
+                .isAccountEnabled(false)
+                .isAccountLocked(false)
+                .build();
+        return usersRepository.saveUser(newUser)
+                .then();
+    }
+
+
+/*
     @Override
     public Users findUserByEmailOrUsername(String emailOrUsername) {
         return usersRepository
@@ -120,5 +137,5 @@ public class UserServiceImpl implements UserService {
 
     private UserResponse generateUserResponse(Users users) {
         return new UserResponse(users.getRealUsername(), users.getJoinedOn());
-    }
+    }*/
 }

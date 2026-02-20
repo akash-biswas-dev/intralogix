@@ -15,8 +15,6 @@
     <artifactId>config-server</artifactId>
     <version>0.0.1</version>
 
-    <properties>
-    </properties>
 
     <dependencies>
         <dependency>

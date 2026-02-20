@@ -6,6 +6,7 @@
     <groupId>com.thecodingengineer.intralogix</groupId>
     <artifactId>intralogix</artifactId>
     <version>1.0.0</version>
+    <packaging>pom</packaging>
     <name>server</name>
     <!-- FIXME change it to the project's website -->
     <url>http://www.intralogix.app</url>
@@ -58,8 +59,19 @@
                 <plugin>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>${spring-boot.version}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.13.0</version>
+                    <configuration>
+                        <release>${java.version}</release>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
+
     </build>
 </project>

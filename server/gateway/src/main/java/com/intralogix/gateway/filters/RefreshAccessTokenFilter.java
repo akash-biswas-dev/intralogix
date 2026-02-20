@@ -1,6 +1,6 @@
 package com.intralogix.gateway.filters;
 
-import com.intralogix.common.services.JwtService;
+import com.intralogix.common.jwt.JwtService;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;

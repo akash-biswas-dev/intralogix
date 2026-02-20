@@ -6,16 +6,10 @@ spring:
   cloud:
     config:
       uri: http://localhost:8888
-  data:
-    mongodb:
-      uri: mongodb://intralogix:password@localhost:27017/intralogix-db?authSource=admin
-      auto-index-creation: true
 server:
   port: 8501
 jwt:
   secret: 1A50EF4F7AB1F6069BC04EEABFA52D66257D47E7FBBE0D7C1C20D2D88E9489C5
-  expiration: 86400000 # 1 day
-  refresh-expiration:  1296000000 # 15 days
   issuer: http://localhost:9000
 
 

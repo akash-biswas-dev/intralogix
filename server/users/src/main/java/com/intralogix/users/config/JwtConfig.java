@@ -1,8 +1,8 @@
 package com.intralogix.users.config;
 
 
-import com.intralogix.common.services.JwtService;
-import com.intralogix.common.services.impl.JwtServiceImpl;
+import com.intralogix.common.jwt.JwtService;
+import com.intralogix.common.jwt.JwtServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,17 +17,11 @@ public class JwtConfig {
     JwtService jwtService (){
         String secret = environment.getProperty("jwt.secret");
         String issuer = environment.getProperty("jwt.issuer");
-        Long expiration = environment.getProperty("jwt.expiration", Long.class);
-        Long refreshExpiration = environment.getProperty("jwt.refresh-expiration", Long.class);
-
-        if(secret == null ||  expiration == null || refreshExpiration == null ||  issuer == null){
+        if(secret == null  ||  issuer == null){
             throw new IllegalStateException("Jwt properties cant be null");
         }
-
         return new JwtServiceImpl(
                 secret,
-                expiration,
-                refreshExpiration,
                 issuer
         );
     }

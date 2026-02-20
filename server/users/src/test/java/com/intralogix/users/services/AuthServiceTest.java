@@ -1,8 +1,6 @@
 package com.intralogix.users.services;
 
-import com.intralogix.common.dtos.AuthToken;
-import com.intralogix.common.services.JwtService;
-import com.intralogix.users.dtos.requests.UserCredentials;
+import com.intralogix.common.jwt.JwtService;
 import com.intralogix.users.models.Role;
 import com.intralogix.users.models.Users;
 import com.intralogix.users.services.impl.AuthServiceImpl;
@@ -15,7 +13,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
-import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;

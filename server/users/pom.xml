@@ -14,10 +14,6 @@
     <artifactId>users</artifactId>
     <version>0.0.1</version>
 
-    <properties>
-
-    </properties>
-
 
     <dependencies>
         <dependency>
@@ -39,12 +35,6 @@
             <groupId>com.intralogix.common</groupId>
             <artifactId>common</artifactId>
             <version>0.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <scope>provided</scope>
-            <version>1.18.42</version>
         </dependency>
     </dependencies>
 

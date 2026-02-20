@@ -1,8 +1,8 @@
 package com.intralogix.gateway.config;
 
 
-import com.intralogix.common.services.JwtService;
-import com.intralogix.common.services.impl.JwtServiceImpl;
+import com.intralogix.common.jwt.JwtService;
+import com.intralogix.common.jwt.JwtServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

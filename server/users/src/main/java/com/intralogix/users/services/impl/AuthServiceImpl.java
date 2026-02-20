@@ -1,10 +1,9 @@
 package com.intralogix.users.services.impl;
 
-import com.intralogix.common.dtos.AccessToken;
 import com.intralogix.common.dtos.AuthToken;
 
 import com.intralogix.common.exceptions.AccountNotEnabledException;
-import com.intralogix.common.services.JwtService;
+import com.intralogix.common.jwt.JwtService;
 import com.intralogix.users.dtos.requests.UserCredentials;
 import com.intralogix.users.exception.UserNotFoundException;
 import com.intralogix.users.models.Users;
@@ -12,7 +11,6 @@ import com.intralogix.users.services.AuthService;
 import com.intralogix.users.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,14 +18,13 @@ import java.util.HashMap;
 import java.util.NoSuchElementException;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
-public class AuthServiceImpl implements AuthService {
+@RequiredArgsConstructor
+public class AuthServiceImpl {
 
-    private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
-
+/*
     @Override
     public AuthToken login(UserCredentials userCredentials, Boolean rememberMe) {
         final Users users;
@@ -42,7 +39,7 @@ public class AuthServiceImpl implements AuthService {
         if (!passwordEncoder.matches(userCredentials.password(), users.getPassword())) {
             throw new BadCredentialsException("Invalid username or password");
         }
-        return jwtService.generateToken(users.getId(), rememberMe);
+        return jwtService.generateAuthorization(users.getId(), rememberMe);
     }
 
     @Override
@@ -58,5 +55,5 @@ public class AuthServiceImpl implements AuthService {
             throw new AccountNotEnabledException(userId);
         }
         return jwtService.generateAccessToken(users, new HashMap<>());
-    }
+    }*/
 }
