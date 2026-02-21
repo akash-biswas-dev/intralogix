@@ -6,22 +6,24 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
+import org.springframework.http.HttpCookie;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 
-@Component
 @Slf4j
-public class RefreshAccessTokenFilter implements GatewayFilter {
+public class CookieAuthorizationFilter implements GatewayFilter {
 
     private final JwtService jwtService;
+    private final String cookieName;
 
-    public RefreshAccessTokenFilter(JwtService jwtService) {
+    public CookieAuthorizationFilter(JwtService jwtService, String cookieName) {
         this.jwtService = jwtService;
+        this.cookieName = cookieName;
     }
 
     @NonNull
@@ -30,29 +32,35 @@ public class RefreshAccessTokenFilter implements GatewayFilter {
         ServerHttpRequest request = exchange.getRequest();
         ServerHttpResponse response = exchange.getResponse();
 
-        String token = request.getHeaders().getFirst("X-Refresh-Token");
+        HttpCookie cookie = request.getCookies().getFirst(cookieName);
 
+
+        if (cookie == null) {
+            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+            return response.writeWith(
+                    Mono.just(exchange.getResponse()
+                            .bufferFactory()
+                            .wrap("Session cookie missing".getBytes()))
+            );
+        }
         try {
-            if (token == null) {
-                throw new RuntimeException("Null token");
-            }
-            String userId = jwtService.getUserId(token);
+            String userId = jwtService.getUserId(cookie.getValue());
             ServerHttpRequest updatedRequest = request
                     .mutate()
                     .headers((headers) -> {
-                        headers.set("X-User-Id", userId);
+                        headers.set("Authentication-Info", userId);
                     }).build();
             log.info("Refreshing access token for user {}", userId);
             return chain.filter(exchange.mutate().request(updatedRequest).build());
         } catch (ExpiredJwtException ex) {
             log.error("Refresh token expired {}", ex.getMessage());
-            response.getHeaders().set("X-Message", "Token expired");
+            response.getHeaders().set("WWW-Authenticate", "Token expired");
         } catch (Exception ex) {
             log.error("Refresh token error with message: {}", ex.getMessage());
-            response.getHeaders().set("X-Message", "Token error");
+            response.getHeaders().set("WWW-Authenticate", "Token error");
         }
+
         response.setStatusCode(HttpStatus.UNAUTHORIZED);
-        response.getHeaders().set("WWW-Authenticate", "X-Refresh-Token");
         return response.setComplete();
     }
 }

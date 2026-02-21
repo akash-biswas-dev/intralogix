@@ -15,7 +15,9 @@ import java.time.LocalDate;
 public class Users {
     @Id
     private String id;
+    @Indexed(unique = true)
     private String username;
+    @Indexed(unique = true)
     private String email;
     private String password;
     @Indexed(name = "joined_on")

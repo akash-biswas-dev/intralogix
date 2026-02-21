@@ -2,7 +2,7 @@ package com.intralogix.users.dtos.requests;
 
 
 public record UserCredentials(
-        String usernameOrEmail,
+        String emailOrUsername,
         String password
 ) {
 }

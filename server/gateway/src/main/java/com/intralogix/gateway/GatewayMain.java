@@ -3,13 +3,8 @@ package com.intralogix.gateway;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurityAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.reactive.ReactiveUserDetailsServiceAutoConfiguration;
 
-@SpringBootApplication(exclude = {
-        ReactiveSecurityAutoConfiguration.class,
-        ReactiveUserDetailsServiceAutoConfiguration.class
-})
+@SpringBootApplication
 public class GatewayMain {
     public static void main(String[] args) {
         SpringApplication.run(GatewayMain.class, args);

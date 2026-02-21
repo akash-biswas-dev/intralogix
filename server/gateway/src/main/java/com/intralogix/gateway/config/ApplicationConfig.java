@@ -19,20 +19,17 @@ public class ApplicationConfig {
     JwtService jwtService(Environment environment){
         String secret = environment.getProperty("jwt.secret");
         String issuer = environment.getProperty("jwt.issuer");
-        Long expiration = environment.getProperty("jwt.expiration", Long.class);
-        Long refreshExpiration = environment.getProperty("jwt.refresh-expiration", Long.class);
 
-        if(secret == null ||  expiration == null || refreshExpiration == null ||  issuer == null){
+        if(secret == null  ||  issuer == null){
             throw new IllegalStateException("Jwt properties cant be null");
         }
-
         return new JwtServiceImpl(
                 secret,
                 issuer
         );
     }
 
-    record RegisteredServiceURLs(String userService, String workspaceService) {
+    public record RegisteredServiceURLs(String userService, String workspaceService) {
     }
 
 

@@ -1,28 +1,13 @@
 package com.intralogix.users.services.impl;
 
-import com.intralogix.common.response.UserResponse;
-import com.intralogix.common.jwt.JwtService;
-import com.intralogix.users.UsersMain;
-import com.intralogix.users.dtos.requests.NewUserRequest;
-import com.intralogix.users.dtos.requests.UserProfileRequest;
-import com.intralogix.users.dtos.response.UserProfileResponse;
-import com.intralogix.users.exception.DatabaseOperationException;
 import com.intralogix.users.exception.UserNotFoundException;
-import com.intralogix.users.models.Role;
-import com.intralogix.users.models.UserProfile;
 import com.intralogix.users.models.Users;
 import com.intralogix.users.repository.UsersRepository;
 import com.intralogix.users.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service
 @Slf4j
@@ -30,19 +15,31 @@ import java.util.NoSuchElementException;
 public class UserServiceImpl implements UserService {
 
     private final UsersRepository usersRepository;
-    private final JwtService jwtService;
-    private final PasswordEncoder passwordEncoder;
 
     @Override
-    public Mono<Void> createUser(String email, String password) {
-        Users newUser = Users.builder()
-                .email(email)
-                .password(passwordEncoder.encode(password))
-                .isAccountEnabled(false)
-                .isAccountLocked(false)
-                .build();
-        return usersRepository.saveUser(newUser)
+    public Mono<Void> createUser(Users users) {
+        return usersRepository.saveUser(users)
                 .then();
+    }
+
+    @Override
+    public Mono<Users> findUserByEmailOrUsername(String emailOrUsername) {
+        return usersRepository
+                .findByEmailOrUsername(emailOrUsername)
+                .onErrorResume((err) -> {
+                    log.error("Error occurred while fetch user with username: {} , message: {}", emailOrUsername, err.getMessage());
+                    return Mono.error(new RuntimeException("Something went wrong, try again after some time."));
+                })
+                .switchIfEmpty(Mono.error(() -> {
+                    log.error("User not found with username: {}", emailOrUsername);
+                    return new UserNotFoundException("Invalid username.");
+                }));
+    }
+
+    @Override
+    public Mono<Users> findUserById(String userId) {
+        return usersRepository
+                .findById(userId);
     }
 
 
