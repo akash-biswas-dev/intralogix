@@ -24,14 +24,26 @@ import Link from "next/link";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
 
+import * as z from "zod";
+
+import useAuthContext from "@/context/AuthContext";
 import axios from "axios";
-import useAuthContext, { Authorization } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 
 const SERVER_ADDRESS =
   process.env.NEXT_PUBLIC_SERVER_ADDRESS || "http://localhost:9000";
 
+const UserCredential = z.object({
+  emailOrUsername: z.string().min(5, "Invalid email or Username"),
+  password: z
+    .string()
+    .min(8, "Password is too short.")
+    .max(15, "Password is too long."),
+});
+
 export default function Auth() {
   const { updateAuthorization } = useAuthContext();
+  const router = useRouter();
 
   const [errors, setErrors] = useState<{
     emailOrUsername?: string;
@@ -43,25 +55,54 @@ export default function Auth() {
     const userCredentials = {
       emailOrUsername: formData.get("emailOrUsername"),
       password: formData.get("password"),
-      rememberMe: formData.get("rememberMe"),
+      rememberMe: formData.get("rememberMe") ? true : false,
     };
 
-    console.log(userCredentials);
+    const parsedObject = UserCredential.safeParse({
+      emailOrUsername: userCredentials.emailOrUsername,
+      password: userCredentials.password,
+    });
 
-    console.log(SERVER_ADDRESS);
+    if (!parsedObject.success) {
+      const errorProperties = z.treeifyError(parsedObject.error).properties;
 
-    // axios.post<Authorization | string | null>(
-    //   "/api/v1/auth",
-    //   {
-    //     emailOrUsername: userCredentials.emailOrUsername,
-    //     password: userCredentials.password,
-    //   },
-    //   {
-    //     params: {
-    //       rememberMe,
-    //     },
-    //   },
-    // );
+      const emailError = errorProperties?.emailOrUsername?.errors?.[0];
+
+      if (emailError) {
+        setErrors({ emailOrUsername: emailError });
+      }
+
+      const passwordError = errorProperties?.password?.errors?.[0];
+      if (passwordError) {
+        setErrors((pre) => ({ ...pre, password: passwordError }));
+      }
+    }
+
+    const res = await axios.post(
+      `${SERVER_ADDRESS}/api/v1/auth`,
+      {
+        emailOrUsername: userCredentials.emailOrUsername,
+        password: userCredentials.password,
+      },
+      {
+        params: {
+          rememberMe: userCredentials.rememberMe,
+        },
+        validateStatus: () => true,
+      },
+    );
+
+    if (res.status !== 201) {
+      if (typeof res.data === "string") {
+        setErrors({ error: res.data });
+      } else {
+        setErrors({ error: "Currently unavailable" });
+      }
+      return;
+    }
+    updateAuthorization(res.data);
+
+    router.push("/dashboard");
   };
 
   return (
@@ -92,10 +133,17 @@ export default function Auth() {
                   Email Or Username
                 </FieldLabel>
                 <Input
-                  id="username-or-email"
+                  id="email-or-username"
                   type="text"
-                  name="usernameOrEmail"
+                  name="emailOrUsername"
                   className={errors.emailOrUsername ? "outline-red-600" : ""}
+                  onFocus={() =>
+                    setErrors((pre) => ({
+                      ...pre,
+                      error: undefined,
+                      emailOrUsername: undefined,
+                    }))
+                  }
                 />
                 {errors.emailOrUsername && (
                   <FieldDescription className="text-red-600 font-bold">
@@ -109,6 +157,13 @@ export default function Auth() {
                   id="password"
                   name="password"
                   className={errors.password ? "outline-red-600" : ""}
+                  onFocus={() =>
+                    setErrors((pre) => ({
+                      ...pre,
+                      error: undefined,
+                      emailOrUsername: undefined,
+                    }))
+                  }
                 />
 
                 {errors.password && (
