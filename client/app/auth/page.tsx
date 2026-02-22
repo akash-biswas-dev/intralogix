@@ -21,59 +21,56 @@ import google from "@/public/google-logo.webp";
 import Image from "next/image";
 import Link from "next/link";
 
-import { useActionState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { UserCredentials } from "@/schemas/users";
-import { login } from "./action";
-import * as z from "zod";
+import { useState } from "react";
+
+import axios from "axios";
+import useAuthContext, { Authorization } from "@/context/AuthContext";
+
+const SERVER_ADDRESS =
+  process.env.NEXT_PUBLIC_SERVER_ADDRESS || "http://localhost:9000";
 
 export default function Auth() {
-  const loginAction = async (
-    _previousState: LoginFormState,
-    formdata: FormData,
-  ): Promise<LoginFormState> => {
-    const result = UserCredentials.safeParse({
-      usernameOrEmail: formdata.get("usernameOrEmail"),
-      password: formdata.get("password"),
-    });
+  const { updateAuthorization } = useAuthContext();
 
-    if (!result.success) {
-      const err = z.treeifyError(result.error);
-      const errors: LoginFormState = {
-        fields: {
-          usernameOrEmail:
-            err.properties?.usernameOrEmail &&
-            "Enter a valid username or email.",
-          password:
-            err.properties?.password && "Password length min 8 and max 15.",
-        },
-      };
-      return errors;
-    }
+  const [errors, setErrors] = useState<{
+    emailOrUsername?: string;
+    password?: string;
+    error?: string;
+  }>({});
 
-    const rememberMe = formdata.get("rememberMe") ? true : false;
+  const formAction = async (formData: FormData) => {
+    const userCredentials = {
+      emailOrUsername: formData.get("emailOrUsername"),
+      password: formData.get("password"),
+      rememberMe: formData.get("rememberMe"),
+    };
 
-    const { usernameOrEmail, password } = result.data;
+    console.log(userCredentials);
 
-    const res = await login({ usernameOrEmail, password, rememberMe });
-    if (res === null) {
-      return {
-        message: "Some error occurred",
-      };
-    }
-    return {};
+    console.log(SERVER_ADDRESS);
+
+    // axios.post<Authorization | string | null>(
+    //   "/api/v1/auth",
+    //   {
+    //     emailOrUsername: userCredentials.emailOrUsername,
+    //     password: userCredentials.password,
+    //   },
+    //   {
+    //     params: {
+    //       rememberMe,
+    //     },
+    //   },
+    // );
   };
-
-  const initialState: LoginFormState = {};
-  const [state, formAction] = useActionState(loginAction, initialState);
 
   return (
     <Card className="w-full max-w-md top-1/2 left-1/2 -translate-1/2 absolute">
       <CardHeader>
         <CardTitle>Intralogix</CardTitle>
-        {state.message ? (
+        {errors.error ? (
           <CardDescription className="text-red-600 font-bold">
-            {state.message}
+            {errors.error}
           </CardDescription>
         ) : (
           <CardDescription>Enter your login credentials</CardDescription>
@@ -92,19 +89,17 @@ export default function Auth() {
             <FieldGroup>
               <Field>
                 <FieldLabel htmlFor="username-or-email">
-                  Username or Email
+                  Email Or Username
                 </FieldLabel>
                 <Input
                   id="username-or-email"
                   type="text"
                   name="usernameOrEmail"
-                  className={
-                    state.fields?.usernameOrEmail ? "outline-red-600" : ""
-                  }
+                  className={errors.emailOrUsername ? "outline-red-600" : ""}
                 />
-                {state.fields?.usernameOrEmail && (
+                {errors.emailOrUsername && (
                   <FieldDescription className="text-red-600 font-bold">
-                    {state.fields.usernameOrEmail}
+                    {errors.emailOrUsername}
                   </FieldDescription>
                 )}
               </Field>
@@ -113,12 +108,12 @@ export default function Auth() {
                 <PasswordInputWithToggle
                   id="password"
                   name="password"
-                  className={state.fields?.password ? "outline-red-600" : ""}
+                  className={errors.password ? "outline-red-600" : ""}
                 />
 
-                {state.fields?.password && (
+                {errors.password && (
                   <FieldDescription className="text-red-600 font-bold">
-                    {state.fields.password}
+                    {errors.password}
                   </FieldDescription>
                 )}
               </Field>
@@ -151,11 +146,3 @@ export default function Auth() {
     </Card>
   );
 }
-
-export type LoginFormState = {
-  message?: string;
-  fields?: {
-    usernameOrEmail?: string;
-    password?: string;
-  };
-};
