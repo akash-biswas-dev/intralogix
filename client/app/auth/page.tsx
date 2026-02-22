@@ -21,59 +21,97 @@ import google from "@/public/google-logo.webp";
 import Image from "next/image";
 import Link from "next/link";
 
-import { useActionState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { UserCredentials } from "@/schemas/users";
-import { login } from "./action";
+import { useState } from "react";
+
 import * as z from "zod";
 
+import useAuthContext from "@/context/AuthContext";
+import axios from "axios";
+import { useRouter } from "next/navigation";
+
+const SERVER_ADDRESS =
+  process.env.NEXT_PUBLIC_SERVER_ADDRESS || "http://localhost:9000";
+
+const UserCredential = z.object({
+  emailOrUsername: z.string().min(5, "Invalid email or Username"),
+  password: z
+    .string()
+    .min(8, "Password is too short.")
+    .max(15, "Password is too long."),
+});
+
 export default function Auth() {
-  const loginAction = async (
-    _previousState: LoginFormState,
-    formdata: FormData,
-  ): Promise<LoginFormState> => {
-    const result = UserCredentials.safeParse({
-      usernameOrEmail: formdata.get("usernameOrEmail"),
-      password: formdata.get("password"),
+  const { updateAuthorization } = useAuthContext();
+  const router = useRouter();
+
+  const [errors, setErrors] = useState<{
+    emailOrUsername?: string;
+    password?: string;
+    error?: string;
+  }>({});
+
+  const formAction = async (formData: FormData) => {
+    const userCredentials = {
+      emailOrUsername: formData.get("emailOrUsername"),
+      password: formData.get("password"),
+      rememberMe: formData.get("rememberMe") ? true : false,
+    };
+
+    const parsedObject = UserCredential.safeParse({
+      emailOrUsername: userCredentials.emailOrUsername,
+      password: userCredentials.password,
     });
 
-    if (!result.success) {
-      const err = z.treeifyError(result.error);
-      const errors: LoginFormState = {
-        fields: {
-          usernameOrEmail:
-            err.properties?.usernameOrEmail &&
-            "Enter a valid username or email.",
-          password:
-            err.properties?.password && "Password length min 8 and max 15.",
+    if (!parsedObject.success) {
+      const errorProperties = z.treeifyError(parsedObject.error).properties;
+
+      const emailError = errorProperties?.emailOrUsername?.errors?.[0];
+
+      if (emailError) {
+        setErrors({ emailOrUsername: emailError });
+      }
+
+      const passwordError = errorProperties?.password?.errors?.[0];
+      if (passwordError) {
+        setErrors((pre) => ({ ...pre, password: passwordError }));
+      }
+    }
+
+    const res = await axios.post(
+      `${SERVER_ADDRESS}/api/v1/auth`,
+      {
+        emailOrUsername: userCredentials.emailOrUsername,
+        password: userCredentials.password,
+      },
+      {
+        params: {
+          rememberMe: userCredentials.rememberMe,
         },
-      };
-      return errors;
+        validateStatus: () => true,
+      },
+    );
+
+    if (res.status !== 201) {
+      if (typeof res.data === "string") {
+        setErrors({ error: res.data });
+      } else {
+        setErrors({ error: "Currently unavailable" });
+      }
+      return;
     }
+    updateAuthorization(res.data);
 
-    const rememberMe = formdata.get("rememberMe") ? true : false;
-
-    const { usernameOrEmail, password } = result.data;
-
-    const res = await login({ usernameOrEmail, password, rememberMe });
-    if (res === null) {
-      return {
-        message: "Some error occurred",
-      };
-    }
-    return {};
+    router.push("/dashboard");
   };
-
-  const initialState: LoginFormState = {};
-  const [state, formAction] = useActionState(loginAction, initialState);
 
   return (
     <Card className="w-full max-w-md top-1/2 left-1/2 -translate-1/2 absolute">
       <CardHeader>
         <CardTitle>Intralogix</CardTitle>
-        {state.message ? (
+        {errors.error ? (
           <CardDescription className="text-red-600 font-bold">
-            {state.message}
+            {errors.error}
           </CardDescription>
         ) : (
           <CardDescription>Enter your login credentials</CardDescription>
@@ -92,19 +130,24 @@ export default function Auth() {
             <FieldGroup>
               <Field>
                 <FieldLabel htmlFor="username-or-email">
-                  Username or Email
+                  Email Or Username
                 </FieldLabel>
                 <Input
-                  id="username-or-email"
+                  id="email-or-username"
                   type="text"
-                  name="usernameOrEmail"
-                  className={
-                    state.fields?.usernameOrEmail ? "outline-red-600" : ""
+                  name="emailOrUsername"
+                  className={errors.emailOrUsername ? "outline-red-600" : ""}
+                  onFocus={() =>
+                    setErrors((pre) => ({
+                      ...pre,
+                      error: undefined,
+                      emailOrUsername: undefined,
+                    }))
                   }
                 />
-                {state.fields?.usernameOrEmail && (
+                {errors.emailOrUsername && (
                   <FieldDescription className="text-red-600 font-bold">
-                    {state.fields.usernameOrEmail}
+                    {errors.emailOrUsername}
                   </FieldDescription>
                 )}
               </Field>
@@ -113,12 +156,19 @@ export default function Auth() {
                 <PasswordInputWithToggle
                   id="password"
                   name="password"
-                  className={state.fields?.password ? "outline-red-600" : ""}
+                  className={errors.password ? "outline-red-600" : ""}
+                  onFocus={() =>
+                    setErrors((pre) => ({
+                      ...pre,
+                      error: undefined,
+                      emailOrUsername: undefined,
+                    }))
+                  }
                 />
 
-                {state.fields?.password && (
+                {errors.password && (
                   <FieldDescription className="text-red-600 font-bold">
-                    {state.fields.password}
+                    {errors.password}
                   </FieldDescription>
                 )}
               </Field>
@@ -151,11 +201,3 @@ export default function Auth() {
     </Card>
   );
 }
-
-export type LoginFormState = {
-  message?: string;
-  fields?: {
-    usernameOrEmail?: string;
-    password?: string;
-  };
-};

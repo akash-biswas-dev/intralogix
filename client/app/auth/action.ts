@@ -1,4 +1,3 @@
-"use server";
 import axios from "axios";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -83,7 +82,6 @@ export async function isUserAuthorized(): Promise<Authorization | null> {
 
   return null;
 }
-
 
 export type Authorization = {
   authorization: string;
