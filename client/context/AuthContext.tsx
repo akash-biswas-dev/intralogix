@@ -2,7 +2,7 @@
 import axios from "axios";
 import { createContext, ReactNode, use, useContext, useState } from "react";
 
-const SERVER_ADDRESS =
+export const SERVER_ADDRESS =
   process.env.NEXT_PUBLIC_SERVER_ADDRESS || "http://localhost:9000";
 
 type AuthContextType = {

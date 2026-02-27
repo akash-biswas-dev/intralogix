@@ -1,18 +1,15 @@
 "use client";
 
+import { FormEvent } from "react";
+
 const UserProfileUpdate = ({
   initialData,
-  authorization
+  onSubmit,
 }: {
-    initialData?: UserProfile;
-    authorization: string;
+  initialData?: UserProfile;
+  onSubmit?: (eve: FormEvent<HTMLFormElement>) => void;
 }) => {
-
-  const action = (formData:FormData) => {
-
-  }
-
-  return <form action={action}>Update profile component.</form>;
+  return <form onSubmit={onSubmit}>Update profile component.</form>;
 };
 
 export default UserProfileUpdate;
@@ -20,4 +17,6 @@ export default UserProfileUpdate;
 export type UserProfile = {
   firstName?: string;
   lastName?: string;
+  dateOfBirth?: string;
+  gender?: string;
 };
