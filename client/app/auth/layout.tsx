@@ -1,20 +1,28 @@
+"use client";
+
 import { ReactNode } from "react";
-import { isUserAuthorized } from "./action";
-import { redirect } from "next/navigation";
+import useAuthContext, { AuthContextProvider } from "@/context/AuthContext";
 
-export default async function AuthLayout({ children }: { children: ReactNode }) {
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-  const authorization = await isUserAuthorized();
-
-  if (authorization) {
-    if (authorization.isTemporary) {
-      redirect("/update-profile")
-    } else {
-      redirect("/")
-    }
-  }
-
+export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
-        <div className="w-full min-h-screen relative">{children}</div>
+    <AuthContextProvider>
+      <div className="w-full min-h-screen relative">{children}</div>
+    </AuthContextProvider>
   );
+}
+
+export function CheckAuthorization({ children }: { children: ReactNode }) {
+  const router = useRouter();
+  const { authorization } = useAuthContext();
+
+  useEffect(() => {
+    if (authorization) {
+      router.push("/home");
+    }
+  }, [router, authorization]);
+
+  return <>{!authorization && { children }}</>;
 }

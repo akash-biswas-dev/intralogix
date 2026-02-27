@@ -18,5 +18,8 @@ public class CookieFilterConfig {
         return new CookieAuthorizationFilter(jwtService,"SESSION");
     }
 
-
+    @Bean
+    CookieAuthorizationFilter profileUpdateTokenFilter() {
+        return new CookieAuthorizationFilter(jwtService,"PROFILE_UPDATE_SESSION");
+    }
 }

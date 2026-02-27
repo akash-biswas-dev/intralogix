@@ -21,4 +21,6 @@ public interface UsersRepository {
     Mono<Users> findByEmailOrUsername(String emailOrUsername);
 
     Mono<Users> findById(String userId);
+
+    Mono<Boolean> isUserExists(String userId);
 }

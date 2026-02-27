@@ -1,5 +1,9 @@
 "use client";
-import { createContext, ReactNode, useContext, useState } from "react";
+import axios from "axios";
+import { createContext, ReactNode, use, useContext, useState } from "react";
+
+const SERVER_ADDRESS =
+  process.env.NEXT_PUBLIC_SERVER_ADDRESS || "http://localhost:9000";
 
 type AuthContextType = {
   authorization?: Authorization;
@@ -11,13 +15,9 @@ const AuthContext = createContext<AuthContextType>({
   updateAuthorization: () => {},
 });
 
-export const AuthContextProvider = ({
-  initialAuth,
-  children,
-}: {
-  initialAuth: Authorization | undefined;
-  children: ReactNode;
-}) => {
+const authorizationPromise = fetchAuthorization();
+export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
+  const initialAuth = use(authorizationPromise);
   // The main authorization token which authorize the requests.
   const [authorization, setAuthorization] = useState<Authorization | undefined>(
     initialAuth,
@@ -28,20 +28,35 @@ export const AuthContextProvider = ({
   };
 
   return (
-    <>
-      {authorization && (
-        <AuthContext
-          value={{
-            authorization: authorization,
-            updateAuthorization: updateAuthorization,
-          }}
-        >
-          {children}
-        </AuthContext>
-      )}
-    </>
+    <AuthContext
+      value={{
+        authorization: authorization,
+        updateAuthorization: updateAuthorization,
+      }}
+    >
+      {children}
+    </AuthContext>
   );
 };
+export async function fetchAuthorization(): Promise<Authorization | undefined> {
+  const res = await axios.post(
+    `${SERVER_ADDRESS}/api/v1/auth/refresh-authorization`,
+    null,
+    {
+      validateStatus: () => true,
+    },
+  );
+
+  const { status, data } = res;
+
+  if (status === 201) {
+    return data;
+  }
+
+  console.error(data);
+
+  return undefined;
+}
 
 export default function useAuthContext() {
   return useContext(AuthContext);

@@ -2,6 +2,8 @@ package com.intralogix.users.dtos.requests;
 
 public record NewUserRequest(
         String email,
-        String password
+        String password,
+        String firstName,
+        String lastName
 ) {
 }

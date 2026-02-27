@@ -37,7 +37,6 @@ const SERVER_ADDRESS =
 export default function SignUp() {
   const router = useRouter();
 
-  console.log("Rendered....");
   const [errors, setErrors] = useState<{
     email?: string;
     password?: string;
@@ -84,7 +83,7 @@ export default function SignUp() {
     }
 
     const res = await axios.post(
-      `${SERVER_ADDRESS}/api/v1/api/register`,
+      `${SERVER_ADDRESS}/api/v1/auth/register`,
       {
         email: userData.email,
         password: userData.password,
@@ -99,10 +98,11 @@ export default function SignUp() {
     if (res.status !== 201) {
       setErrors({ error: res.data });
     }
+
+    if (res.status === 307) router.push("/update-profile");
+
     router.push("/auth");
   };
-
-  console.log(errors);
 
   return (
     <Card className="w-full max-w-md top-1/2 left-1/2 -translate-1/2 absolute">

@@ -1,5 +1,6 @@
 package com.intralogix.users.services.impl;
 
+import com.intralogix.users.dtos.requests.UserProfileRequest;
 import com.intralogix.users.exception.UserNotFoundException;
 import com.intralogix.users.models.Users;
 import com.intralogix.users.repository.UsersRepository;
@@ -17,9 +18,8 @@ public class UserServiceImpl implements UserService {
     private final UsersRepository usersRepository;
 
     @Override
-    public Mono<Void> createUser(Users users) {
-        return usersRepository.saveUser(users)
-                .then();
+    public Mono<Users> updateOrSaveUser(Users users) {
+        return usersRepository.saveUser(users);
     }
 
     @Override
@@ -41,6 +41,17 @@ public class UserServiceImpl implements UserService {
         return usersRepository
                 .findById(userId);
     }
+
+    @Override
+    public Mono<Boolean> isUserExists(String userId) {
+        return usersRepository.isUserExists(userId);
+    }
+
+    @Override
+    public Mono<Boolean> isUserExistsWithUsername(String username) {
+        return usersRepository.isUserExists(username);
+    }
+
 
 
 /*

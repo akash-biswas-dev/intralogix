@@ -37,4 +37,9 @@ public class UserRepositoryImpl implements UsersRepository {
     public Mono<Users> findById(String userId) {
         return mongoTemplate.findById(userId, Users.class);
     }
+
+    @Override
+    public Mono<Boolean> isUserExists(String userId) {
+        return mongoTemplate.exists(Query.query(Criteria.where("id").is(userId)),Users.class);
+    }
 }
