@@ -1,6 +1,14 @@
 "use client";
 
 import { FormEvent } from "react";
+import { Field } from "./ui/field";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "./ui/card";
 
 const UserProfileUpdate = ({
   initialData,
@@ -9,7 +17,18 @@ const UserProfileUpdate = ({
   initialData?: UserProfile;
   onSubmit?: (eve: FormEvent<HTMLFormElement>) => void;
 }) => {
-  return <form onSubmit={onSubmit}>Update profile component.</form>;
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Intralogix</CardTitle>
+        <CardDescription>Setup your profile</CardDescription>
+      </CardHeader>
+
+      <CardContent>
+        <form onSubmit={onSubmit}></form>
+      </CardContent>
+    </Card>
+  );
 };
 
 export default UserProfileUpdate;

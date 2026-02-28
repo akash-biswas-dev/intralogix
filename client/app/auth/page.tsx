@@ -92,17 +92,22 @@ export default function Auth() {
       },
     );
 
-    if (res.status !== 201) {
-      if (typeof res.data === "string") {
-        setErrors({ error: res.data });
-      } else {
-        setErrors({ error: "Currently unavailable" });
-      }
+    if (res.status === 201) {
+      updateAuthorization(res.data.data);
+      router.push("/dashboard");
       return;
     }
-    updateAuthorization(res.data);
 
-    router.push("/dashboard");
+    if (res.status === 202) {
+      router.push("/setup-profile");
+      return;
+    }
+    const err = res.data.err;
+    if (err) {
+      setErrors({ error: err });
+    } else {
+      console.error("Service unavailable!");
+    }
   };
 
   return (

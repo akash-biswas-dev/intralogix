@@ -16,6 +16,7 @@ const AuthContext = createContext<AuthContextType>({
 });
 
 const authorizationPromise = fetchAuthorization();
+
 export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
   const initialAuth = use(authorizationPromise);
   // The main authorization token which authorize the requests.
@@ -44,6 +45,7 @@ export async function fetchAuthorization(): Promise<Authorization | undefined> {
     null,
     {
       validateStatus: () => true,
+      withCredentials: true,
     },
   );
 

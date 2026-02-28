@@ -8,6 +8,7 @@ import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 
 @Configuration
 public class GatewayConfig {
@@ -36,15 +37,21 @@ public class GatewayConfig {
 
         return routeLocatorBuilder.routes()
                 .route("refresh-token",r->r
-                        .path("/api/v1/auth/refresh-token")
+                        .method(HttpMethod.POST)
+                        .and()
+                        .path("/api/v1/auth/refresh-authorization")
                         .filters(f->f.filter(refreshTokenFilter))
                         .uri(registeredServiceURLs.userService())
                 )
-                .route("auth-route",r->r
+                .route("profile-update-token",r-> r
+                        .method(HttpMethod.GET,HttpMethod.POST)
+                        .and()
+                        .path("/api/v1/auth/setup-profile")
+                        .filters(f-> f.filter(profileUpdateTokenFilter))
+                        .uri(registeredServiceURLs.userService())
+                )
+                .route("auth",(r)->r
                         .path("/api/v1/auth/**")
-                        .filters(f-> f
-                                .filter(profileUpdateTokenFilter)
-                                .filter(jwtAuthorizationFilter))
                         .uri(registeredServiceURLs.userService())
                 )
                 .route("user-route", r-> r

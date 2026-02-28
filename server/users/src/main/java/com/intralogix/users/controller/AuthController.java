@@ -1,13 +1,16 @@
 package com.intralogix.users.controller;
 
 
+import com.intralogix.common.auth.SessionCookies;
+import com.intralogix.common.exceptions.AccountNotEnabledException;
 import com.intralogix.common.jwt.JwtService;
+import com.intralogix.common.response.ClientResponse;
 import com.intralogix.users.dtos.requests.NewUserRequest;
 import com.intralogix.users.dtos.requests.UserCredentials;
 import com.intralogix.users.dtos.requests.UserProfileRequest;
 import com.intralogix.users.dtos.response.Authorization;
-import com.intralogix.users.models.UserProfile;
 import com.intralogix.users.models.Users;
+import com.intralogix.users.services.AuthService;
 import com.intralogix.users.services.UserService;
 import com.intralogix.users.utils.UsersUtils;
 import lombok.RequiredArgsConstructor;
@@ -15,12 +18,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import javax.security.auth.login.AccountLockedException;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.util.HashMap;
 
 
@@ -29,72 +32,30 @@ import java.util.HashMap;
 @RequestMapping(value = "/api/v1/auth")
 public class AuthController {
 
-    private static final String SETUP_PROFILE_SESSION= "SETUP_PROFILE_SESSION";
-    private static final String SETUP_PROFILE_SESSION_PATH ="/api/v1/auth/setup-prifile";
 
     private final UserService userService;
+    private final AuthService authService;
     private final JwtService jwtService;
-    private final PasswordEncoder passwordEncoder;
 
     @PostMapping(value = "/register")
     public Mono<ResponseEntity<Void>> registerUser(@RequestBody NewUserRequest newUser) {
-
-        Users user = Users.builder()
-                .email(newUser.email())
-                .password(passwordEncoder.encode(newUser.password()))
-                .joinedOn(LocalDate.now())
-                .isAccountEnabled(false)
-                .isAccountLocked(false)
-                .build();
-        return userService.updateOrSaveUser(user)
+        return userService.createUser(newUser)
                 .thenReturn(new ResponseEntity<>(HttpStatus.CREATED));
     }
 
     @PostMapping
-    public Mono<ResponseEntity<?>> login(
+    public Mono<ResponseEntity<ClientResponse<Authorization>>> login(
             @RequestBody UserCredentials credentials,
-            @RequestParam(name = "rememberMe", required = false, defaultValue = "false") boolean rememberMe
+            @RequestParam(name = "rememberMe", required = false, defaultValue = "false") boolean rememberMe,
+            ServerWebExchange exchange
     ) {
 
         int age = rememberMe ? 15 * 24 * 60 : 60 * 24;
 
-        Mono<Users> usersMono = userService.findUserByEmailOrUsername(
-                credentials.emailOrUsername()
-        );
+        Mono<Users> usersMono = authService.validateUser(credentials);
 
         return usersMono
                 .map(users -> {
-                    if (!users.getIsAccountEnabled()) {
-                        String temporaryProfileUpdateSession = jwtService.generateSession(users.getId(), 60);
-                        ResponseCookie profileUpdateCookie = ResponseCookie
-                                .from(SETUP_PROFILE_SESSION)
-                                .value(temporaryProfileUpdateSession)
-                                .maxAge(Duration.ofHours(1))
-                                .path(SETUP_PROFILE_SESSION_PATH)
-                                .httpOnly(true)
-                                .build();
-
-                        return ResponseEntity
-                                .status(HttpStatus.TEMPORARY_REDIRECT)
-                                .header(HttpHeaders.SET_COOKIE, profileUpdateCookie.toString())
-                                .build();
-                    }
-
-                    if (users.getIsAccountLocked()) {
-                        return ResponseEntity
-                                .status(HttpStatus.FORBIDDEN)
-                                .body("Profile locked contact to administrator.");
-                    }
-
-                    boolean passwordMatches = passwordEncoder.matches(
-                            credentials.password(),
-                            users.getPassword()
-                    );
-                    if (!passwordMatches) {
-                        return ResponseEntity
-                                .status(HttpStatus.BAD_REQUEST)
-                                .body("Invalid username and password");
-                    }
 
                     String authorizationToken =
                             jwtService.generateAuthorization(users.getId(), new HashMap<>());
@@ -106,19 +67,42 @@ public class AuthController {
                     );
 
                     ResponseCookie cookie = ResponseCookie
-                            .from("SESSION")
+                            .from(SessionCookies.COOKIE_SESSION.getCookieName())
                             .value(session)
-                            .path("/api/v1/auth/refresh-authorization")
+                            .path(SessionCookies.COOKIE_SESSION.getPath())
                             .httpOnly(true)
                             .maxAge(age)
                             .build();
+                    exchange.getResponse().addCookie(cookie);
                     return ResponseEntity.status(HttpStatus.CREATED)
-                            .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                            .body(authorization);
-                }).onErrorResume(err -> Mono.just(
+                            .body(new ClientResponse<>(true,authorization,null));
+                })
+                .onErrorResume(AccountNotEnabledException.class, (err) -> {
+                    String temporaryProfileUpdateSession = jwtService.generateSession(err.getUserId(), 60);
+                    ResponseCookie profileUpdateCookie = ResponseCookie
+                            .from(SessionCookies.COOKIE_SETUP_PROFILE.getCookieName())
+                            .value(temporaryProfileUpdateSession)
+                            .sameSite("Lax")
+                            .maxAge(Duration.ofHours(1))
+                            .path(SessionCookies.COOKIE_SETUP_PROFILE.getPath())
+                            .httpOnly(true)
+                            .build();
+                    exchange.getResponse().addCookie(profileUpdateCookie);
+
+                    return Mono.just(ResponseEntity
+                                    .status(HttpStatus.ACCEPTED)
+                            .build());
+                })
+                .onErrorResume(AccountLockedException.class, (_err) ->
+                        Mono.just(
+                                ResponseEntity
+                                        .status(HttpStatus.FORBIDDEN)
+                                        .body(new ClientResponse<>(false,null,"")))
+                )
+                .onErrorResume(err -> Mono.just(
                         ResponseEntity
                                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                .body(err.getMessage())
+                                .body(new ClientResponse<>(false,null,"Something went wrong."))
                 ));
     }
 
@@ -133,7 +117,6 @@ public class AuthController {
                     String token = jwtService
                             .generateAuthorization(users.getId(), new HashMap<>());
 
-
                     return ResponseEntity
                             .status(HttpStatus.CREATED)
                             .body(new Authorization(token,
@@ -144,17 +127,17 @@ public class AuthController {
 
 
     @GetMapping(value = "/setup-profile")
-    public Mono<ResponseEntity<?>> getProfileInfo(@RequestHeader(name = "Authentication-Info") String userId){
-        Mono<Boolean> usersMono = userService.isUserExists(userId);
-        return usersMono.map(isExists->{
-            if(isExists) {
+    public Mono<ResponseEntity<?>> getProfileInfo(@RequestHeader(name = "Authentication-Info") String userId) {
+        Mono<Boolean> isAccountEnabledMono = userService.isAccountEnabled(userId);
+        return isAccountEnabledMono.map(isExists -> {
+            if (!isExists) {
                 return ResponseEntity
                         .ok()
                         .build();
             }
 
             return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
+                    .status(HttpStatus.BAD_REQUEST)
                     .build();
         });
     }
@@ -162,36 +145,20 @@ public class AuthController {
 
     @PostMapping(value = "/setup-profile")
     public Mono<ResponseEntity<?>> setupProfile(@RequestHeader(name = "Authentication-Info") String userId,
-                                                 @RequestBody UserProfileRequest userProfileRequest){
-        Mono<Users> usersMono = userService.findUserById(userId);
+                                                @RequestBody UserProfileRequest userProfileRequest,
+                                                ServerWebExchange exchange) {
+        Mono<Users> usersMono = userService.updateUserProfile(userId,userProfileRequest);
 
-        return usersMono.flatMap(users->{
-
-            UserProfile userProfile = UserProfile.builder()
-                    .firstName(userProfileRequest.firstName())
-                    .lastName(userProfileRequest.lastName())
-                    .dateOfBirth(LocalDate.parse(userProfileRequest.dateOfBirth()))
-                    .gender(userProfileRequest.gender())
-                    .build();
-
-            users.setUserProfile(userProfile);
-            users.setIsAccountEnabled(true);
-
-            Mono<Users> updateUserMono = userService.updateOrSaveUser(users);
-
-            return updateUserMono.map(updatedUsers -> {
-
+        return usersMono.map(users -> {
                 ResponseCookie deleteProfileCookie = ResponseCookie
-                        .from(SETUP_PROFILE_SESSION, "")
-                        .path(SETUP_PROFILE_SESSION_PATH)
+                        .from(SessionCookies.COOKIE_SETUP_PROFILE.getCookieName(), null)
+                        .path(SessionCookies.COOKIE_SETUP_PROFILE.getPath())
                         .httpOnly(true)
                         .build();
-
+                exchange.getResponse().addCookie(deleteProfileCookie);
                 return ResponseEntity
                         .status(HttpStatus.ACCEPTED)
-                        .header(HttpHeaders.SET_COOKIE, deleteProfileCookie.toString())
                         .build();
-            });
         });
     }
 }

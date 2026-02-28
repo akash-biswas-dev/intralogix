@@ -29,7 +29,10 @@ public class ApplicationConfig {
         );
     }
 
-    public record RegisteredServiceURLs(String userService, String workspaceService) {
+    public record RegisteredServiceURLs(
+            String userService,
+            String workspaceService
+    ) {
     }
 
 

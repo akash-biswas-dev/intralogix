@@ -1,5 +1,6 @@
 package com.intralogix.gateway.filters;
 
+import com.intralogix.common.auth.SessionCookies;
 import com.intralogix.common.jwt.JwtService;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.NonNull;
@@ -21,9 +22,9 @@ public class CookieAuthorizationFilter implements GatewayFilter {
     private final JwtService jwtService;
     private final String cookieName;
 
-    public CookieAuthorizationFilter(JwtService jwtService, String cookieName) {
+    public CookieAuthorizationFilter(JwtService jwtService, SessionCookies cookie) {
         this.jwtService = jwtService;
-        this.cookieName = cookieName;
+        this.cookieName = cookie.getCookieName();
     }
 
     @NonNull
@@ -31,6 +32,8 @@ public class CookieAuthorizationFilter implements GatewayFilter {
     public Mono<Void> filter(ServerWebExchange exchange, @NonNull GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
         ServerHttpResponse response = exchange.getResponse();
+
+        log.info("Request made at : {}",request.getPath());
 
         HttpCookie cookie = request.getCookies().getFirst(cookieName);
 
