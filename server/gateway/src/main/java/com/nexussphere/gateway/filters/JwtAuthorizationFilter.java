@@ -1,6 +1,8 @@
 package com.nexussphere.gateway.filters;
 
-import com.nexussphere.common.jwt.JwtService;
+import com.nexussphere.common.auth.jwt.JwtService;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,20 +36,26 @@ public class JwtAuthorizationFilter implements GatewayFilter {
         try {
 
             if (authorization == null || !authorization.startsWith("Bearer ")) {
-                throw new RuntimeException("Authorization header is invalid");
+                throw new RuntimeException("Invalid authorization found.");
             }
             String token = authorization.substring(7);
 
             userId = jwtService.getUserId(token);
+            ServerHttpRequest modifiedRequest = request.mutate()
+                    .headers((headers) -> headers.set("Authentication-Info", userId)).build();
 
+            return chain.filter(exchange.mutate().request(modifiedRequest).build());
+        } catch (ExpiredJwtException expiredJwtException) {
+            log.error("Authorization expired for user: {}", expiredJwtException.getClaims().getSubject());
+        } catch (MalformedJwtException ex) {
+            log.error("Invalid JWT token passed with message: {}", ex.getMessage());
         } catch (Exception ex) {
-            log.error("Error while getting user id from token", ex);
-            response.setStatusCode(HttpStatus.UNAUTHORIZED);
-            return response.setComplete();
+            log.error("Error occurred while authenticating user with message: {}", ex.getMessage());
         }
-
-        ServerHttpRequest modifiedRequest = request.mutate()
-                .headers((headers) -> headers.set("Authentication-Info",userId)).build();
-        return chain.filter(exchange.mutate().request(modifiedRequest).build());
+        response.setStatusCode(HttpStatus.UNAUTHORIZED);
+        response.getHeaders().set("WWW-Authenticate", "Bearer");
+        return response.setComplete();
     }
+
+
 }

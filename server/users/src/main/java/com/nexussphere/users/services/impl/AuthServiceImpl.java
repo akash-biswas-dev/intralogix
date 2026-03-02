@@ -1,6 +1,6 @@
 package com.nexussphere.users.services.impl;
 
-import com.nexussphere.common.exceptions.AccountNotEnabledException;
+import com.nexussphere.users.exception.AccountNotEnabledException;
 import com.nexussphere.users.dtos.requests.UserCredentials;
 import com.nexussphere.users.exception.InvalidCredentialException;
 import com.nexussphere.users.exception.UserNotFoundException;

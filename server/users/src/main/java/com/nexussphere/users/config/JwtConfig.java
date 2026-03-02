@@ -1,8 +1,8 @@
 package com.nexussphere.users.config;
 
 
-import com.nexussphere.common.jwt.JwtService;
-import com.nexussphere.common.jwt.JwtServiceImpl;
+import com.nexussphere.common.auth.jwt.JwtService;
+import com.nexussphere.common.auth.jwt.JwtServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

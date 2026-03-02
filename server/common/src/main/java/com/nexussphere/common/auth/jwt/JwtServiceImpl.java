@@ -1,12 +1,11 @@
-package com.nexussphere.common.jwt;
+package com.nexussphere.common.auth.jwt;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
 import java.security.Key;
+import java.time.Duration;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,26 +14,40 @@ import java.util.function.Function;
 public class JwtServiceImpl implements JwtService {
 
     //    In minutes.
-    private static final int DEFAULT_EXPIRY = 5;
+    private static final int DEFAULT_EXPIRY_IN_MINUTES = 5;
 
     //    Jwt secret.
     private final String secret;
     private final String issuer;
+    private final Duration expiry;
+
 
     public JwtServiceImpl(
             String secret,
             String issuer) {
         this.secret = secret;
         this.issuer = issuer;
+        this.expiry = Duration.ofMinutes(DEFAULT_EXPIRY_IN_MINUTES);
     }
 
-    private String createToken(String id, int expiryInMinutes, Map<String, Object> claims) {
+//    Constructor to create a JwtService with custom authorization expiry.
+    public JwtServiceImpl(
+            String secret,
+            String issuer,
+            Duration duration) {
+        this.secret = secret;
+        this.issuer = issuer;
+        this.expiry = duration;
+    }
+
+
+    private String createToken(String id, long windowSize, Map<String, Object> claims) {
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(id)
                 .setIssuer(issuer)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000L * 60 * expiryInMinutes))
+                .setExpiration(new Date(System.currentTimeMillis() + windowSize))
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -45,22 +58,22 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public String generateSession(String userId, Integer expiryInMinutes) {
-        return createToken(userId,expiryInMinutes, new HashMap<>());
+    public String generateSession(String userId, Duration expiry) {
+        return createToken(userId, expiry.toMillis(), new HashMap<>());
     }
 
     @Override
     public String generateAuthorization(String userId, Map<String, Object> extraClaims) {
-        return createToken(userId,DEFAULT_EXPIRY,extraClaims);
+        return createToken(userId, expiry.toMillis(), extraClaims);
     }
 
     @Override
-    public String getUserId(String token) {
+    public String getUserId(String token) throws ExpiredJwtException,MalformedJwtException {
         return extractAllClaims(token).getSubject();
     }
 
     @Override
-    public Claims extractAllClaims(String token) {
+    public Claims extractAllClaims(String token) throws ExpiredJwtException, MalformedJwtException {
         return Jwts.parserBuilder()
                 .setSigningKey(getSignKey())
                 .build()
@@ -69,9 +82,9 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public <T> T extractClaim(String token, String key, Class<T> type){
+    public <T> T extractClaim(String token, String key, Class<T> type) {
         final Claims allClaims = extractAllClaims(token);
-        Function<Claims,T> claimsResolvers = (claims)-> claims.get(key,type);
+        Function<Claims, T> claimsResolvers = (claims) -> claims.get(key, type);
         return claimsResolvers.apply(allClaims);
     }
 }

@@ -17,6 +17,7 @@ import {
   FieldSet,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { SERVER_ADDRESS } from "@/context/AuthContext";
 import axios from "axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -30,9 +31,6 @@ const UserData = z.object({
     .min(8, "Password is too short")
     .max(15, "Password is too long."),
 });
-
-const SERVER_ADDRESS =
-  process.env.NEXT_PUBLIC_SERVER_ADDRESS || "http://localhost:9000";
 
 export default function SignUp() {
   const router = useRouter();

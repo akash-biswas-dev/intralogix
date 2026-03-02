@@ -2,8 +2,8 @@ package com.nexussphere.users.controller;
 
 
 import com.nexussphere.common.auth.SessionCookies;
-import com.nexussphere.common.exceptions.AccountNotEnabledException;
-import com.nexussphere.common.jwt.JwtService;
+import com.nexussphere.users.exception.AccountNotEnabledException;
+import com.nexussphere.common.auth.jwt.JwtService;
 import com.nexussphere.common.response.ClientResponse;
 import com.nexussphere.users.dtos.requests.NewUserRequest;
 import com.nexussphere.users.dtos.requests.UserCredentials;
@@ -49,7 +49,8 @@ public class AuthController {
             ServerWebExchange exchange
     ) {
 
-        int age = rememberMe ? 15 * 24 * 60 : 60 * 24;
+//        How many days the generated session token valid.
+        int ageInDays = rememberMe ? 15 : 1;
 
         Mono<Users> usersMono = authService.validateUser(credentials);
 
@@ -58,7 +59,7 @@ public class AuthController {
 
                     String authorizationToken =
                             jwtService.generateAuthorization(users.getId(), new HashMap<>());
-                    String session = jwtService.generateSession(users.getId(), age);
+                    String session = jwtService.generateSession(users.getId(), Duration.ofDays(ageInDays));
 
                     Authorization authorization = new Authorization(
                             authorizationToken,
@@ -70,14 +71,14 @@ public class AuthController {
                             .value(session)
                             .path(SessionCookies.COOKIE_SESSION.getPath())
                             .httpOnly(true)
-                            .maxAge(age)
+                            .maxAge(Duration.ofDays(ageInDays))
                             .build();
                     exchange.getResponse().addCookie(cookie);
                     return ResponseEntity.status(HttpStatus.CREATED)
                             .body(new ClientResponse<>(true, authorization, null));
                 })
                 .onErrorResume(AccountNotEnabledException.class, (err) -> {
-                    String temporaryProfileUpdateSession = jwtService.generateSession(err.getUserId(), 60);
+                    String temporaryProfileUpdateSession = jwtService.generateSession(err.getUserId(), Duration.ofHours(1));
                     ResponseCookie profileUpdateCookie = ResponseCookie
                             .from(SessionCookies.COOKIE_SETUP_PROFILE.getCookieName())
                             .value(temporaryProfileUpdateSession)

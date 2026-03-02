@@ -2,7 +2,7 @@ package com.nexussphere.gateway.config;
 
 
 import com.nexussphere.common.auth.SessionCookies;
-import com.nexussphere.common.jwt.JwtService;
+import com.nexussphere.common.auth.jwt.JwtService;
 import com.nexussphere.gateway.filters.CookieAuthorizationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

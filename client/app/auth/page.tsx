@@ -26,12 +26,9 @@ import { useState } from "react";
 
 import * as z from "zod";
 
-import useAuthContext from "@/context/AuthContext";
+import useAuthContext, { SERVER_ADDRESS } from "@/context/AuthContext";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-
-const SERVER_ADDRESS =
-  process.env.NEXT_PUBLIC_SERVER_ADDRESS || "http://localhost:9000";
 
 const UserCredential = z.object({
   emailOrUsername: z.string().min(5, "Invalid email or Username"),
@@ -98,7 +95,7 @@ export default function Auth() {
       return;
     }
 
-    if (res.status === 202) {
+    if (res.status === 307) {
       router.push("/setup-profile");
       return;
     }

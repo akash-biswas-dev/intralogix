@@ -1,22 +1,25 @@
 "use client";
 import ax, { AxiosInstance } from "axios";
 
-import { createContext, ReactNode, useContext } from "react";
-import useAuthContext from "./AuthContext";
+import { createContext, ReactNode, useContext, useEffect } from "react";
+import useAuthContext, { fetchAuthorization } from "./AuthContext";
 
 import { useRouter } from "next/navigation";
 
-const BASE_URL = process.env.BACKEND_URL || "http://localhost:9000";
+import { SERVER_ADDRESS } from "./AuthContext";
 
 const AxiosContext = createContext<undefined | AxiosInstance>(undefined);
 
 export function AxiosProvider({ children }: { children: ReactNode }) {
-  const router = useRouter();
   const { authorization, updateAuthorization } = useAuthContext();
 
+  const router = useRouter();
+
   const axiosInstance = ax.create({
-    baseURL: BASE_URL,
+    baseURL: SERVER_ADDRESS,
   });
+
+  // Retrying if encounter unauthorized on any request from server.
   axiosInstance.interceptors.request.use(
     function (config) {
       // Interceptor which include the authorizartion to the request.
@@ -30,25 +33,32 @@ export function AxiosProvider({ children }: { children: ReactNode }) {
         return Promise.reject(error);
       }
       const { respone } = error;
-      if (respone.status === 407) {
+      if (respone.status === 401) {
         // Retry to generate the tokens using refresh token.
-        const auth = await isUserAuthorized();
+        const auth = await fetchAuthorization();
+
         if (!auth) {
-          updateAuthorization(undefined);
+          updateAuthorization(auth);
           return Promise.reject(error);
         }
-        const { authorization, isTemporary } = auth;
-        if (isTemporary) {
-          router.replace("/update-profile");
-        }
-        updateAuthorization(authorization);
-        return axiosInstance(error.config);
+        updateAuthorization(auth);
       }
-      return Promise.reject(error);
+      return axiosInstance(error.config);
     },
   );
 
-  return <AxiosContext value={axiosInstance}>{children}</AxiosContext>;
+  useEffect(() => {
+    if (!authorization) {
+      router.push("/auth");
+    }
+  });
+
+  return (
+    <>
+      authorization &&
+      <AxiosContext value={axiosInstance}> {children}</AxiosContext>;
+    </>
+  );
 }
 export default function useAxios() {
   return useContext(AxiosContext);
