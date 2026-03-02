@@ -3,11 +3,11 @@
     <modelVersion>4.0.0</modelVersion>
 
 
-    <groupId>com.thecodingengineer.intralogix</groupId>
-    <artifactId>intralogix</artifactId>
+    <groupId>com.biswasakash.nexussphere</groupId>
+    <artifactId>nexussphere</artifactId>
     <version>1.0.0</version>
     <packaging>pom</packaging>
-    <name>server</name>
+    <name>nexussphere</name>
     <!-- FIXME change it to the project's website -->
     <url>http://www.intralogix.app</url>
 

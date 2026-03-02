@@ -5,15 +5,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.thecodingengineer.intralogix</groupId>
-        <artifactId>intralogix</artifactId>
+        <groupId>com.biswasakash.nexussphere</groupId>
+        <artifactId>nexussphere</artifactId>
         <version>1.0.0</version>
     </parent>
 
-    <groupId>com.intralogix.workspace</groupId>
+    <groupId>com.nexussphere.workspace</groupId>
     <artifactId>workspace</artifactId>
     <version>0.0.1</version>
-
 
 
     <dependencies>
@@ -36,7 +35,7 @@
             <artifactId>r2dbc-postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
-<!--        Database dependencies.-->
+        <!--        Database dependencies.-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-r2dbc-test</artifactId>

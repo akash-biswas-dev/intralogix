@@ -4,7 +4,6 @@ import ax, { AxiosInstance } from "axios";
 import { createContext, ReactNode, useContext } from "react";
 import useAuthContext from "./AuthContext";
 
-import { isUserAuthorized } from "@/app/auth/action";
 import { useRouter } from "next/navigation";
 
 const BASE_URL = process.env.BACKEND_URL || "http://localhost:9000";
@@ -12,7 +11,6 @@ const BASE_URL = process.env.BACKEND_URL || "http://localhost:9000";
 const AxiosContext = createContext<undefined | AxiosInstance>(undefined);
 
 export function AxiosProvider({ children }: { children: ReactNode }) {
-
   const router = useRouter();
   const { authorization, updateAuthorization } = useAuthContext();
 
@@ -47,7 +45,7 @@ export function AxiosProvider({ children }: { children: ReactNode }) {
         return axiosInstance(error.config);
       }
       return Promise.reject(error);
-    }
+    },
   );
 
   return <AxiosContext value={axiosInstance}>{children}</AxiosContext>;

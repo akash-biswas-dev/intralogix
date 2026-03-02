@@ -5,12 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.thecodingengineer.intralogix</groupId>
-        <artifactId>intralogix</artifactId>
+        <groupId>com.biswasakash.nexussphere</groupId>
+        <artifactId>nexussphere</artifactId>
         <version>1.0.0</version>
     </parent>
 
-    <groupId>com.intralogix.gateway</groupId>
+    <groupId>com.nexussphere.gateway</groupId>
     <artifactId>gateway</artifactId>
     <version>0.0.1</version>
 
@@ -30,9 +30,9 @@
             <artifactId>spring-cloud-config-client</artifactId>
         </dependency>
 
-<!--        Common dependencies.-->
+        <!--        Common dependencies.-->
         <dependency>
-            <groupId>com.intralogix.common</groupId>
+            <groupId>com.nexussphere.common</groupId>
             <artifactId>common</artifactId>
             <version>0.0.1</version>
         </dependency>

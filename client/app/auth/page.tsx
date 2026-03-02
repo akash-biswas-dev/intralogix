@@ -113,7 +113,7 @@ export default function Auth() {
   return (
     <Card className="w-full max-w-md top-1/2 left-1/2 -translate-1/2 absolute">
       <CardHeader>
-        <CardTitle>Intralogix</CardTitle>
+        <CardTitle>NexusSphere</CardTitle>
         {errors.error ? (
           <CardDescription className="text-red-600 font-bold">
             {errors.error}

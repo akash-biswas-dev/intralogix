@@ -99,7 +99,7 @@ export default function SignUp() {
       setErrors({ error: res.data });
     }
 
-    if (res.status === 307) router.push("/update-profile");
+    if (res.status === 307) router.push("/setup-profile");
 
     router.push("/auth");
   };
@@ -107,7 +107,7 @@ export default function SignUp() {
   return (
     <Card className="w-full max-w-md top-1/2 left-1/2 -translate-1/2 absolute">
       <CardHeader>
-        <CardTitle>Intralogix</CardTitle>
+        <CardTitle>NexusSphere</CardTitle>
         <CardDescription
           className={errors.error ? "text-red-600 font-bold" : ""}
         >

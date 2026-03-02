@@ -6,12 +6,12 @@
 
 
     <parent>
-        <groupId>com.thecodingengineer.intralogix</groupId>
-        <artifactId>intralogix</artifactId>
+        <groupId>com.biswasakash.nexussphere</groupId>
+        <artifactId>nexussphere</artifactId>
         <version>1.0.0</version>
     </parent>
 
-    <groupId>com.intralogix.configserver</groupId>
+    <groupId>com.nexussphere.configserver</groupId>
     <artifactId>config-server</artifactId>
     <version>0.0.1</version>
 
