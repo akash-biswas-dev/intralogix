@@ -18,7 +18,7 @@ const UserProfileUpdate = ({
   onSubmit?: (eve: FormEvent<HTMLFormElement>) => void;
 }) => {
   return (
-    <Card>
+    <Card className="max-w-md">
       <CardHeader>
         <CardTitle>Intralogix</CardTitle>
         <CardDescription>Setup your profile</CardDescription>

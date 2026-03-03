@@ -1,16 +1,16 @@
 "use client";
 
 import { ReactNode } from "react";
-import useAuthContext, { AuthContextProvider } from "@/context/AuthContext";
+import useAuthContext, { AuthProvider } from "@/context/AuthContext";
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
-    <AuthContextProvider>
+    <AuthProvider>
       <div className="w-full min-h-screen relative">{children}</div>
-    </AuthContextProvider>
+    </AuthProvider>
   );
 }
 

@@ -1,18 +1,36 @@
 "use client";
 import UserProfileUpdate from "@/components/UserProfileUpdate";
 import { useRouter } from "next/navigation";
-import { FormEvent, use, useEffect } from "react";
-import { fetchProfileStatus } from "./action";
-
-const profileStatusPromise = fetchProfileStatus();
+import { FormEvent, use, useEffect, useState } from "react";
+import axios from "axios";
+import { SERVER_ADDRESS } from "@/context/AuthContext";
+import { setPriority } from "node:os";
 
 export default function UpdateProfile() {
   const router = useRouter();
   // If users profile already setup then isAlreadySetup is
-  const isProfileNotCreated = use(profileStatusPromise);
+
+  const [isProfileNotCreated, setIsProfileNotCreated] = useState(true);
 
   useEffect(() => {
-    if (!isProfileNotCreated) router.push("/auth");
+    const isProfileAuthenticated = async () => {
+      const res = await axios.get(
+        `${SERVER_ADDRESS}/api/v1/auth/setup-profile`,
+        {
+          validateStatus: () => true,
+          withCredentials: true,
+        },
+      );
+
+      const { status, data } = res;
+
+      if (status === 200) setIsProfileNotCreated(true);
+
+      if (data?.data?.error) {
+        console.error(data.data.error);
+      }
+      router.push("/dashboard");
+    };
   }, [isProfileNotCreated, router]);
 
   const onSubmit = (eve: FormEvent<HTMLFormElement>) => {

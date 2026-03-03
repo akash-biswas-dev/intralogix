@@ -17,7 +17,6 @@ import {
   FieldSet,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import google from "@/public/google-logo.webp";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -189,8 +188,8 @@ export default function Auth() {
                 variant="outline"
                 className="flex gap-2 w-full"
               >
-                <Image
-                  src={google}
+                <img
+                  src={"/google-logo.webp"}
                   alt="google"
                   className="h-full object-contain w-fit"
                 />

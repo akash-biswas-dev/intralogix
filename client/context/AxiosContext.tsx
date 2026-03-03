@@ -36,12 +36,10 @@ export function AxiosProvider({ children }: { children: ReactNode }) {
       if (respone.status === 401) {
         // Retry to generate the tokens using refresh token.
         const auth = await fetchAuthorization();
-
+        updateAuthorization(auth);
         if (!auth) {
-          updateAuthorization(auth);
           return Promise.reject(error);
         }
-        updateAuthorization(auth);
       }
       return axiosInstance(error.config);
     },

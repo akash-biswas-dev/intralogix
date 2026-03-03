@@ -1,6 +1,15 @@
 "use client";
 import axios from "axios";
-import { createContext, ReactNode, use, useContext, useState } from "react";
+import React, {
+  createContext,
+  ReactNode,
+  Suspense,
+  use,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+import { LoadingPage } from "./LoadingContext";
 
 export const SERVER_ADDRESS =
   process.env.NEXT_PUBLIC_SERVER_ADDRESS || "http://localhost:9000";
@@ -15,30 +24,46 @@ const AuthContext = createContext<AuthContextType>({
   updateAuthorization: () => {},
 });
 
-const authorizationPromise = fetchAuthorization();
-
-export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
-  const initialAuth = use(authorizationPromise);
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // The main authorization token which authorize the requests.
   const [authorization, setAuthorization] = useState<Authorization | undefined>(
-    initialAuth,
+    undefined,
   );
 
-  const updateAuthorization = (auth: Authorization | undefined) => {
-    setAuthorization(auth);
-  };
+  useEffect(() => {
+    const updateAuthorization = async () => {
+      const auth = await fetchAuthorization();
+      setAuthorization(auth);
+    };
+    updateAuthorization();
+  }, []);
 
   return (
     <AuthContext
       value={{
         authorization: authorization,
-        updateAuthorization: updateAuthorization,
+        updateAuthorization: setAuthorization,
       }}
     >
       {children}
     </AuthContext>
   );
 };
+
+export default function useAuthContext() {
+  return useContext(AuthContext);
+}
+
+export interface User {
+  firstName: string;
+  lastName: string;
+}
+
+export interface Authorization {
+  user?: User;
+  token?: string;
+}
+
 export async function fetchAuthorization(): Promise<Authorization | undefined> {
   const res = await axios.post(
     `${SERVER_ADDRESS}/api/v1/auth/refresh-authorization`,
@@ -56,20 +81,5 @@ export async function fetchAuthorization(): Promise<Authorization | undefined> {
   }
 
   console.error(data);
-
   return undefined;
-}
-
-export default function useAuthContext() {
-  return useContext(AuthContext);
-}
-
-export interface User {
-  firstName: string;
-  lastName: string;
-}
-
-export interface Authorization {
-  user?: User;
-  token?: string;
 }
