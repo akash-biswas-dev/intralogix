@@ -5,7 +5,9 @@ import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 
+import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Date;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -21,7 +23,7 @@ public class Users {
     private String email;
     private String password;
     @Indexed(name = "joined_on")
-    private LocalDate joinedOn;
+    private Instant joinedOn;
     @Indexed(name = "is_account_enabled")
     private Boolean isAccountEnabled;
     @Indexed(name = "is_account_locked")

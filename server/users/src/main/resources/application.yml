@@ -1,11 +1,8 @@
 spring:
   application:
     name: users
-  config:
-    import: optional:configserver:${spring.cloud.config.uri}
-  cloud:
-    config:
-      uri: http://localhost:8888
+  profiles:
+    active: dev
 server:
   port: 8501
 jwt:

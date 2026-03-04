@@ -17,7 +17,6 @@ import {
   FieldSet,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import Image from "next/image";
 import Link from "next/link";
 
 import { Checkbox } from "@/components/ui/checkbox";

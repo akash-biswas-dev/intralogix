@@ -1,18 +1,14 @@
 "use client";
 import axios from "axios";
-import React, {
+import {
   createContext,
   ReactNode,
-  Suspense,
-  use,
   useContext,
   useEffect,
   useState,
 } from "react";
-import { LoadingPage } from "./LoadingContext";
 
-export const SERVER_ADDRESS =
-  process.env.NEXT_PUBLIC_SERVER_ADDRESS || "http://localhost:9000";
+export const SERVER_ADDRESS = process.env.NEXT_PUBLIC_SERVER_ADDRESS || "";
 
 type AuthContextType = {
   authorization?: Authorization;

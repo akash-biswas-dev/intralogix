@@ -9,7 +9,9 @@ import { useRouter } from "next/navigation";
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
     <AuthProvider>
-      <div className="w-full min-h-screen relative">{children}</div>
+      <CheckAuthorization>
+        <div className="w-full min-h-screen relative">{children}</div>
+      </CheckAuthorization>
     </AuthProvider>
   );
 }
@@ -20,9 +22,9 @@ export function CheckAuthorization({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (authorization) {
-      router.push("/home");
+      router.push("/dashboard");
     }
   }, [router, authorization]);
 
-  return <>{!authorization && { children }}</>;
+  return <>{!authorization && children}</>;
 }

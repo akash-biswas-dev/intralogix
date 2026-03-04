@@ -7,6 +7,7 @@ import useAuthContext, { fetchAuthorization } from "./AuthContext";
 import { useRouter } from "next/navigation";
 
 import { SERVER_ADDRESS } from "./AuthContext";
+import { LoadingPage } from "./LoadingContext";
 
 const AxiosContext = createContext<undefined | AxiosInstance>(undefined);
 
@@ -53,8 +54,11 @@ export function AxiosProvider({ children }: { children: ReactNode }) {
 
   return (
     <>
-      authorization &&
-      <AxiosContext value={axiosInstance}> {children}</AxiosContext>;
+      {authorization ? (
+        <AxiosContext value={axiosInstance}> {children}</AxiosContext>
+      ) : (
+        <LoadingPage />
+      )}
     </>
   );
 }

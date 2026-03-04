@@ -1,0 +1,7 @@
+spring:
+  cloud:
+    config:
+      enabled: false
+services:
+  users: http://localhost:8501
+  workspace: http://localhost:8502

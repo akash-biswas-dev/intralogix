@@ -1,10 +1,62 @@
 services:
-  postgres:
-    container_name: vector-db
-    image: postgres:17.5-alpine3.22
+  # This proxy only need when running the application using docker-compose.
+  proxy:
+    container_name: nexus-proxy
+    build:
+      context: .
+      dockerfile: proxy.Dockerfile
     ports:
-      - "5432:5432"
+      - "8000:80"
+    networks:
+      - proxy-network
+
+  client:
+    container_name: nexus-client 
+    image: biswasakash/nexussphere-client:latest 
+    networks:
+      - proxy-network
+
+  # Authentication gateway for the services.
+  gateway:
+    container_name: nexus-gateway
+    image: biswasakash/nexussphere-gateway:0.0.1
+    networks:
+      - service-network
+      - proxy-network
     environment:
-      - POSTGRES_USER=vector
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=vector-db
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - nexus-users
+
+  users:
+    container_name: nexus-users
+    image: biswasakash/nexussphere-users:0.0.1
+    networks:
+      - service-network
+      - mongo-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - nexus-mongo-docker
+
+  mongo:
+    container_name: nexus-mongo-docker
+    image: mongo:8.0-noble
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=docker
+      - MONGO_INITDB_ROOT_PASSWORD=password 
+    networks:
+      - mongo-network
+    # Only to inspect the database.
+    ports:
+      - "27018:27017"
+
+networks:
+  proxy-network:
+    driver: bridge
+  service-network:
+    driver: bridge
+  mongo-network:
+    drive: bridge
+  postgres-network:
+    driver: bridge

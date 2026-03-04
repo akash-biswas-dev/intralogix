@@ -1,6 +1,6 @@
 services:
   mongo:
-    container_name: intralogix-mongo
+    container_name: nexus-mongo-dev
     image: mongo:8.0-noble
     environment:
       - MONGO_INITDB_ROOT_USERNAME=dev
