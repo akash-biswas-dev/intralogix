@@ -1,28 +1,41 @@
 @Library('MyLibrary') _
 pipeline{
 
-  agent none
+    agent none
 
-  
-  node('docker-agent'){
-
-    stage('Clone repository'){
-      steps{ checkout scm }
+    stage('Test...'){
+      // Create test env later.
+      agent { label 'docker-agent'}
+      stages{
+        stage('Clone Repository'){
+          steps{// checkout scm }
+        }
+        stage('Users'){
+          steps{ echo 'Running tests for users.'}
+        }
+        // When more availabel add here.
+      }
     }
 
     stage('Build code'){
+      agent {label 'docker-agent'}
       
       parallel{
         stage('Gateway'){
+          steps{
            sh 'make build-gateway' 
+          }
         }
         stage('Users'){
-           sh 'make build-users' 
+          steps{
+            sh 'make build-gateway' 
+          }
         }
         stage('Client'){
-           sh 'make build-client' 
+          steps{
+            sh 'make build-client' 
+          }
         }
-
       }
 
     }
@@ -32,9 +45,5 @@ pipeline{
         echo 'Push to container repository'j
       }
     }
-
-
-
-  }
-    
+  } 
 }
