@@ -5,16 +5,17 @@ pipeline{
 
 	stages {
 		// Test stage
-		stage('Test...'){
+		stage('Test'){
 			// Create test env later.
-			agent {
-				label 'docker-agent'
-			}
-			steps{
-				echo 'Clone repository.'
-				//checkout scm
-			}
+			agent { label 'docker-agent' }
+
 			stages{
+				stage('Clone the repostitory') {
+					steps{
+						echo 'Clone repository.'
+						//checkout scm
+					}
+				}
 				// Add tests when available.
 				stage('Users'){
 					steps{
