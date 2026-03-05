@@ -50,7 +50,7 @@ pipeline{
 
 						stage('Users'){
 							steps{
-								sh 'make build-gateway'
+								sh 'make build-users'
 							}
 						}
 
