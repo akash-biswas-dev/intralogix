@@ -1,48 +1,78 @@
-@Library('my-library') _
+@Library('MyLibrary') _
 pipeline{
 
-  agent none
+	agent none
 
-  stages{
+	stages {
+		// Test stage
+		stage('Test'){
+			// Create test env later.
+			agent { label 'docker-agent' }
 
-    stage ('Clone repository'){
-      agent { label "docker-agent"} 
+			stages{
+				stage('Clone the repostitory') {
+					steps{
+						echo 'Clone repository.'
+						//checkout scm
+					}
+				}
+				// Add tests when available.
+				stage('Users'){
+					steps{
+						echo 'Running tests for users.'
+					}
+				}
+			}
+		}
+		// Build stage
+		stage('Build'){
+			agent {
+				label 'docker-agent'
+			}
 
-      steps{
-        echo 'Clone the repository'
+			stages{
 
-      }
-    }
+				stage('Clone repository'){
+					steps{
+						checkout scm
+					}
+				}
 
-    stage('Running automated tests'){
-      agent {label 'docker-agent'}
+				stage('Build docker image'){
 
-      steps{
+					parallel{
 
-        echo 'Running tests.'
-        echo 'Tests successful'
+						stage('Gateway'){
+							steps{
+								sh 'make build-gateway'
+							}
+						}
 
-      }
+						stage('Users'){
+							steps{
+								sh 'make build-gateway'
+							}
+						}
 
-    }
+						stage('Client'){
+							steps{
+								sh 'make build-client'
+							}
+						}
 
-    stage('Build code'){
-      agent {label 'docker-agent'}
-      parallel{
-        stage('Gateway'){
-           sh 'make build-gateway' 
-        }
-        stage('Users'){
-           sh 'make build-users' 
-        }
-        stage('Client'){
-           sh 'make build-client' 
-        }
+					}
 
-      }
+				}
 
-    }
+			}
 
-  }
+		}
 
+		stage('Push to container registry'){
+			steps{
+				echo 'Push to container repository'
+
+			}
+		}
+	}
 }
