@@ -34,7 +34,7 @@ build-gateway:
 
 build-client:
 
-	$(DOCKER_BUILD_CMD)-$(client):latest  -f dockerfile/$(client).Dockerfile server
+	$(DOCKER_BUILD_CMD)-$(client):latest  -f dockerfile/$(client).Dockerfile client
 
 	$(DOCKER_TAG_CMD)-$(client):latest $(APP_NAME)-$(client_version)
 
