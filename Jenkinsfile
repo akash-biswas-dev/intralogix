@@ -64,32 +64,33 @@ pipeline{
 
 				}
 
-			}
+        stage('Push to container registry'){
+          steps{
+            echo 'Push to container repository'
 
-		}
-
-		stage('Push to container registry'){
-			steps{
-				echo 'Push to container repository'
-
-        withCredentials([
-          usernamePassword(
-            credentialsId: 'docker-credential',
-            usernameVariable: 'USER',
-            passwordVariable: 'PASS'
-          )
-        ]) {
-           sh '''
-              echo "$PASS" | docker login -u "$USER" --password-stdin
-              make push-all
-          '''
+            withCredentials([
+              usernamePassword(
+                credentialsId: 'docker-credential',
+                usernameVariable: 'USER',
+                passwordVariable: 'PASS'
+              )
+            ]) {
+              sh '''
+                  echo "$PASS" | docker login -u "$USER" --password-stdin
+                  make push-all
+              '''
+            }
+          }
         }
+        stage('Clean Builds'){
+          steps{
+            sh 'docker image rm $(docker images -aq)'
+          }
+        }
+
 			}
+
 		}
-    stage('Clean Builds'){
-      steps{
-        sh 'docker image rm $(docker images -aq)'
-      }
-    }
+
 	}
 }

@@ -43,16 +43,16 @@ build-all: build-users build-gateway build-client
 
 
 push-users:
-	$(DOCKER_PUSH_CMD)-$(users):latest
 	$(DOCKER_PUSH_CMD)-$(users-version)
+	$(DOCKER_PUSH_CMD)-$(users):latest
 
 push-gateway:
-	$(DOCKER_PUSH_CMD)-$(gateway):latest
 	$(DOCKER_PUSH_CMD)-$(gateway_version)
+	$(DOCKER_PUSH_CMD)-$(gateway):latest
 
 push-client:
-	$(DOCKER_PUSH_CMD)-$(client):latest
 	$(DOCKER_PUSH_CMD)-$(client_version)
+	$(DOCKER_PUSH_CMD)-$(client):latest
 
 push-all: push-users push-gateway push-client
 	
