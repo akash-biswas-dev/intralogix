@@ -43,7 +43,7 @@ build-all: build-users build-gateway build-client
 
 
 push-users:
-	$(DOCKER_PUSH_CMD)-$(users-version)
+	$(DOCKER_PUSH_CMD)-$(users_version)
 	$(DOCKER_PUSH_CMD)-$(users):latest
 
 push-gateway:
