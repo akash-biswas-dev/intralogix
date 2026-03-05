@@ -39,29 +39,10 @@ pipeline{
 				}
 
 				stage('Build docker image'){
-
-					parallel{
-
-						stage('Gateway'){
-							steps{
-								sh 'make build-gateway'
-							}
-						}
-
-						stage('Users'){
-							steps{
-								sh 'make build-users'
-							}
-						}
-
-						stage('Client'){
-							steps{
-								sh 'make build-client'
-							}
-						}
-
+          steps{
+						sh 'make build-all'
 					}
-
+					
 				}
 
         stage('Push to container registry'){
