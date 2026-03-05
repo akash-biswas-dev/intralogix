@@ -86,5 +86,10 @@ pipeline{
         }
 			}
 		}
+    stage('Clean Builds'){
+      steps{
+        sh 'docker image rm $(docker images -aq)'
+      }
+    }
 	}
 }
