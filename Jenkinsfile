@@ -3,45 +3,38 @@ pipeline{
 
   agent none
 
-  stages{
+  
+  node('docker-agent'){
 
-    stage ('Clone repository'){
-      agent { label "docker-agent"} 
+    stage('Clone repository'){
+      steps{ checkout scm }
+    }
 
+    stage('Build code'){
+      
+      parallel{
+        stage('Gateway'){
+           sh 'make build-gateway' 
+        }
+        stage('Users'){
+           sh 'make build-users' 
+        }
+        stage('Client'){
+           sh 'make build-client' 
+        }
+
+      }
+
+    }
+
+    stage('Push to container registry'){
       steps{
-        checkout scm
+        echo 'Push to container repository'j
       }
     }
 
-    stage('Running automated tests'){
-      agent {label 'docker-agent'}
 
-      steps{
-
-        echo 'Running tests.'
-        echo 'Tests successful'
-
-      }
-
-    }
-
-    // stage('Build code'){
-    //   agent {label 'docker-agent'}
-    //   parallel{
-    //     stage('Gateway'){
-    //        sh 'make build-gateway' 
-    //     }
-    //     stage('Users'){
-    //        sh 'make build-users' 
-    //     }
-    //     stage('Client'){
-    //        sh 'make build-client' 
-    //     }
-    //
-    //   }
-    //
-    // }
 
   }
-
+    
 }
