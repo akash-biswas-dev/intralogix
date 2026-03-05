@@ -1,4 +1,4 @@
-package com.nexussphere.common.exceptions;
+package com.nexussphere.users.exception;
 
 import lombok.Getter;
 

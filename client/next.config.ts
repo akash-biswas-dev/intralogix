@@ -4,11 +4,12 @@ const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
   output: "export",
+  trailingSlash: true,
   async rewrites() {
     return [
       {
-        source: "/backend/:path*",
-        destination: "http://localhost:9000/:path*",
+        source: "/api/:path*",
+        destination: "http://localhost:9000/api/:path*",
       },
     ];
   },

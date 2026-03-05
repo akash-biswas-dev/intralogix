@@ -24,7 +24,7 @@ public class GatewayConfig {
             ServiceURLConfig.RegisteredServiceURLs registeredServiceURLs,
             @Qualifier(value = "refreshTokenFilter") CookieAuthorizationFilter refreshTokenFilter,
             @Qualifier(value = "profileUpdateTokenFilter") CookieAuthorizationFilter profileUpdateTokenFilter
-    ){
+    ) {
         this.jwtAuthorizationFilter = jwtAuthorizationFilter;
         this.registeredServiceURLs = registeredServiceURLs;
         this.refreshTokenFilter = refreshTokenFilter;
@@ -33,33 +33,40 @@ public class GatewayConfig {
 
 
     @Bean
-    RouteLocator routeLocator(RouteLocatorBuilder routeLocatorBuilder){
+    RouteLocator routeLocator(RouteLocatorBuilder routeLocatorBuilder) {
 
         return routeLocatorBuilder.routes()
-                .route("refresh-token",r->r
+                .route("refresh-token", r -> r
                         .method(HttpMethod.POST)
                         .and()
                         .path("/api/v1/auth/refresh-authorization")
-                        .filters(f->f.filter(refreshTokenFilter))
+                        .filters(f -> f.filter(refreshTokenFilter))
                         .uri(registeredServiceURLs.userService())
                 )
-                .route("profile-update-token",r-> r
-                        .method(HttpMethod.GET,HttpMethod.POST)
+                .route("profile-update-token", r -> r
+                        .method(HttpMethod.GET, HttpMethod.POST)
                         .and()
                         .path("/api/v1/auth/setup-profile")
-                        .filters(f-> f.filter(profileUpdateTokenFilter))
+                        .filters(f -> f.filter(profileUpdateTokenFilter))
                         .uri(registeredServiceURLs.userService())
                 )
-                .route("auth",(r)->r
+                .route("auth", (r) -> r
                         .path("/api/v1/auth/**")
                         .uri(registeredServiceURLs.userService())
                 )
-                .route("user-route", r-> r
+                .route("user-route", r -> r
                         .path("/api/v1/users/**")
-                        .filters(f-> f.filter(jwtAuthorizationFilter))
+                        .filters(f -> f.filter(jwtAuthorizationFilter))
                         .uri(registeredServiceURLs.userService())
                 )
-                .route("workspace_route", r-> r
+                .route("secured-endpoint", r -> r
+                        .method(HttpMethod.GET)
+                        .and()
+                        .path("/api/v1/secured")
+                        .filters(f->f.filter(jwtAuthorizationFilter))
+                        .uri(registeredServiceURLs.userService())
+                )
+                .route("workspace_route", r -> r
                         .path("/api/v1/workspaces/**")
                         .filters(f -> f.filter(jwtAuthorizationFilter))
                         .uri(registeredServiceURLs.workspaceService())

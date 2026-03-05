@@ -12,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.time.LocalDate;
 
 @Service
@@ -27,7 +28,7 @@ public class UserServiceImpl implements UserService {
         Users user = Users.builder()
                 .email(newUser.email())
                 .password(passwordEncoder.encode(newUser.password()))
-                .joinedOn(LocalDate.now())
+                .joinedOn(Instant.now())
                 .isAccountEnabled(false)
                 .isAccountLocked(false)
                 .build();

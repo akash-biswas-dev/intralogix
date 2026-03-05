@@ -1,0 +1,7 @@
+spring:
+  cloud:
+    config:
+      enabled: false
+services:
+  users: http://nexus-users:8501
+  workspace: http://nexus-workspace:8502

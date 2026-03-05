@@ -1,16 +1,18 @@
 "use client";
 
 import { ReactNode } from "react";
-import useAuthContext, { AuthContextProvider } from "@/context/AuthContext";
+import useAuthContext, { AuthProvider } from "@/context/AuthContext";
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
-    <AuthContextProvider>
-      <div className="w-full min-h-screen relative">{children}</div>
-    </AuthContextProvider>
+    <AuthProvider>
+      <CheckAuthorization>
+        <div className="w-full min-h-screen relative">{children}</div>
+      </CheckAuthorization>
+    </AuthProvider>
   );
 }
 
@@ -20,9 +22,9 @@ export function CheckAuthorization({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (authorization) {
-      router.push("/home");
+      router.push("/dashboard");
     }
   }, [router, authorization]);
 
-  return <>{!authorization && { children }}</>;
+  return <>{!authorization && children}</>;
 }

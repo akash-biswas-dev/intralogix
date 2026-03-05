@@ -1,7 +1,7 @@
 package com.nexussphere.gateway.filters;
 
 import com.nexussphere.common.auth.SessionCookies;
-import com.nexussphere.common.jwt.JwtService;
+import com.nexussphere.common.auth.jwt.JwtService;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;

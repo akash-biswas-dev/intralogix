@@ -12,24 +12,13 @@ import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
 @Configuration
 public class MongoConfig {
 
-
     @Bean
     ReactiveMongoTemplate reactiveMongoTemplate(Environment environment){
-        String username = "dev";
-        String password = "password";
-        String database = "users";
-        String host = "localhost";
-        String authSource = "admin";
-        int port = 27017;
+        String connectionString = environment.getProperty("application.db");
+        if (connectionString == null || connectionString.trim().isEmpty()) {
+            throw new RuntimeException("Database connection string is empty");
+        }
 
-        String connectionString = String.format("mongodb://%s:%s@%s:%d/%s?authSource=%s",
-                username,
-                password,
-                host,
-                port,
-                database,
-                authSource
-        );
         return new ReactiveMongoTemplate(ReactiveMongoDatabaseFactory.create(
                 connectionString
         ));
