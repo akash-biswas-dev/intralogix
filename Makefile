@@ -1,33 +1,60 @@
 
 # Docker hub username
-USERNAME=biswasakash
-APP_NAME=nexussphere
-
+APP_NAME=biswasakash/nexussphere
 # Command
-CMD=docker build -t
+
+DOCKER_BUILD_CMD=docker build -t $(APP_NAME)
+DOCKER_TAG_CMD=docker tag $(APP_NAME)
+DOCKER_PUSH_CMD=docker push $(APP_NAME)
+
 
 # Service with version versions
 
-USERS=users
-USERS_VERSION=${USERS}:0.0.1
+users=users
+users_version=$(users):0.0.1
 
+gateway=gateway
+gateway_version=$(gateway):0.0.1
 
-GATEWAY=gateway
-GATEWAY_VERSION=${GATEWAY}:0.0.1
-
-CLIENT=client
-CLIENT_VERSION=${CLIENT}:0.0.1
+client=client
+client_version=$(client):0.0.1
 
 
 build-users:
-	$(CMD) "$(USERNAME)/$(APP_NAME)-$(USERS_VERSION)" -f dockerfile/$(USERS).Dockerfile server
+
+	$(DOCKER_BUILD_CMD)-$(users):latest  -f dockerfile/$(users).Dockerfile server
+
+	$(DOCKER_TAG_CMD)-$(users):latest $(APP_NAME)-$(users_version)
 
 build-gateway:
-	$(CMD) "$(USERNAME)/$(APP_NAME)-$(GATEWAY_VERSION)" -f dockerfile/$(GATEWAY).Dockerfile server
+
+	$(DOCKER_BUILD_CMD)-$(gateway):latest  -f dockerfile/$(gateway).Dockerfile server
+
+	$(DOCKER_TAG_CMD)-$(gateway):latest $(APP_NAME)-$(gateway_version)
 
 build-client:
-	$(CMD) "$(USERNAME)/$(APP_NAME)-$(CLIENT_VERSION)" -f dockerfile/$(CLIENT).Dockerfile client
+
+	$(DOCKER_BUILD_CMD)-$(client):latest  -f dockerfile/$(client).Dockerfile server
+
+	$(DOCKER_TAG_CMD)-$(client):latest $(APP_NAME)-$(client_version)
+
 
 build-all: build-users build-gateway build-client
+
+
+push-users:
+	$(DOCKER_PUSH_CMD)-$(users):latest
+	$(DOCKER_PUSH_CMD)-$(users-version)
+
+push-gateway:
+	$(DOCKER_PUSH_CMD)-$(gateway):latest
+	$(DOCKER_PUSH_CMD)-$(gateway_version)
+
+push-client:
+	$(DOCKER_PUSH_CMD)-$(client):latest
+	$(DOCKER_PUSH_CMD)-$(client_version)
+
+push-all: push-users push-gateway push-client
+	
 
 

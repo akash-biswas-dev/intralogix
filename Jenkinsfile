@@ -72,6 +72,18 @@ pipeline{
 			steps{
 				echo 'Push to container repository'
 
+        withCredentials([
+          usernamePassword(
+            credentialsId: 'docker-credential',
+            usernameVariable: 'USER',
+            passwordVariable: 'PASS'
+          )
+        ]) {
+           sh '''
+              echo "$PASS" | docker login -u "$USER" --password-stdin
+              make push-all
+          '''
+        }
 			}
 		}
 	}
