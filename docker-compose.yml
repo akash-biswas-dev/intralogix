@@ -9,6 +9,9 @@ services:
       - "8000:80"
     networks:
       - proxy-network
+    depends_on:
+      - client
+      - gateway
 
   client:
     container_name: nexus-client 
@@ -19,25 +22,25 @@ services:
   # Authentication gateway for the services.
   gateway:
     container_name: nexus-gateway
-    image: biswasakash/nexussphere-gateway:0.0.1
+    image: biswasakash/nexussphere-gateway:latest
     networks:
       - service-network
       - proxy-network
     environment:
       - SPRING_PROFILES_ACTIVE=docker
     depends_on:
-      - nexus-users
+      - users
 
   users:
     container_name: nexus-users
-    image: biswasakash/nexussphere-users:0.0.1
+    image: biswasakash/nexussphere-users:latest
     networks:
       - service-network
       - mongo-network
     environment:
       - SPRING_PROFILES_ACTIVE=docker
     depends_on:
-      - nexus-mongo-docker
+      - mongo
 
   mongo:
     container_name: nexus-mongo-docker
@@ -57,6 +60,6 @@ networks:
   service-network:
     driver: bridge
   mongo-network:
-    drive: bridge
+    driver: bridge
   postgres-network:
     driver: bridge
