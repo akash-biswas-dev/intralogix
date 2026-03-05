@@ -23,6 +23,8 @@ services:
   gateway:
     container_name: nexus-gateway
     image: biswasakash/nexussphere-gateway:latest
+    ports:
+      - "9000:9000"
     networks:
       - service-network
       - proxy-network

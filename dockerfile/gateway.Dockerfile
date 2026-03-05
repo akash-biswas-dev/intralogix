@@ -12,4 +12,6 @@ WORKDIR /app
 
 COPY --from=builder /app/gateway/target/*.jar app.jar
 
+EXPOSE 9000
+
 ENTRYPOINT [ "java", "-jar","app.jar"]
