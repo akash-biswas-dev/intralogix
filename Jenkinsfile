@@ -2,6 +2,7 @@
 pipeline{
 
     agent none
+  stages {
 
     stage('Test...'){
       // Create test env later.
@@ -16,7 +17,6 @@ pipeline{
         // When more availabel add here.
       }
     }
-
     stage('Build code'){
       agent {label 'docker-agent'}
       
@@ -39,6 +39,8 @@ pipeline{
       }
 
     }
+
+    
 
     stage('Push to container registry'){
       steps{
