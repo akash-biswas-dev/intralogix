@@ -1,4 +1,4 @@
-@Library('my-library') _
+@Library('MyLibrary') _
 pipeline{
 
   agent none
@@ -9,8 +9,7 @@ pipeline{
       agent { label "docker-agent"} 
 
       steps{
-        echo 'Clone the repository'
-
+        checkout scm
       }
     }
 
@@ -26,22 +25,22 @@ pipeline{
 
     }
 
-    stage('Build code'){
-      agent {label 'docker-agent'}
-      parallel{
-        stage('Gateway'){
-           sh 'make build-gateway' 
-        }
-        stage('Users'){
-           sh 'make build-users' 
-        }
-        stage('Client'){
-           sh 'make build-client' 
-        }
-
-      }
-
-    }
+    // stage('Build code'){
+    //   agent {label 'docker-agent'}
+    //   parallel{
+    //     stage('Gateway'){
+    //        sh 'make build-gateway' 
+    //     }
+    //     stage('Users'){
+    //        sh 'make build-users' 
+    //     }
+    //     stage('Client'){
+    //        sh 'make build-client' 
+    //     }
+    //
+    //   }
+    //
+    // }
 
   }
 
