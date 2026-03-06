@@ -1,13 +1,4 @@
 
-# Docker hub username
-APP_NAME=biswasakash/nexussphere
-# Command
-
-DOCKER_BUILD_CMD=docker build -t $(APP_NAME)
-DOCKER_TAG_CMD=docker tag $(APP_NAME)
-DOCKER_PUSH_CMD=docker push $(APP_NAME)
-
-
 # Service with version versions
 
 users=users
@@ -18,6 +9,15 @@ gateway_version=$(gateway):0.0.1
 
 client=client
 client_version=$(client):0.0.1
+
+# Docker hub username
+APP_NAME=biswasakash/nexussphere
+# Command
+
+DOCKER_BUILD_CMD=docker build --platform linux/amd64 -t $(APP_NAME)
+DOCKER_TAG_CMD=docker tag $(APP_NAME)
+DOCKER_PUSH_CMD=docker push $(APP_NAME)
+
 
 
 build-users:
@@ -55,6 +55,14 @@ push-client:
 	$(DOCKER_PUSH_CMD)-$(client):latest
 
 push-all: push-users push-gateway push-client
-	
 
+
+delete-users:
+	docker rmi -f $(APP_NAME)-$(users):latest $(APP_NAME)-$(users_version)
+delete-gateway:
+	docker rmi -f $(APP_NAME)-$(gateway):latest $(APP_NAME)-$(gateway_version)
+delete-client:
+	docker rmi -f $(APP_NAME)-$(client):latest $(APP_NAME)-$(client_version)
+
+delete-all: delete-users delete-gateway delete-client
 
