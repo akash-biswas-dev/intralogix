@@ -26,14 +26,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     undefined,
   );
 
-  useEffect(() => {
-    const updateAuthorization = async () => {
-      const auth = await fetchAuthorization();
-      setAuthorization(auth);
-    };
-    updateAuthorization();
-  }, []);
-
   return (
     <AuthContext
       value={{

@@ -36,6 +36,8 @@ public class AuthController {
     private final AuthService authService;
     private final JwtService jwtService;
 
+    private static final int SESSION_AGE = 1;
+
     @PostMapping(value = "/register")
     public Mono<ResponseEntity<Void>> registerUser(@RequestBody NewUserRequest newUser) {
         return userService.createUser(newUser)
@@ -50,7 +52,7 @@ public class AuthController {
     ) {
 
 //        How many days the generated session token valid.
-        int ageInDays = rememberMe ? 15 : 1;
+        int ageInDays = rememberMe ? 15 : SESSION_AGE;
 
         Mono<Users> usersMono = authService.validateUser(credentials);
 
@@ -66,14 +68,9 @@ public class AuthController {
                             UsersUtils.getUserResponse(users)
                     );
 
-                    ResponseCookie cookie = ResponseCookie
-                            .from(SessionCookies.COOKIE_SESSION.getCookieName())
-                            .value(session)
-                            .path(SessionCookies.COOKIE_SESSION.getPath())
-                            .httpOnly(true)
-                            .maxAge(Duration.ofDays(ageInDays))
-                            .build();
-                    exchange.getResponse().addCookie(cookie);
+                    ResponseCookie sessionCookie = generateCookie(session,ageInDays);
+
+                    exchange.getResponse().addCookie(sessionCookie);
                     return ResponseEntity.status(HttpStatus.CREATED)
                             .body(new ClientResponse<>(true, authorization, null));
                 })
@@ -155,9 +152,24 @@ public class AuthController {
                     .httpOnly(true)
                     .build();
             exchange.getResponse().addCookie(deleteProfileCookie);
+
+            // After profile update add session details.
+            String session = jwtService.generateSession(users.getId(),Duration.ofDays(SESSION_AGE));
+            ResponseCookie sessionCookie = generateCookie(session,SESSION_AGE);
+            exchange.getResponse().addCookie(sessionCookie);
             return ResponseEntity
                     .status(HttpStatus.ACCEPTED)
                     .build();
         });
+    }
+
+    private static ResponseCookie generateCookie(String session , int ageInDays){
+        return ResponseCookie
+                .from(SessionCookies.COOKIE_SESSION.getCookieName())
+                .value(session)
+                .path(SessionCookies.COOKIE_SESSION.getPath())
+                .httpOnly(true)
+                .maxAge(Duration.ofDays(ageInDays))
+                .build();
     }
 }

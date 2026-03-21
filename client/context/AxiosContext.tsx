@@ -47,10 +47,11 @@ export function AxiosProvider({ children }: { children: ReactNode }) {
   );
 
   useEffect(() => {
-    if (!authorization) {
-      router.push("/auth");
-    }
-  });
+    (async () => {
+      const auth = await fetchAuthorization();
+      updateAuthorization(auth);
+    })();
+  }, [updateAuthorization]);
 
   return (
     <>
