@@ -65,7 +65,7 @@ pipeline{
         }
         stage('Clean Builds'){
           steps{
-            sh 'docker image rm $(docker images -aq)'
+            sh 'make delete-all'
           }
         }
 
