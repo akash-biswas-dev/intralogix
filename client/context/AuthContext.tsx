@@ -54,7 +54,7 @@ export interface Authorization {
 
 export async function fetchAuthorization(): Promise<Authorization | undefined> {
   const res = await axios.post(
-    `${SERVER_ADDRESS}/api/v1/auth/refresh-authorization`,
+    `${SERVER_ADDRESS}/api/v1/auth/generate-authorization`,
     null,
     {
       validateStatus: () => true,

@@ -39,12 +39,12 @@ public class AuthServiceImpl implements AuthService {
                         log.error("Found invalid password for user: {}", credentials.emailOrUsername());
                         return Mono.error(new InvalidCredentialException("Invalid username or password"));
                     }
-                    if (!users.getIsAccountEnabled()) {
+                    if (!users.getAccountEnabled()) {
                         log.warn("Account not enabled for user: {}", credentials.emailOrUsername());
-                        return Mono.error(new AccountNotEnabledException(credentials.emailOrUsername(), "Account not enabled."));
+                        return Mono.error(new AccountNotEnabledException(users.getId(), "Account not enabled."));
                     }
 
-                    if (users.getIsAccountLocked()) {
+                    if (users.getAccountLocked()) {
                         log.warn("Account locked for user: {}", credentials.emailOrUsername());
                         return Mono.error(new AccountLockedException("Account locked, contact to administrator."));
                     }

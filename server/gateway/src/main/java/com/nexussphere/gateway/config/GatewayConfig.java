@@ -22,7 +22,7 @@ public class GatewayConfig {
     public GatewayConfig(
             JwtAuthorizationFilter jwtAuthorizationFilter,
             ServiceURLConfig.RegisteredServiceURLs registeredServiceURLs,
-            @Qualifier(value = "refreshTokenFilter") CookieAuthorizationFilter refreshTokenFilter,
+            @Qualifier(value = "generateAuthorizationFilter") CookieAuthorizationFilter refreshTokenFilter,
             @Qualifier(value = "profileUpdateTokenFilter") CookieAuthorizationFilter profileUpdateTokenFilter
     ) {
         this.jwtAuthorizationFilter = jwtAuthorizationFilter;
@@ -36,10 +36,10 @@ public class GatewayConfig {
     RouteLocator routeLocator(RouteLocatorBuilder routeLocatorBuilder) {
 
         return routeLocatorBuilder.routes()
-                .route("refresh-token", r -> r
+                .route("generate-authorization", r -> r
                         .method(HttpMethod.POST)
                         .and()
-                        .path("/api/v1/auth/refresh-authorization")
+                        .path("/api/v1/auth/generate-authorization")
                         .filters(f -> f.filter(refreshTokenFilter))
                         .uri(registeredServiceURLs.userService())
                 )

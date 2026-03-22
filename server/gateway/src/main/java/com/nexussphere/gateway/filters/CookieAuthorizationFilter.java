@@ -32,7 +32,7 @@ public class CookieAuthorizationFilter implements GatewayFilter {
         ServerHttpRequest request = exchange.getRequest();
         ServerHttpResponse response = exchange.getResponse();
 
-        log.info("Request made at : {}",request.getPath());
+        log.info("Request made at : {} {}",request.getMethod(),request.getPath());
 
         HttpCookie cookie = request.getCookies().getFirst(cookieName);
 

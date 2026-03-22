@@ -49,9 +49,13 @@ export function AxiosProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     (async () => {
       const auth = await fetchAuthorization();
-      updateAuthorization(auth);
+      if (auth) {
+        updateAuthorization(auth);
+        return;
+      }
+      router.push("/auth");
     })();
-  }, [updateAuthorization]);
+  }, [updateAuthorization, router]);
 
   return (
     <>

@@ -7,7 +7,7 @@ import lombok.Getter;
 public enum SessionCookies {
 
 
-    COOKIE_SESSION("SESSION", "/api/v1/auth/refresh-authorization"),
+    COOKIE_SESSION("SESSION", "/api/v1/auth/generate-authorization"),
     COOKIE_SETUP_PROFILE("SESSION_SETUP_PROFILE","/api/v1/auth/setup-profile");
 
     private final String path;

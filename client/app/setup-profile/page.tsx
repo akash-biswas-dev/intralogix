@@ -6,13 +6,12 @@ import { SERVER_ADDRESS } from "@/context/AuthContext";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
-import * as z from "zod";
 
 export default function UpdateProfile() {
   const router = useRouter();
   // If users profile already setup then isAlreadySetup is
 
-  const [isProfileNotCreated, setIsProfileNotCreated] = useState(true);
+  const [isProfileNotCreated, setIsProfileNotCreated] = useState(false);
 
   const [errors, setErrors] = useState<UserProfileError>({});
 
@@ -39,7 +38,7 @@ export default function UpdateProfile() {
       router.push("/dashboard");
     };
 
-    // isProfileAuthenticated();
+    isProfileAuthenticated();
   }, [isProfileNotCreated, router]);
 
   const onSubmit = async (eve: FormEvent<HTMLFormElement>) => {
@@ -66,6 +65,8 @@ export default function UpdateProfile() {
       },
     );
 
+    console.log(res);
+
     // TODO: Add validation.
 
     const { status, data } = res;
@@ -73,7 +74,14 @@ export default function UpdateProfile() {
     if (status === 202) {
       // Successfully update the profile.
       router.push("/dashboard");
+      return;
     }
+
+    if (data?.error) {
+      console.error(data.error);
+      setErrors((pre) => ({ ...pre, error: data.error }));
+    }
+    router.push("/auth");
   };
 
   return (

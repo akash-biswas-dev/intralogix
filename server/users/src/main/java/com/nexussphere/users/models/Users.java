@@ -25,9 +25,9 @@ public class Users {
     @Indexed(name = "joined_on")
     private Instant joinedOn;
     @Indexed(name = "is_account_enabled")
-    private Boolean isAccountEnabled;
+    private Boolean accountEnabled;
     @Indexed(name = "is_account_locked")
-    private Boolean isAccountLocked;
+    private Boolean accountLocked;
 
     private UserProfile userProfile;
 

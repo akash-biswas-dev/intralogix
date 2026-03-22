@@ -2,9 +2,9 @@ package com.nexussphere.users.services.impl;
 
 import com.nexussphere.users.dtos.requests.NewUserRequest;
 import com.nexussphere.users.dtos.requests.UserProfileRequest;
-import com.nexussphere.users.models.UserProfile;
 import com.nexussphere.users.models.Users;
 import com.nexussphere.users.repository.UsersRepository;
+import com.nexussphere.users.repository.impl.UserRepositoryImpl;
 import com.nexussphere.users.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,8 +29,8 @@ public class UserServiceImpl implements UserService {
                 .email(newUser.email())
                 .password(passwordEncoder.encode(newUser.password()))
                 .joinedOn(Instant.now())
-                .isAccountEnabled(false)
-                .isAccountLocked(false)
+                .accountEnabled(false)
+                .accountLocked(false)
                 .build();
         return usersRepository.saveUser(user);
     }
@@ -63,21 +63,39 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Mono<Users> updateUserProfile(String userId, UserProfileRequest profileRequest) {
+
         return usersRepository
                 .findById(userId)
                 .flatMap((users) -> {
+                    // Update username and account status.
+                    Mono<Users> updateResultUserMono = usersRepository.updateUser(
+                            userId,
+                            UserRepositoryImpl.UserUpdates.builder()
+                                    .username(profileRequest.username())
+                                    .isAccountEnabled(true)
+                                    .build(),
+                            true
+                    );
 
-                    UserProfile userProfile = UserProfile.builder()
-                            .firstName(profileRequest.firstName())
-                            .lastName(profileRequest.lastName())
-                            .dateOfBirth(LocalDate.parse(profileRequest.dateOfBirth()))
-                            .gender(profileRequest.gender())
-                            .build();
+                    //Add user profile.
 
-                    users.setUserProfile(userProfile);
-                    users.setIsAccountEnabled(true);
+                    Mono<Users> userProfileUpdateMono = usersRepository.updateProfile(
+                            userId,
+                            UsersRepository.UserProfileUpdates.builder()
+                                    .firstName(profileRequest.firstName())
+                                    .lastName(profileRequest.lastName())
+                                    .gender(profileRequest.gender())
+                                    .dateOfBirth(LocalDate.parse(profileRequest.dateOfBirth()))
+                                    .build(),
+                            true
+                    );
 
-                    return usersRepository.saveUser(users);
+                    return updateResultUserMono.then(userProfileUpdateMono);
+                })
+                .switchIfEmpty(Mono.error(new RuntimeException()))
+                .onErrorResume(Throwable.class, (err) -> {
+                    log.error("User profile setup not successful for user: {}", userId);
+                    return Mono.error(new RuntimeException("Service unavailable please try agiain later."));
                 });
     }
 
@@ -89,7 +107,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Mono<Boolean> isAccountEnabled(String userId) {
         Mono<Users> userMono = usersRepository.findById(userId);
-        return userMono.map(Users::getIsAccountEnabled);
+        return userMono.map(Users::getAccountEnabled);
     }
 
 }
