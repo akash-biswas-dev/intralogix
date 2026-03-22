@@ -1,28 +1,40 @@
 "use client";
 import { ChevronDownIcon } from "lucide-react";
+import { RefObject, useState } from "react";
+import { Button } from "./ui/button";
+import { Calendar } from "./ui/calendar";
 import { FieldLabel } from "./ui/field";
 import { Input } from "./ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { Button } from "./ui/button";
-import { RefObject, useState } from "react";
-import { Calendar } from "./ui/calendar";
 
 export function DatePicker({
   label,
+  value,
   name,
   ref,
+  onFocusAction,
+  before = new Date(1947, 1, 1),
+  after = new Date(Date.now()),
 }: {
   label?: string;
   name?: string;
+  value?: string;
   ref?: RefObject<HTMLInputElement | null>;
+  onFocusAction?: (eve: React.FocusEvent<HTMLButtonElement>) => void;
+  before?: Date;
+  after?: Date;
 }) {
+  const initialDate: Date | undefined = value ? new Date(value) : undefined;
+
   const [open, setOpen] = useState(false);
-  const [date, setDate] = useState<undefined | Date>(undefined);
+  const [date, setDate] = useState<undefined | Date>(initialDate);
+
   return (
     <>
       <Input
         ref={ref}
         name={name}
+        value={value}
         type="date"
         defaultValue={date && date.toISOString().slice(0, 10)}
         className="hidden"
@@ -38,6 +50,7 @@ export function DatePicker({
             variant="outline"
             id="date"
             className="w-48 justify-between font-normal"
+            onFocus={(eve) => onFocusAction && onFocusAction(eve)}
           >
             {date ? date.toLocaleDateString() : "Select date"}
             <ChevronDownIcon />
@@ -52,6 +65,7 @@ export function DatePicker({
               setDate(date);
               setOpen(false);
             }}
+            disabled={{ before: before, after: after }}
           />
         </PopoverContent>
       </Popover>

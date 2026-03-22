@@ -16,7 +16,7 @@ public class CookieFilterConfig {
     private final JwtService jwtService;
 
     @Bean
-    CookieAuthorizationFilter refreshTokenFilter() {
+    CookieAuthorizationFilter generateAuthorizationFilter() {
         return new CookieAuthorizationFilter(jwtService,SessionCookies.COOKIE_SESSION);
     }
 

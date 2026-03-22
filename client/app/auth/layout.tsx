@@ -1,7 +1,10 @@
 "use client";
 
 import { ReactNode } from "react";
-import useAuthContext, { AuthProvider } from "@/context/AuthContext";
+import useAuthContext, {
+  AuthProvider,
+  fetchAuthorization,
+} from "@/context/AuthContext";
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -18,13 +21,18 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
 
 export function CheckAuthorization({ children }: { children: ReactNode }) {
   const router = useRouter();
-  const { authorization } = useAuthContext();
+  const { authorization, updateAuthorization } = useAuthContext();
 
   useEffect(() => {
-    if (authorization) {
-      router.push("/dashboard");
-    }
-  }, [router, authorization]);
+    (async function () {
+      const auth = await fetchAuthorization();
+      if (auth) {
+        updateAuthorization(auth);
+        router.push("/dashboard");
+        return;
+      }
+    })();
+  }, [router, authorization, updateAuthorization]);
 
   return <>{!authorization && children}</>;
 }

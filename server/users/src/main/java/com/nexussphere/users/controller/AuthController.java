@@ -36,6 +36,8 @@ public class AuthController {
     private final AuthService authService;
     private final JwtService jwtService;
 
+    private static final int SESSION_AGE = 1;
+
     @PostMapping(value = "/register")
     public Mono<ResponseEntity<Void>> registerUser(@RequestBody NewUserRequest newUser) {
         return userService.createUser(newUser)
@@ -50,7 +52,7 @@ public class AuthController {
     ) {
 
 //        How many days the generated session token valid.
-        int ageInDays = rememberMe ? 15 : 1;
+        int ageInDays = rememberMe ? 15 : SESSION_AGE;
 
         Mono<Users> usersMono = authService.validateUser(credentials);
 
@@ -66,14 +68,9 @@ public class AuthController {
                             UsersUtils.getUserResponse(users)
                     );
 
-                    ResponseCookie cookie = ResponseCookie
-                            .from(SessionCookies.COOKIE_SESSION.getCookieName())
-                            .value(session)
-                            .path(SessionCookies.COOKIE_SESSION.getPath())
-                            .httpOnly(true)
-                            .maxAge(Duration.ofDays(ageInDays))
-                            .build();
-                    exchange.getResponse().addCookie(cookie);
+                    ResponseCookie sessionCookie = generateCookie(session, ageInDays);
+
+                    exchange.getResponse().addCookie(sessionCookie);
                     return ResponseEntity.status(HttpStatus.CREATED)
                             .body(new ClientResponse<>(true, authorization, null));
                 })
@@ -105,7 +102,7 @@ public class AuthController {
                 ));
     }
 
-    @PostMapping(value = "/refresh-authorization")
+    @PostMapping(value = "/generate-authorization")
     public Mono<ResponseEntity<?>> refreshAuthorization(
             @RequestHeader(name = "Authentication-Info") String userId
     ) {
@@ -143,21 +140,41 @@ public class AuthController {
 
 
     @PostMapping(value = "/setup-profile")
-    public Mono<ResponseEntity<?>> setupProfile(@RequestHeader(name = "Authentication-Info") String userId,
-                                                @RequestBody UserProfileRequest userProfileRequest,
-                                                ServerWebExchange exchange) {
+    public Mono<ResponseEntity<ClientResponse<Object>>> setupProfile(@RequestHeader(name = "Authentication-Info") String userId,
+                                                                     @RequestBody UserProfileRequest userProfileRequest,
+                                                                     ServerWebExchange exchange) {
         Mono<Users> usersMono = userService.updateUserProfile(userId, userProfileRequest);
 
-        return usersMono.map(users -> {
-            ResponseCookie deleteProfileCookie = ResponseCookie
-                    .from(SessionCookies.COOKIE_SETUP_PROFILE.getCookieName(), null)
-                    .path(SessionCookies.COOKIE_SETUP_PROFILE.getPath())
-                    .httpOnly(true)
-                    .build();
-            exchange.getResponse().addCookie(deleteProfileCookie);
-            return ResponseEntity
-                    .status(HttpStatus.ACCEPTED)
-                    .build();
-        });
+        return usersMono
+                .map(users -> {
+                    ResponseCookie deleteProfileCookie = ResponseCookie
+                            .from(SessionCookies.COOKIE_SETUP_PROFILE.getCookieName(), null)
+                            .path(SessionCookies.COOKIE_SETUP_PROFILE.getPath())
+                            .httpOnly(true)
+                            .build();
+                    exchange.getResponse().addCookie(deleteProfileCookie);
+
+                    // After profile update add session details.
+                    String session = jwtService.generateSession(users.getId(), Duration.ofDays(SESSION_AGE));
+                    ResponseCookie sessionCookie = generateCookie(session, SESSION_AGE);
+                    exchange.getResponse().addCookie(sessionCookie);
+                    return ResponseEntity
+                            .accepted()
+                            .body(new ClientResponse<>(true, null, null));
+                }).onErrorResume(Exception.class, (_err) ->
+                        Mono.just(ResponseEntity
+                                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                .body(new ClientResponse<>(false, null, "Something went wrong."))
+                        ));
+    }
+
+    private static ResponseCookie generateCookie(String session, int ageInDays) {
+        return ResponseCookie
+                .from(SessionCookies.COOKIE_SESSION.getCookieName())
+                .value(session)
+                .path(SessionCookies.COOKIE_SESSION.getPath())
+                .httpOnly(true)
+                .maxAge(Duration.ofDays(ageInDays))
+                .build();
     }
 }

@@ -35,7 +35,6 @@ build-gateway:
 build-client:
 
 	$(DOCKER_BUILD_CMD)-$(client):latest  -f dockerfile/$(client).Dockerfile client
-
 	$(DOCKER_TAG_CMD)-$(client):latest $(APP_NAME)-$(client_version)
 
 
@@ -55,6 +54,18 @@ push-client:
 	$(DOCKER_PUSH_CMD)-$(client):latest
 
 push-all: push-users push-gateway push-client
+
+clean-users:
+	docker rmi $(APP_NAME)-$(users_version)
+	docker rmi $(APP_NAME)-$(users):latest
 	
+clean-gateway:
+	docker rmi $(APP_NAME)-$(gateway_version)
+	docker rmi $(APP_NAME)-$(gateway):latest
+	
+clean-client:
+	docker rmi $(APP_NAME)-$(client_version)
+	docker rmi $(APP_NAME)-$(client):latest
 
-
+clean-all: clean-users clean-gateway clean-client
+	
