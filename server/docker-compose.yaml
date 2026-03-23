@@ -7,3 +7,12 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD=password
     ports:
       - "27017:27017"
+  postgres:
+    container_name: nexus-postgres-dev
+    image: postgres:18.3-bookworm
+    environment:
+      - POSTGRES_USER=dev
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=accessmanager
+    ports:
+      - "5432:5432"

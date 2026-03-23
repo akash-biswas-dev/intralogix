@@ -1,0 +1,14 @@
+#application:
+#  db:
+#    host: localhost
+#    port: 5432
+#    username: dev
+#    database: accessmanager
+#    password: password
+#
+
+spring:
+  r2dbc:
+    url: r2dbc:postgres://localhost:5432/accessmanager
+    username: dev
+    password: password
