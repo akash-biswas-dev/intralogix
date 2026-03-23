@@ -34,6 +34,7 @@ public class AuthServiceImpl implements AuthService {
                     return Mono.error(new RuntimeException("Database exception."));
                 })
                 .flatMap((users) -> {
+
                     boolean isPasswordMatches = passwordEncoder.matches(credentials.password(), users.getPassword());
                     if (!isPasswordMatches) {
                         log.error("Found invalid password for user: {}", credentials.emailOrUsername());

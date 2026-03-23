@@ -9,6 +9,7 @@ import com.nexussphere.users.dtos.requests.NewUserRequest;
 import com.nexussphere.users.dtos.requests.UserCredentials;
 import com.nexussphere.users.dtos.requests.UserProfileRequest;
 import com.nexussphere.users.dtos.response.Authorization;
+import com.nexussphere.users.exception.InvalidCredentialException;
 import com.nexussphere.users.models.Users;
 import com.nexussphere.users.services.AuthService;
 import com.nexussphere.users.services.UserService;
@@ -95,6 +96,13 @@ public class AuthController {
                                         .status(HttpStatus.FORBIDDEN)
                                         .body(new ClientResponse<>(false, null, "")))
                 )
+                .onErrorResume(InvalidCredentialException.class,err-> Mono.just(
+                        ResponseEntity.badRequest().body(new ClientResponse<>(
+                                false,
+                                null,
+                                err.getMessage()
+                        ))
+                ))
                 .onErrorResume(err -> Mono.just(
                         ResponseEntity
                                 .status(HttpStatus.INTERNAL_SERVER_ERROR)

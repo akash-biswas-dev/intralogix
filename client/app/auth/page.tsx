@@ -97,7 +97,7 @@ export default function Auth() {
       router.push("/setup-profile");
       return;
     }
-    const err = res.data.err;
+    const err = res.data.error;
     if (err) {
       setErrors({ error: err });
     } else {
