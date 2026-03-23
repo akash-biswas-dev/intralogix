@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+
+message CreateSecurityGroupRequest{
+  string userId = 1;
+  string workspaceId = 2;
+}
+
+message CreateSecurityGroupResponse{
+  bool isSucceed = 1;
+}
+
+service AccessManagerGRPCService{
+  rpc CreateSecurityGroup(CreateSecurityGroupRequest) returns (CreateSecurityGroupResponse);
+}

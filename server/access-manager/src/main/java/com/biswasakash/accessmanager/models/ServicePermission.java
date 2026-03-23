@@ -3,7 +3,7 @@ package com.biswasakash.accessmanager.models;
 
 import lombok.Getter;
 
-public enum SecurityPermissions {
+public enum ServicePermission {
 
     CREATE("Create"),
     READ("Read"),
@@ -13,7 +13,7 @@ public enum SecurityPermissions {
     @Getter
     private final String value;
 
-    SecurityPermissions(String value) {
+    ServicePermission(String value) {
        this.value = value;
     }
 }

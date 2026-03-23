@@ -4,6 +4,8 @@ package com.biswasakash.accessmanager.models;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
+import java.time.LocalDate;
+
 @Table(name = "security_group")
 public class SecurityGroup {
 
@@ -13,5 +15,7 @@ public class SecurityGroup {
     private String name;
     private String description;
 
+    private String workspaceId;
 
+    private LocalDate createdAt;
 }
