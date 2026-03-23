@@ -19,6 +19,8 @@ DOCKER_TAG_CMD=docker tag $(APP_NAME)
 DOCKER_PUSH_CMD=docker push $(APP_NAME)
 
 
+build-docker-proxy:
+	$(DOCKER_BUILD_CMD)-docker-proxy:latest -f proxy.Dockerfile .
 
 build-users:
 
@@ -40,6 +42,8 @@ build-client:
 
 build-all: build-users build-gateway build-client
 
+push-docker-proxy:
+	$(DOCKER_PUSH_CMD)-docker-proxy:latest
 
 push-users:
 	$(DOCKER_PUSH_CMD)-$(users_version)

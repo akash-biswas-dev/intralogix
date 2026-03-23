@@ -2,9 +2,7 @@ services:
   # This proxy only need when running the application using docker-compose.
   proxy:
     container_name: nexus-proxy
-    build:
-      context: .
-      dockerfile: proxy.Dockerfile
+    image: biswasakash/nexussphere-docker-proxy:latest
     ports:
       - "8000:80"
     networks:
