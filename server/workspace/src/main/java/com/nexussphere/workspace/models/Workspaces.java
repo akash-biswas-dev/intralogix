@@ -1,50 +1,28 @@
 package com.nexussphere.workspace.models;
 
 
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDate;
 
-@Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "workspaces")
+@Builder
+@Table(name = "workspace")
 public class Workspaces {
 
-    @EmbeddedId
-    private WorkspaceId workspaceId;
+    @Id
+    private String id;
+    private String name;
 
     private String description;
-    @Column(name = "created_on", nullable = false, updatable = false)
     private LocalDate createdOn;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "workspace_type", nullable = false)
-    private WorkspaceType workspaceType;
+    private String ownerId;
 
-    public Workspaces(
-            String ownedBy,
-            String name,
-            String description,
-            WorkspaceType workspaceType,
-            LocalDate createdOn) {
-        this.workspaceId = new WorkspaceId(ownedBy,name);
-        this.description = description;
-        this.workspaceType = workspaceType;
-        this.createdOn = createdOn;
-    }
-
-    public String getWorkspaceName(){
-        return this.workspaceId.getWorkspaceName();
-    }
-    public String getOwnerId(){
-        return this.workspaceId.getOwnerId();
-    }
 }
 

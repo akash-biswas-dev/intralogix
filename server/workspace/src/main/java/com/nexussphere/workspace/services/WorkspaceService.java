@@ -1,21 +1,19 @@
 package com.nexussphere.workspace.services;
 
-import com.intralogix.common.response.PageResponse;
-import com.intralogix.common.response.UserResponse;
+import com.nexussphere.common.response.UserResponse;
 import com.nexussphere.workspace.dtos.requests.NewWorkspaceRequest;
-import com.nexussphere.workspace.dtos.response.WorkspaceResponse;
+import com.nexussphere.workspace.models.Workspaces;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
-
-import java.util.List;
+import reactor.core.publisher.Mono;
 
 public interface WorkspaceService {
 
-    WorkspaceResponse createWorkspace(String userId, NewWorkspaceRequest newWorkspace);
+    Mono<Void> createWorkspace(String userId, NewWorkspaceRequest newWorkspace);
 
-    Boolean isWorkspaceNameExists(String workspaceId, String userId);
+    Mono<Boolean> isWorkspaceNameExists(String workspaceId, String userId);
 
-    List<String> getAllUsersOfWorkspace(String workspaceId);
+    Mono<Page<UserResponse>> findAllUsersInWorkspace(String workspaceId, Integer page, Integer pageSize, Sort.Direction direction);
 
-    PageResponse<UserResponse> findAllUsersInWorkspace(String workspaceId, Integer page, Integer size, Sort.Direction direction);
-
+    Mono<Page<Workspaces>> findAllWorkspace(String userId, Integer page, Integer pageSize, Sort.Direction direction);
 }

@@ -1,19 +1,16 @@
 package com.nexussphere.workspace.controller;
 
-import com.intralogix.common.response.PageResponse;
-import com.intralogix.common.response.UserResponse;
+import com.nexussphere.common.response.PageResponse;
+import com.nexussphere.common.response.UserResponse;
 import com.nexussphere.workspace.dtos.requests.NewWorkspaceRequest;
 import com.nexussphere.workspace.dtos.response.WorkspaceResponse;
 import com.nexussphere.workspace.services.WorkspaceService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDate;
-import java.util.List;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,10 +20,12 @@ public class WorkspaceController {
     private final WorkspaceService workspaceService;
 
     @Getter
-    public enum SortParameter{
-        CREATED_ON("Created On", "createdOn"),;
+    public enum SortParameter {
+        CREATED_ON("Created On", "createdOn"),
+        ;
         private final String value;
         private final String fieldName;
+
         SortParameter(String value, String fieldName) {
             this.value = value;
             this.fieldName = fieldName;
@@ -34,43 +33,37 @@ public class WorkspaceController {
     }
 
     @GetMapping
-    public ResponseEntity<PageResponse<WorkspaceResponse>> getAllWorkspace(
-            @RequestHeader("X-User-Id") String userId,
-            @RequestParam (name = "page", required = false, defaultValue = "20") Integer page,
-            @RequestParam (name = "size", required = false, defaultValue = "20") Integer pageSize,
-            @RequestParam (name = "direction", required = false, defaultValue = "ASC")Sort.Direction direction,
-            @RequestParam (name = "createdOn", required = false, defaultValue = "CREATED_ON") SortParameter parameter){
+    public Mono<ResponseEntity<PageResponse<WorkspaceResponse>>> getAllWorkspace(
+            @RequestHeader("Authentication-Info") String userId,
+            @RequestParam(name = "page", required = false, defaultValue = "20") Integer page,
+            @RequestParam(name = "size", required = false, defaultValue = "20") Integer pageSize,
+            @RequestParam(name = "direction", required = false, defaultValue = "ASC") Sort.Direction direction
+    ) {
 
-        return ResponseEntity.ok(new PageResponse<>(
-                1,
-                2,
-                1,
-                true,
-                true,
-                List.of(new WorkspaceResponse("Workspace 1","user-1", LocalDate.now()),
-                        new WorkspaceResponse("Workspace 2","user-2", LocalDate.now()))
-        ));
+        return Mono.empty();
     }
 
     @GetMapping(value = "exists/{workspaceId}")
-    public ResponseEntity<Boolean> getWorkspace(@PathVariable String workspaceId, @RequestHeader("X-User-Id") String userId) {
-        Boolean isExists = workspaceService.isWorkspaceNameExists(workspaceId, userId);
-        return ResponseEntity.ok(isExists);
+    public Mono<ResponseEntity<Boolean>> getWorkspace(
+            @PathVariable String workspaceId,
+            @RequestHeader("Authentication-Info") String userId) {
+        return Mono.just(ResponseEntity.ok(true));
     }
 
     @PostMapping
-    public ResponseEntity<WorkspaceResponse> createNewWorkspace(@RequestHeader("X-User-Id") String userId, @RequestBody NewWorkspaceRequest newWorkspace){
-        return new ResponseEntity<>(workspaceService.createWorkspace(userId,newWorkspace), HttpStatus.CREATED);
+    public Mono<ResponseEntity<WorkspaceResponse>> createNewWorkspace(
+            @RequestHeader("Authentication-Info") String userId,
+            @RequestBody NewWorkspaceRequest newWorkspace) {
+        return Mono.just(ResponseEntity.ok(null));
     }
 
     @GetMapping(value = "{workspaceId}/users")
-    public ResponseEntity<PageResponse<UserResponse>> getAllUserWithWorkspace(
+    public Mono<ResponseEntity<PageResponse<UserResponse>>> getAllUserWithWorkspace(
             @PathVariable String workspaceId,
-            @RequestParam(name = "page", required = false, defaultValue = "1") Integer page ,
+            @RequestParam(name = "page", required = false, defaultValue = "1") Integer page,
             @RequestParam(name = "pageSize", required = false, defaultValue = "20") Integer size,
             @RequestParam(name = "direction", required = false, defaultValue = "ASC") Sort.Direction direction
-    ){
-        PageResponse<UserResponse> usersList =  workspaceService.findAllUsersInWorkspace(workspaceId,page,size,direction);
-        return ResponseEntity.ok(usersList);
+    ) {
+        return Mono.just(ResponseEntity.ok(null));
     }
 }

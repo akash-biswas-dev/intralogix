@@ -42,10 +42,18 @@
             <scope>test</scope>
         </dependency>
 
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux-test</artifactId>
             <scope>test</scope>
+        </dependency>
+
+<!--       Common module-->
+        <dependency>
+            <groupId>com.nexussphere.common</groupId>
+            <artifactId>common</artifactId>
+            <version>0.0.1</version>
         </dependency>
 
     </dependencies>
