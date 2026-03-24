@@ -67,7 +67,9 @@ public class GatewayConfig {
                         .uri(registeredServiceURLs.userService())
                 )
                 .route("workspace_route", r -> r
-                        .path("/api/v1/workspaces/**")
+                        .path(
+                                "/api/v1/workspaces/**"
+                        )
                         .filters(f -> f.filter(jwtAuthorizationFilter))
                         .uri(registeredServiceURLs.workspaceService())
                 )

@@ -4,27 +4,12 @@ DROP TABLE IF EXISTS workspaces;
 DROP TYPE IF EXISTS workspace_type;
 DROP TYPE IF EXISTS group_type;
 
-CREATE TYPE workspace_type AS ENUM (
-    'IT',
-    'ELECTRONICS',
-    'MEDICAL',
-    'IMPORTS_EXPORTS'
-    );
-CREATE TYPE group_type AS ENUM (
-    'MANAGEMENT',
-    'SERVICE',
-    'MAINTENANCE',
-    'DEVELOPMENT'
-    );
-
-
 CREATE TABLE workspaces
 (
     owned_by       VARCHAR(100) NOT NULL ,
     workspace_name VARCHAR(50) NOT NULL ,
     description    VARCHAR(1000),
     created_on     DATE,
-    workspace_type workspace_type NOT NULL,
     PRIMARY KEY (owned_by,workspace_name)
 );
 

@@ -35,6 +35,12 @@
             <groupId>com.nexussphere.common</groupId>
             <artifactId>common</artifactId>
             <version>0.0.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.grpc</groupId>
+                    <artifactId>grpc-stub</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
 
