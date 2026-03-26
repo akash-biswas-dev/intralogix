@@ -1,10 +1,7 @@
 package com.nexussphere.workspace.models;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
@@ -15,15 +12,31 @@ import java.time.LocalDate;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "users_on_workspace")
+@Builder
 public class UsersOnWorkspace {
 
-    @Column("user_id")
     private String userId;
-    @Column("workspace_id")
     private String workspaceId;
 
-    @Column("joined_on")
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
+    private String userType;
+
     private LocalDate joinedOn;
+
+    public static class UsersOnWorkspaceBuilder {
+        public UsersOnWorkspaceBuilder userType(UserType userType) {
+            this.userType = userType.name();
+            return this;
+        }
+    }
+
+    public UserType getUserType() {
+        return UserType.valueOf(this.userType);
+    }
+
+    public void  setUserType(UserType userType) {
+        this.userType = userType.name();
+    }
 
 }

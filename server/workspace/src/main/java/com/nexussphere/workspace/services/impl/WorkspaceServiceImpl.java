@@ -2,10 +2,15 @@ package com.nexussphere.workspace.services.impl;
 
 import com.nexussphere.common.response.UserResponse;
 import com.nexussphere.workspace.dtos.requests.NewWorkspaceRequest;
+import com.nexussphere.workspace.exceptions.DatasourceOperationFailedException;
+import com.nexussphere.workspace.models.UserType;
+import com.nexussphere.workspace.models.UsersOnWorkspace;
 import com.nexussphere.workspace.models.Workspaces;
+import com.nexussphere.workspace.repository.UsersOnWorkspaceRepository;
 import com.nexussphere.workspace.repository.WorkspaceRepository;
 import com.nexussphere.workspace.services.WorkspaceService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -15,22 +20,37 @@ import java.time.LocalDate;
 
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class WorkspaceServiceImpl implements WorkspaceService {
 
     private final WorkspaceRepository workspaceRepository;
+    private final UsersOnWorkspaceRepository usersOnWorkspaceRepository;
 
     @Override
     public Mono<Void> createWorkspace(String userId, NewWorkspaceRequest newWorkspace) {
         Workspaces workspaces = Workspaces.builder()
                 .name(newWorkspace.name())
                 .description(newWorkspace.description())
-                .ownerId(userId)
                 .createdOn(LocalDate.now())
                 .build();
+
         return workspaceRepository
-                .createWorkspace(workspaces)
-                .then();
+                .save(workspaces)
+                .flatMap(savedWorkspace -> {
+                    UsersOnWorkspace usersOnWorkspace = UsersOnWorkspace
+                            .builder()
+                            .workspaceId(workspaces.getId())
+                            .userId(userId)
+                            .userType(UserType.OWNER)
+                            .joinedOn(LocalDate.now())
+                            .build();
+                    return usersOnWorkspaceRepository.save(usersOnWorkspace).then();
+                })
+                .onErrorResume(DatasourceOperationFailedException.class, throwable -> {
+                    log.error(throwable.getMessage(), throwable);
+                    return Mono.error(new RuntimeException("Failed to save workspace."));
+                });
     }
 
     @Override

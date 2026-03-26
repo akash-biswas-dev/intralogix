@@ -49,7 +49,11 @@ public class WorkspaceController {
                                         null,
                                         null
                                 ))
-                ));
+                ))
+                .onErrorResume(RuntimeException.class, e -> {
+                    ClientResponse<Object> clientResponse = new ClientResponse<>(false,null,e.getMessage());
+                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(clientResponse));
+                });
     }
 
     @GetMapping

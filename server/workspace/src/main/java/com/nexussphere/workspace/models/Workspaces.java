@@ -13,7 +13,6 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name = "workspace")
 public class Workspaces {
 
     @Id
@@ -22,11 +21,7 @@ public class Workspaces {
     private String name;
 
     private String description;
-    @Column("created_on")
     private LocalDate createdOn;
-
-    @Column("owner_id")
-    private String ownerId;
 
 }
 

@@ -14,7 +14,7 @@ import java.util.function.Function;
 public class JwtServiceImpl implements JwtService {
 
     //    In minutes.
-    private static final int DEFAULT_EXPIRY_IN_MINUTES = 5;
+    private static final int DEFAULT_EXPIRY_IN_MINUTES = 1440;
 
     //    Jwt secret.
     private final String secret;
