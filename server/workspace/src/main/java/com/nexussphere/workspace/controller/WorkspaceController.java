@@ -1,5 +1,6 @@
 package com.nexussphere.workspace.controller;
 
+import com.nexussphere.common.response.ClientResponse;
 import com.nexussphere.common.response.PageResponse;
 import com.nexussphere.common.response.UserResponse;
 import com.nexussphere.workspace.dtos.requests.NewWorkspaceRequest;
@@ -8,6 +9,7 @@ import com.nexussphere.workspace.services.WorkspaceService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
@@ -32,6 +34,24 @@ public class WorkspaceController {
         }
     }
 
+
+    @PostMapping
+    public Mono<ResponseEntity<ClientResponse<Object>>> createNewWorkspace(
+            @RequestHeader("Authentication-Info") String userId,
+            @RequestBody NewWorkspaceRequest newWorkspace) {
+        Mono<Void> isWorkspaceCreated = workspaceService.createWorkspace(userId, newWorkspace);
+        return isWorkspaceCreated
+                .then(Mono.just(
+                        ResponseEntity
+                                .status(HttpStatus.CREATED)
+                                .body(new ClientResponse<>(
+                                        true,
+                                        null,
+                                        null
+                                ))
+                ));
+    }
+
     @GetMapping
     public Mono<ResponseEntity<PageResponse<WorkspaceResponse>>> getAllWorkspace(
             @RequestHeader("Authentication-Info") String userId,
@@ -50,12 +70,6 @@ public class WorkspaceController {
         return Mono.just(ResponseEntity.ok(true));
     }
 
-    @PostMapping
-    public Mono<ResponseEntity<WorkspaceResponse>> createNewWorkspace(
-            @RequestHeader("Authentication-Info") String userId,
-            @RequestBody NewWorkspaceRequest newWorkspace) {
-        return Mono.just(ResponseEntity.ok(null));
-    }
 
     @GetMapping(value = "{workspaceId}/users")
     public Mono<ResponseEntity<PageResponse<UserResponse>>> getAllUserWithWorkspace(

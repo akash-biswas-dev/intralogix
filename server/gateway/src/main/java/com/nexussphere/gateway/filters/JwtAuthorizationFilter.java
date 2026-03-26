@@ -26,7 +26,8 @@ public class JwtAuthorizationFilter implements GatewayFilter {
     @Override
     public Mono<Void> filter(
             ServerWebExchange exchange,
-            @NonNull GatewayFilterChain chain) {
+            @NonNull GatewayFilterChain chain
+    ) {
         ServerHttpRequest request = exchange.getRequest();
         ServerHttpResponse response = exchange.getResponse();
 

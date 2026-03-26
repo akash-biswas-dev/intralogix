@@ -21,6 +21,7 @@
         <grpc.version>1.80.0</grpc.version>
         <reactor.version>3.5.4</reactor.version>
         <reactor-grpc.version>1.2.4</reactor-grpc.version>
+        <grpc-netty-shaded.version>1.80.0</grpc-netty-shaded.version>
     </properties>
 
 
@@ -29,9 +30,11 @@
         <!--        gRPC and protobuf dependencies. -->
         <dependency>
             <groupId>io.grpc</groupId>
-            <artifactId>grpc-core</artifactId>
-            <version>${grpc.version}</version>
+            <artifactId>grpc-netty-shaded</artifactId>
+            <version>${grpc.version}</version> <!-- or latest -->
+            <scope>runtime</scope>
         </dependency>
+
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-protobuf</artifactId>
@@ -57,6 +60,7 @@
             <groupId>io.projectreactor</groupId>
             <artifactId>reactor-core</artifactId>
         </dependency>
+
     </dependencies>
 
 </project>

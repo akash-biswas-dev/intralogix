@@ -1,4 +1,11 @@
 spring:
+  cloud:
+    gateway:
+      server:
+        webflux:
+          filter:
+            json-to-grpc:
+              enabled: false
   application:
     name: gateway
   profiles:
