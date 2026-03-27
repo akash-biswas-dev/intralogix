@@ -1,5 +1,7 @@
 package com.nexussphere.workspace.services.impl;
 
+import com.nexussphere.common.client.AccessManagerClient;
+import com.nexussphere.common.client.impl.AccessManagerGRPCClient;
 import com.nexussphere.common.response.UserResponse;
 import com.nexussphere.workspace.dtos.requests.NewWorkspaceRequest;
 import com.nexussphere.workspace.exceptions.DatasourceOperationFailedException;
@@ -26,6 +28,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
 
     private final WorkspaceRepository workspaceRepository;
     private final UsersOnWorkspaceRepository usersOnWorkspaceRepository;
+    private final AccessManagerClient accessManagerClient;
 
     @Override
     public Mono<Void> createWorkspace(String userId, NewWorkspaceRequest newWorkspace) {
@@ -45,7 +48,10 @@ public class WorkspaceServiceImpl implements WorkspaceService {
                             .userType(UserType.OWNER)
                             .joinedOn(LocalDate.now())
                             .build();
-                    return usersOnWorkspaceRepository.save(usersOnWorkspace).then();
+                    return usersOnWorkspaceRepository.save(usersOnWorkspace)
+                            .then(accessManagerClient.createPrimarySecurityGroup(userId, workspaces.getId()))
+                            // TODO: Add the error result checking and error handling.
+                            .then();
                 })
                 .onErrorResume(DatasourceOperationFailedException.class, throwable -> {
                     log.error(throwable.getMessage(), throwable);

@@ -6,19 +6,20 @@ import com.nexussphere.protocjava.CreateSecurityGroupResponse;
 import com.nexussphere.protocjava.ReactorAccessManagerGRPCServiceGrpc;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 
 public class AccessManagerGRPCClient implements AccessManagerClient {
 
+    private static final Logger LOGGER= LoggerFactory.getLogger(AccessManagerGRPCClient.class);
+
     private final String host;
-    private final int port;
 
     public AccessManagerGRPCClient(
-            String host,
-            int port
+            String host
     ) {
         this.host = host;
-        this.port = port;
     }
 
     @Override
@@ -32,12 +33,17 @@ public class AccessManagerGRPCClient implements AccessManagerClient {
         ReactorAccessManagerGRPCServiceGrpc.ReactorAccessManagerGRPCServiceStub stub = ReactorAccessManagerGRPCServiceGrpc.newReactorStub(channel);
         return Mono.just(request)
                 .transform(stub::createSecurityGroup)
-                .map(CreateSecurityGroupResponse::getIsSucceed);
+                .map(CreateSecurityGroupResponse::getIsSucceed)
+                .onErrorResume(err->{
+                    LOGGER.error("create security group failed", err);
+                    return Mono.just(false);
+                });
     }
 
     private ManagedChannel createChannel() {
        return ManagedChannelBuilder
-               .forAddress(host,port)
+               .forTarget(host)
+               .usePlaintext()
                .build();
     }
 }

@@ -17,35 +17,15 @@ import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
-public class SecurityGroupServiceImpl extends ReactorAccessManagerGRPCServiceGrpc.AccessManagerGRPCServiceImplBase implements SecurityGroupService {
+public class SecurityGroupServiceImpl implements SecurityGroupService {
 
     private final SecurityGroupRepository securityGroupRepository;
 
-    @Override
-    public Mono<CreateSecurityGroupResponse> createSecurityGroup(Mono<CreateSecurityGroupRequest> request) {
-
-        return request.flatMap((createSecurityGroupRequest -> {
-            SecurityGroup securityGroup = SecurityGroup.builder()
-                    .name("Workspace Admin")
-                    .description("This is primary security group for this workspace.")
-                    .createdAt(LocalDate.now())
-                    .workspaceId(createSecurityGroupRequest.getWorkspaceId())
-                    .build();
-
-            return securityGroupRepository
-                    .save(securityGroup)
-                    .then(Mono.just(
-                            CreateSecurityGroupResponse.newBuilder()
-                                    .setIsSucceed(true)
-                                    .build()
-                    ));
-        }));
-    }
 
     @Override
     public Mono<Void> createSecurityGroup(String userId, String workspaceId, SecurityGroupRequest securityGroup) {
-
-        return null;
+        System.out.println("Security group created....");
+        return Mono.empty();
     }
 
     @Override

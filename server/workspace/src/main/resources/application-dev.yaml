@@ -6,3 +6,5 @@ spring:
     url: r2dbc:postgres://localhost:5432/workspace
     username: dev
     password: password
+services:
+  accessManager: localhost:15001
