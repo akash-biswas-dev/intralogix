@@ -5,16 +5,14 @@ managed:
   override:
     - file_option: java_multiple_files
       value: true
-    - file_option: java_package
-      value: "com.nexussphere.protocjava"
 plugins:
   - remote: buf.build/protocolbuffers/java:v34.1
-    out: src/main/java
+    out: java-proto-modules/src/main/java
   - remote: buf.build/grpc/java:v1.80.0
-    out: src/main/java
+    out: java-proto-modules/src/main/java
   - remote: buf.build/community/salesforce-reactive-grpc:v1.2.4
-    out: src/main/java
+    out: java-proto-modules/src/main/java
 
 inputs:
-  - directory: ./../proto
+  - directory: proto
 
