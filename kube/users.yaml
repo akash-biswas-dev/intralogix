@@ -1,0 +1,40 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: users
+  namespace: nexussphere
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: users
+  template:
+    metadata:
+      labels:
+        app: users
+    spec:
+      containers:
+        - name: users-container
+          image: biswasakash/nexussphere-users:latest
+          ports:
+            - containerPort: 8501
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: kube
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: user-service
+  namespace: nexussphere
+spec:
+  selector:
+    app: users
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8501
+  type: ClusterIP
+
+
