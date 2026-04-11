@@ -5,7 +5,7 @@ gen-code-java:
 # Service with version versions
 
 users=users
-users_version=$(users):0.0.1
+users_version=$(users):local
 
 gateway=gateway
 gateway_version=$(gateway):0.0.1
@@ -29,17 +29,12 @@ DOCKER_PUSH_CMD=docker push $(APP_NAME)
 
 # Build config
 build-docker-proxy:
-
 	$(DOCKER_BUILD_CMD)-docker-proxy:latest -f docker/proxy.Dockerfile .
 
 build-users:
-
-	$(DOCKER_BUILD_CMD)-$(users):latest  -f docker/$(users).Dockerfile .
-
-	$(DOCKER_TAG_CMD)-$(users):latest $(APP_NAME)-$(users_version)
+	$(DOCKER_BUILD_CMD)-$(users):local -f users/local.Dockerfile .
 
 build-workspace:
-
 	$(DOCKER_BUILD_CMD)-$(workspace):latest  -f docker/$(workspace).Dockerfile .
 
 	$(DOCKER_TAG_CMD)-$(workspace):latest $(APP_NAME)-$(workspace_version)
@@ -72,19 +67,15 @@ push-docker-proxy:
 
 push-users:
 	$(DOCKER_PUSH_CMD)-$(users_version)
-	$(DOCKER_PUSH_CMD)-$(users):latest
 
 push-gateway:
 	$(DOCKER_PUSH_CMD)-$(gateway_version)
-	$(DOCKER_PUSH_CMD)-$(gateway):latest
 
 push-access-manager:
 	$(DOCKER_PUSH_CMD)-$(access_manager_version)
-	$(DOCKER_PUSH_CMD)-$(access_manager):latest
 
 push-workspace:
 	$(DOCKER_PUSH_CMD)-$(workspace_version)
-	$(DOCKER_PUSH_CMD)-$(workspace):latest
 
 push-web:
 	$(DOCKER_PUSH_CMD)-$(web_version)
@@ -97,7 +88,7 @@ delete-docker-proxy:
 	docker rmi -f $(APP_NAME)-docker-proxy:latest
 
 delete-users:
-	docker rmi -f $(APP_NAME)-$(users):latest $(APP_NAME)-$(users_version)
+	docker rmi -f $(APP_NAME)-$(users_version)
 
 delete-gateway:
 	docker rmi -f $(APP_NAME)-$(gateway):latest $(APP_NAME)-$(gateway_version)
