@@ -1,6 +1,5 @@
 @Library('MyLibrary') _
 pipeline{
-
 	agent none
 
 	stages {

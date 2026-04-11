@@ -1,3 +1,6 @@
+gen-code-java:
+	buf generate --template java-proto-modules/buf.gen.yaml
+
 
 # Service with version versions
 
@@ -7,41 +10,63 @@ users_version=$(users):0.0.1
 gateway=gateway
 gateway_version=$(gateway):0.0.1
 
-client=client
-client_version=$(client):0.0.1
+workspace=workspace
+workspace_version=$(workspace):0.0.1
+
+access_manager=access-manager
+access_manager_version=$(access_manager):0.0.1
+
+web=web
+web_version=$(web):0.0.1
 
 # Docker hub username
 APP_NAME=biswasakash/nexussphere
-# Command
 
-DOCKER_BUILD_CMD=docker build --platform linux/amd64 -t $(APP_NAME)
+# Command
+DOCKER_BUILD_CMD=docker build --platform linux/amd64,linux/arm64  -t $(APP_NAME)
 DOCKER_TAG_CMD=docker tag $(APP_NAME)
 DOCKER_PUSH_CMD=docker push $(APP_NAME)
 
-
+# Build config
 build-docker-proxy:
-	$(DOCKER_BUILD_CMD)-docker-proxy:latest -f proxy.Dockerfile .
+
+	$(DOCKER_BUILD_CMD)-docker-proxy:latest -f docker/proxy.Dockerfile .
 
 build-users:
 
-	$(DOCKER_BUILD_CMD)-$(users):latest  -f dockerfile/$(users).Dockerfile server
+	$(DOCKER_BUILD_CMD)-$(users):latest  -f docker/$(users).Dockerfile .
 
 	$(DOCKER_TAG_CMD)-$(users):latest $(APP_NAME)-$(users_version)
 
+build-workspace:
+
+	$(DOCKER_BUILD_CMD)-$(workspace):latest  -f docker/$(workspace).Dockerfile .
+
+	$(DOCKER_TAG_CMD)-$(workspace):latest $(APP_NAME)-$(workspace_version)
+
 build-gateway:
 
-	$(DOCKER_BUILD_CMD)-$(gateway):latest  -f dockerfile/$(gateway).Dockerfile server
+	$(DOCKER_BUILD_CMD)-$(gateway):latest  -f docker/$(gateway).Dockerfile .
 
 	$(DOCKER_TAG_CMD)-$(gateway):latest $(APP_NAME)-$(gateway_version)
 
-build-client:
 
-	$(DOCKER_BUILD_CMD)-$(client):latest  -f dockerfile/$(client).Dockerfile client
-	$(DOCKER_TAG_CMD)-$(client):latest $(APP_NAME)-$(client_version)
+build-access-manager:
+
+	$(DOCKER_BUILD_CMD)-$(access_manager):latest  -f docker/$(access_manager).Dockerfile .
+
+	$(DOCKER_TAG_CMD)-$(access_manager):latest $(APP_NAME)-$(access_manager_version)
+
+build-web:
+
+	$(DOCKER_BUILD_CMD)-$(web):latest  -f docker/$(web).Dockerfile web
+
+	$(DOCKER_TAG_CMD)-$(web):latest $(APP_NAME)-$(web_version)
 
 
-build-all: build-users build-gateway build-client
+build-all: build-users build-gateway build-workspace build-access-manager build-web 
 
+# Container registry push config
 push-docker-proxy:
 	$(DOCKER_PUSH_CMD)-docker-proxy:latest
 
@@ -53,17 +78,39 @@ push-gateway:
 	$(DOCKER_PUSH_CMD)-$(gateway_version)
 	$(DOCKER_PUSH_CMD)-$(gateway):latest
 
-push-client:
-	$(DOCKER_PUSH_CMD)-$(client_version)
-	$(DOCKER_PUSH_CMD)-$(client):latest
+push-access-manager:
+	$(DOCKER_PUSH_CMD)-$(access_manager_version)
+	$(DOCKER_PUSH_CMD)-$(access_manager):latest
 
-push-all: push-users push-gateway push-client
+push-workspace:
+	$(DOCKER_PUSH_CMD)-$(workspace_version)
+	$(DOCKER_PUSH_CMD)-$(workspace):latest
+
+push-web:
+	$(DOCKER_PUSH_CMD)-$(web_version)
+	$(DOCKER_PUSH_CMD)-$(web):latest
+
+push-all: push-users push-gateway push-workspace push-access-manager push-web
+
+# Delete containers config.
+delete-docker-proxy:
+	docker rmi -f $(APP_NAME)-docker-proxy:latest
 
 delete-users:
 	docker rmi -f $(APP_NAME)-$(users):latest $(APP_NAME)-$(users_version)
+
 delete-gateway:
 	docker rmi -f $(APP_NAME)-$(gateway):latest $(APP_NAME)-$(gateway_version)
-delete-client:
-	docker rmi -f $(APP_NAME)-$(client):latest $(APP_NAME)-$(client_version)
 
-delete-all: delete-users delete-gateway delete-client
+delete-workspace:
+	docker rmi -f $(APP_NAME)-$(workspace):latest $(APP_NAME)-$(workspace_version)
+
+delete-access-manager:
+	docker rmi -f $(APP_NAME)-$(access_manager):latest $(APP_NAME)-$(access_manager_version)
+
+delete-web:
+	docker rmi -f $(APP_NAME)-$(web):latest $(APP_NAME)-$(web_version)
+
+delete-all: delete-users delete-gateway delete-access-manager delete-workspace delete-web
+
+
