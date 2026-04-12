@@ -1,5 +1,17 @@
-test-pipeline:
-	act -P ubuntu-latest=catthehacker/ubuntu:act-latest --bind --container-architecture linux/arm64 --secret-file .secrets
+# Configurations related to test workflows.
+act_cmd=act -P ubuntu-latest=catthehacker/ubuntu:act-latest --bind --env GITHUB_REF_NAME=dev --container-architecture linux/arm64 --secret-file .secrets -W
+
+workflow-users-test:
+	 $(act_cmd) .github/workflows/users.yml
+
+workflow-workspace-test:
+	 $(act_cmd) .github/workflows/workspaces.yml
+
+workflow-gateway-test:
+	 $(act_cmd) .github/workflows/gateway.yml
+
+workflow-access-manager-test:
+	 $(act_cmd) .github/workflows/access-manager.yml
 
 gen-code-java:
 	buf generate --template java-proto-modules/buf.gen.yaml

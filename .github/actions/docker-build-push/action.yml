@@ -1,0 +1,38 @@
+name: 'Docker build & push'
+
+description: 'Build the image using Dockerfile and push to the Docker registry.'
+
+inputs:
+  docker-username:
+    description: Username to login to docker
+  docker-password:
+    description: Password to login to docker
+  app-name:
+    description: Name of the docker image.
+  branch:
+    description: Current SCM branch.
+  build-hash:
+    description: To tag the official release image with.
+
+runs:
+  using: 'composite'
+  
+  steps:
+    - name: Docker login
+      uses: docker/login-action@v7
+      with:
+        username: ${{ inputs.docker-username }}
+        password: ${{ inputs.docker-password }}
+
+    - name: Build and push docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+          # Using env.APP_NAME for the Dockerfile path
+        file: ./${{ inputs.app-name }}/Dockerfile
+        push: ${{ inputs.branch == 'main' || inputs.branch == 'staging' }}
+        tags: |
+          ${{ inputs.branch == 'main' && format('{0}/nexussphere-{1}:latest', inputs.docker-username , inputs.app-name) || '' }}
+          ${{ inputs.branch == 'main' && format('{0}/nexussphere-{1}:{2}', inputs.docker-username, inputs.app-name , inputs.build-hash) || '' }}
+          ${{ inputs.branch != 'main' && format('{0}/nexussphere-{1}:{2}', inputs.docker-username, inputs.app-name, inputs.branch) || '' }}
+
