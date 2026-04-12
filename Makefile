@@ -1,3 +1,8 @@
+
+
+test-pipeline:
+	act -P ubuntu-latest=catthehacker/ubuntu:act-latest --container-architecture linux/arm64 --secret-file .secrets
+
 gen-code-java:
 	buf generate --template java-proto-modules/buf.gen.yaml
 
