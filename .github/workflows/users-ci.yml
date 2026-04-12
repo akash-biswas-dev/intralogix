@@ -25,11 +25,6 @@ jobs:
     runs-on: ubuntu-latest
     # Clone the repository.
     steps:
-
-      - name: List files for Act debug
-        run: ls -R .github/actions/
-
-
       - name: Setup env
         uses: ./.github/actions/setup-java-env
 
