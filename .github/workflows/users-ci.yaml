@@ -54,7 +54,7 @@ jobs:
         with:
           context: .
           file: ./users/Dockerfile
-          push: false
+          push: true
           tags: |
             ${{ github.ref_name == 'main' && format('{0}/nexussphere-users:latest', secrets.DOCKER_USERNAME) || '' }}
 
