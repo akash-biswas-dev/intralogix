@@ -23,26 +23,15 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # Clone the repository.
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
 
-#      Instructions to set up java on the system with version and distribution.
-      - name: Setup Jdk 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: temurin
-          cache: maven # Holds the ~/.m2 directory so for the next build no need for download dependencies.
-#     Install proto-gen dependency.
-      - name: Install proto gen
-        run: mvn clean install -f proto-gen-java/pom.xml -DskipTests
-#      Install common modules.
-      - name: Install common modules
-        run: mvn clean install -f common-java/pom.xml -DskipTests
+      - name: List files for Act debug
+        run: ls -R .github/actions/
 
-      - name: Build users app
-        run: mvn clean package -f users/pom.xml -DskipTests
+
+      - name: Setup env
+        uses: ./.github/actions/setup-java-env
 
       - name: Docker login
         uses: docker/login-action@v3

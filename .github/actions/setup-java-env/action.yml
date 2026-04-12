@@ -1,0 +1,42 @@
+name: 'NexusSphere Java env setup'
+
+description: 'It install java, maven and the common dependencies shared by the applications.'
+
+inputs:
+  java-version:
+    required: false
+    default: 17
+    description: Java version to use.
+  maven-version:
+    required: false
+    default: 3.9.12
+    description: Maven version to use.
+
+runs:
+  using: 'composite'
+  
+  steps:
+
+    # Install java
+    - name: Setup Java
+      uses: actions/setup-java@v5
+      with: 
+        java-version: ${{ inputs.java-version }}
+        distribution: 'temurin'
+        cache: 'maven'
+
+    - name: Set up Maven
+      uses: stCarolas/setup-maven@v5
+      with:
+        maven-version: ${{ inputs.maven-version }}
+
+    # Install required dependencies.
+    - name: Install proto gen
+      shell: bash
+      run: mvn clean install -f proto-gen-java/pom.xml -DskipTests
+      
+    - name: Install common modules
+      shell: bash
+      run: mvn clean install -f common-java/pom.xml -DskipTests
+
+
