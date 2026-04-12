@@ -1,5 +1,5 @@
 test-pipeline:
-	act -P ubuntu-latest=catthehacker/ubuntu:act-latest --reuse --container-architecture linux/amd64 --secret-file .secrets
+	act -P ubuntu-latest=catthehacker/ubuntu:act-latest --bind --container-architecture linux/arm64 --secret-file .secrets
 
 gen-code-java:
 	buf generate --template java-proto-modules/buf.gen.yaml

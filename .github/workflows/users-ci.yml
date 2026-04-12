@@ -25,8 +25,15 @@ jobs:
     runs-on: ubuntu-latest
     # Clone the repository.
     steps:
+
+      - name: Clone the repository
+        uses: actions/checkout@v4
+
       - name: Setup env
         uses: ./.github/actions/setup-java-env
+
+      - name: Package Users
+        run: mvn clean package -f users/pom.xml -DskipTests
 
       - name: Docker login
         uses: docker/login-action@v3
