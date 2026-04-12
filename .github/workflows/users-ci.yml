@@ -2,9 +2,10 @@ name: Users CI pipeline
 
 on:
   push:
-    branches: ["main", "dev", "staging"]
+    branches: ["main", "staging"]
     paths:
-      - '.github/workflows/users-ci.yaml'
+      - '.github/actions/setup-java-env/action.yml'
+      - '.github/workflows/users-ci.yml'
       - 'users/**'
       - 'common-java/**'
       - 'proto-gen-java/**'
@@ -45,7 +46,7 @@ jobs:
         with:
           context: .
           file: ./users/Dockerfile
-          push: true
+          push: ${{ github.ref_name == 'main' || github.ref_name == 'staging' }}
           tags: |
             ${{ github.ref_name == 'main' && format('{0}/nexussphere-users:latest', secrets.DOCKER_USERNAME) || '' }}
 
