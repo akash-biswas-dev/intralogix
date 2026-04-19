@@ -1,10 +1,7 @@
 spring:
-  cloud:
-    config:
-      enabled: false
   r2dbc:
-    url: r2dbc:postgres://localhost:5432/workspace
+    url: r2dbc:postgres://localhost:5432/workspaces_db
     username: dev
     password: password
 services:
-  accessManager: localhost:15001
+  accessManager: localhost:15002

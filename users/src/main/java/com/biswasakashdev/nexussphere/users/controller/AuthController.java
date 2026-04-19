@@ -40,7 +40,9 @@ public class AuthController {
     private static final int SESSION_AGE = 1;
 
     @PostMapping(value = "/register")
-    public Mono<ResponseEntity<Void>> registerUser(@RequestBody NewUserRequest newUser) {
+    public Mono<ResponseEntity<Void>> registerUser(
+            @RequestBody NewUserRequest newUser
+    ) {
         return userService.createUser(newUser)
                 .thenReturn(new ResponseEntity<>(HttpStatus.CREATED));
     }
@@ -131,7 +133,9 @@ public class AuthController {
 
 
     @GetMapping(value = "/setup-profile")
-    public Mono<ResponseEntity<?>> getProfileInfo(@RequestHeader(name = "Authentication-Info") String userId) {
+    public Mono<ResponseEntity<?>> getProfileInfo(
+            @RequestHeader(name = "Authentication-Info") String userId
+    ) {
         Mono<Boolean> isAccountEnabledMono = userService.isAccountEnabled(userId);
         return isAccountEnabledMono.map(isExists -> {
             if (!isExists) {
@@ -148,9 +152,10 @@ public class AuthController {
 
 
     @PostMapping(value = "/setup-profile")
-    public Mono<ResponseEntity<ClientResponse<Object>>> setupProfile(@RequestHeader(name = "Authentication-Info") String userId,
-                                                                     @RequestBody UserProfileRequest userProfileRequest,
-                                                                     ServerWebExchange exchange) {
+    public Mono<ResponseEntity<ClientResponse<Object>>> setupProfile(
+            @RequestHeader(name = "Authentication-Info") String userId,
+            @RequestBody UserProfileRequest userProfileRequest,
+            ServerWebExchange exchange) {
         Mono<Users> usersMono = userService.updateUserProfile(userId, userProfileRequest);
 
         return usersMono

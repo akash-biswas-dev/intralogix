@@ -1,7 +1,7 @@
 package com.biswasakashdev.nexussphere.accessmanager.config;
 
 
-import com.biswasakashdev.nexussphere.accessmanager.service.grpc.SecurityGroupGRPCService;
+import com.biswasakashdev.nexussphere.accessmanager.controller.grpc.SecurityGroupGRPCController;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import lombok.RequiredArgsConstructor;
@@ -18,11 +18,11 @@ import java.util.Objects;
 @Slf4j
 public class GRPCServerConfig {
 
-    private final SecurityGroupGRPCService securityGroupGRPCService;
+    private final SecurityGroupGRPCController securityGroupGRPCController;
 
     @Bean
     Server accessManagerGrpcServer(Environment environment) throws IOException {
-        String grpcPort = environment.getProperty("server.grpc");
+        String grpcPort = environment.getProperty("server.port");
         if(Objects.isNull(grpcPort) || grpcPort.isBlank()){
             log.error("No GRPC server port provided");
             throw new IllegalArgumentException();
@@ -31,14 +31,13 @@ public class GRPCServerConfig {
             int port = Integer.parseInt(grpcPort);
 
             Server grpcServer = ServerBuilder.forPort(15001)
-                    .addService(securityGroupGRPCService)
+                    .addService(securityGroupGRPCController)
                     .build()
                     .start();
             log.info("GRPC Server started, listening on {}", port);
             return grpcServer;
         }catch (NumberFormatException e){
-            log.error("Invalid GRPC port provided.");
-            throw new IllegalStateException();
+            throw new IllegalStateException("Invalid gRPC port.");
         }
     }
 }

@@ -1,5 +1,1 @@
-spring:
-  cloud:
-    config:
-      enabled: true
-#      uri:  // Provide this variable from environment.
+

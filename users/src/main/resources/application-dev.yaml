@@ -1,6 +1,2 @@
-spring:
-  cloud:
-    config:
-      enabled: false
 application:
   db: mongodb://dev:password@localhost:27017/users?authSource=admin

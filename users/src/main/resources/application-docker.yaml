@@ -1,6 +1,2 @@
-spring:
-  cloud:
-    config:
-      enabled: false
 application:
   db: mongodb://docker:password@nexus-mongo-docker:27017/users?authSource=admin

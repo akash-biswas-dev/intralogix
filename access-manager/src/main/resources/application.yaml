@@ -5,4 +5,4 @@ spring:
     active: dev
 server:
   port: 8503
-  grpc: 15001
+  grpc: 15002

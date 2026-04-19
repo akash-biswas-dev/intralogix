@@ -8,12 +8,12 @@ services:
     networks:
       - proxy-network
     depends_on:
-      - client
+      - web
       - gateway
 
-  client:
-    container_name: nexus-client 
-    image: biswasakash/nexussphere-client:latest 
+  web:
+    container_name: nexus-web
+    image: biswasakash/nexussphere-web:latest
     networks:
       - proxy-network
 
@@ -44,19 +44,20 @@ services:
     container_name: nexus-mongo-docker
     image: mongo:8.0-noble
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=docker
+      - MONGO_INITDB_ROOT_USERNAME=dev
       - MONGO_INITDB_ROOT_PASSWORD=password 
-    networks:
-      - mongo-network
     ports:
       - "27017:27017"
+    networks:
+      - mongo-network
   postgres:
     container_name: nexus-postgres-dev
     image: postgres:18.3-bookworm
     environment:
-      - POSTGRES_USER=dev
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=accessmanager
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+    volumes:
+      - ./scripts/postgres:/docker-entrypoint-initdb.d
     ports:
       - "5432:5432"
     networks:
