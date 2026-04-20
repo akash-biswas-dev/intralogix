@@ -1,4 +1,5 @@
 "use client";
+
 import PasswordInputWithToggle from "@/components/PasswordInputWithToggel";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Field,
   FieldDescription,
@@ -17,93 +19,27 @@ import {
   FieldSet,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import {
+  useActionState,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
+import { login } from "./action";
 import Link from "next/link";
 
-import { Checkbox } from "@/components/ui/checkbox";
-import { useState } from "react";
-
-import * as z from "zod";
-
-import useAuthContext, { SERVER_ADDRESS } from "@/context/AuthContext";
-import axios from "axios";
-import { useRouter } from "next/navigation";
-
-const UserCredential = z.object({
-  emailOrUsername: z.string().min(5, "Invalid email or Username"),
-  password: z
-    .string()
-    .min(8, "Password is too short.")
-    .max(15, "Password is too long."),
-});
-
 export default function Auth() {
-  const { updateAuthorization } = useAuthContext();
-  const router = useRouter();
+  const [errorStatus, formAction, isLoading] = useActionState<
+    LoginFormError,
+    FormData
+  >(login, {});
 
-  const [errors, setErrors] = useState<{
-    emailOrUsername?: string;
-    password?: string;
-    error?: string;
-  }>({});
+  const [errors, setErrors] = useState(errorStatus);
 
-  const formAction = async (formData: FormData) => {
-    const userCredentials = {
-      emailOrUsername: formData.get("emailOrUsername"),
-      password: formData.get("password"),
-      rememberMe: formData.get("rememberMe") ? true : false,
-    };
-
-    const parsedObject = UserCredential.safeParse({
-      emailOrUsername: userCredentials.emailOrUsername,
-      password: userCredentials.password,
-    });
-
-    if (!parsedObject.success) {
-      const errorProperties = z.treeifyError(parsedObject.error).properties;
-
-      const emailError = errorProperties?.emailOrUsername?.errors?.[0];
-
-      if (emailError) {
-        setErrors({ emailOrUsername: emailError });
-      }
-
-      const passwordError = errorProperties?.password?.errors?.[0];
-      if (passwordError) {
-        setErrors((pre) => ({ ...pre, password: passwordError }));
-      }
-    }
-
-    const res = await axios.post(
-      `${SERVER_ADDRESS}/api/v1/auth`,
-      {
-        emailOrUsername: userCredentials.emailOrUsername,
-        password: userCredentials.password,
-      },
-      {
-        params: {
-          rememberMe: userCredentials.rememberMe,
-        },
-        validateStatus: () => true,
-      },
-    );
-
-    if (res.status === 201) {
-      updateAuthorization(res.data.data);
-      router.push("/dashboard");
-      return;
-    }
-
-    if (res.status === 307) {
-      router.push("/setup-profile");
-      return;
-    }
-    const err = res.data.error;
-    if (err) {
-      setErrors({ error: err });
-    } else {
-      console.error("Service unavailable!");
-    }
-  };
+  useLayoutEffect(() => {
+    setErrors({ ...errorStatus });
+  }, [errorStatus]);
 
   return (
     <Card className="w-full max-w-md top-1/2 left-1/2 -translate-1/2 absolute">
@@ -124,10 +60,13 @@ export default function Auth() {
           </Link>
         </CardAction>
       </CardHeader>
+
+      {/* Content of the form. */}
       <CardContent>
         <form action={formAction}>
           <FieldSet>
             <FieldGroup>
+              {/* Email or Username  */}
               <Field>
                 <FieldLabel htmlFor="username-or-email">
                   Email Or Username
@@ -151,6 +90,8 @@ export default function Auth() {
                   </FieldDescription>
                 )}
               </Field>
+
+              {/* Password */}
               <Field>
                 <FieldLabel htmlFor="password">Password</FieldLabel>
                 <PasswordInputWithToggle
@@ -172,20 +113,27 @@ export default function Auth() {
                   </FieldDescription>
                 )}
               </Field>
+
+              {/* Checkbox to remember me or not. */}
               <Field orientation="horizontal">
                 <Checkbox name="rememberMe" id="remember-me"></Checkbox>
                 <FieldLabel htmlFor="remember-me" className="cursor-pointer">
                   Remember Me
                 </FieldLabel>
               </Field>
+
+              {/* Submit button */}
               <Field orientation="horizontal">
-                <Button type="submit">Sign In</Button>
+                <Button type="submit">
+                  <span>Sign-in</span>
+                </Button>
               </Field>
 
+              {/* Sign-in with google. */}
               <Button
                 type="button"
                 variant="outline"
-                className="flex gap-2 w-full"
+                className="flex gap-2 w-full p-2"
               >
                 <img
                   src={"/google-logo.webp"}
@@ -201,3 +149,11 @@ export default function Auth() {
     </Card>
   );
 }
+
+
+export interface LoginFormError {
+    error?: string,
+    emailOrUsername?: string,
+    password?: string
+}
+

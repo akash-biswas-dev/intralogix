@@ -1,4 +1,13 @@
-export default function Dashboard() {
-  console.log("Rendering...");
-  return <div>Hello Dashboard</div>;
+import { fetchAuthorization } from "./action";
+
+
+export default async function DashboardPage() {
+
+    const authorizaition = await fetchAuthorization();
+
+
+    console.log(authorizaition);
+    return (
+        <h1>Dashboard</h1>
+    );
 }

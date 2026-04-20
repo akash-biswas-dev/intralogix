@@ -1,13 +1,9 @@
 "use client";
 
-import { Dispatch, FormEvent, SetStateAction } from "react";
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-  FieldSet,
-} from "./ui/field";
+import { useActionState, useEffect, useState } from "react";
+import { DatePicker } from "./DatePicker";
+import OptionPicker, { OptionType } from "./OptionPicker";
+import { Button } from "./ui/button";
 import {
   Card,
   CardContent,
@@ -15,25 +11,21 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
+import {
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldSet,
+} from "./ui/field";
 import { Input } from "./ui/input";
-import { DatePicker } from "./DatePicker";
-import { Button } from "./ui/button";
-import OptionPicker from "./OptionPicker";
 
-import * as z from "zod";
+import {
+  updateProfile
+} from "@/app/setup-profile/action";
 
-const UserProfileUpdate = ({
-  initialData,
-  errors,
-  setErrors,
-  onSubmit,
-}: {
-  initialData?: UserProfile;
-  errors?: UserProfileError;
-  setErrors?: Dispatch<SetStateAction<UserProfileError>>;
-  onSubmit?: (eve: FormEvent<HTMLFormElement>) => void;
-}) => {
-  const genderOptions = [
+const UserProfileUpdate = ({ initialData }: { initialData?: UserProfile }) => {
+  const genderOptions: OptionType[] = [
     {
       key: "MALE",
       name: "Male",
@@ -48,6 +40,28 @@ const UserProfileUpdate = ({
     },
   ];
 
+  const [preState, formAction, isLoading] = useActionState<
+    UpdateProfileState,
+    FormData
+  >(updateProfile, { state: initialData || {}, err: {} });
+
+  const { state } = preState;
+
+  // Track the previous error state to know when the action has returned new errors
+  const [prevServerErrors, setPrevServerErrors] = useState(preState.err);
+  const [errors, setErrors] = useState(preState.err);
+
+  // Update state directly during render instead of using useEffect.
+  // This prevents an unnecessary double re-render when the server returns a new state.
+  if (preState.err !== prevServerErrors) {
+    setPrevServerErrors(preState.err);
+    setErrors(preState.err);
+  }
+
+  const selectedGender: OptionType | undefined = state.gender
+    ? genderOptions.find((opt) => state.gender === opt.key)
+    : undefined;
+
   return (
     <Card className="max-w-md w-full absolute top-1/2 left-1/2 -translate-1/2">
       <CardHeader>
@@ -56,7 +70,7 @@ const UserProfileUpdate = ({
       </CardHeader>
 
       <CardContent>
-        <form onSubmit={onSubmit} className="relative">
+        <form action={formAction} className="relative">
           <FieldSet>
             <FieldGroup>
               <Field>
@@ -67,13 +81,12 @@ const UserProfileUpdate = ({
 
                 {/*Username*/}
                 <Input
+                  defaultValue={state.username}
                   id="username"
                   type="text"
                   name="username"
-                  value={initialData?.username}
-                  className={errors?.usernmae ? "outline-red-600" : ""}
+                  className={errors?.username ? "outline-red-600" : ""}
                   onFocus={() =>
-                    setErrors &&
                     setErrors((pre) => ({
                       ...pre,
                       error: undefined,
@@ -81,9 +94,9 @@ const UserProfileUpdate = ({
                     }))
                   }
                 />
-                {errors?.firstName && (
+                {errors?.username && (
                   <FieldDescription className="text-red-600 font-bold">
-                    {errors?.firstName}
+                    {errors?.username}
                   </FieldDescription>
                 )}
               </Field>
@@ -93,13 +106,12 @@ const UserProfileUpdate = ({
                 <Field>
                   <FieldLabel htmlFor="firstname">First Name</FieldLabel>
                   <Input
+                    defaultValue={state.firstName}
                     id="firstName"
                     type="text"
                     name="firstName"
-                    value={initialData?.firstName}
                     className={errors?.firstName ? "outline-red-600" : ""}
                     onFocus={() =>
-                      setErrors &&
                       setErrors((pre) => ({
                         ...pre,
                         error: undefined,
@@ -118,13 +130,12 @@ const UserProfileUpdate = ({
                 <Field>
                   <FieldLabel htmlFor="lastname">Last Name</FieldLabel>
                   <Input
-                    value={initialData?.lastName}
+                    defaultValue={state.lastName}
                     id="lastname"
                     type="text"
                     name="lastName"
                     className={errors?.lastName ? "outline-red-600" : ""}
                     onFocus={() =>
-                      setErrors &&
                       setErrors((pre) => ({
                         ...pre,
                         error: undefined,
@@ -143,14 +154,14 @@ const UserProfileUpdate = ({
                 {/*Date of birth  */}
                 <Field>
                   <DatePicker
+                    defaultValue={state.dateOfBirth}
                     name="dateOfBirth"
                     label="Date of Birth"
                     onFocusAction={() =>
-                      setErrors &&
                       setErrors((pre) => ({
                         ...pre,
                         error: undefined,
-                        lastName: undefined,
+                        dateOfBirth: undefined,
                       }))
                     }
                   />
@@ -164,20 +175,18 @@ const UserProfileUpdate = ({
                 {/*Gender */}
                 <Field>
                   <OptionPicker
+                    selected={selectedGender}
                     fieldName="gender"
                     label="Gender"
                     options={genderOptions}
                   />
-
-                  {errors?.dateOfBirth && (
-                    <FieldDescription className="text-red-600 font-bold">
-                      {errors?.dateOfBirth}
-                    </FieldDescription>
-                  )}
                 </Field>
               </div>
+
               <Field orientation="horizontal">
-                <Button type="submit">Save Profile</Button>
+                <Button type="submit" disabled={isLoading}>
+                  {isLoading ? "Saving..." : "Save Profile"}
+                </Button>
               </Field>
             </FieldGroup>
           </FieldSet>
@@ -189,6 +198,12 @@ const UserProfileUpdate = ({
 
 export default UserProfileUpdate;
 
+
+export interface UpdateProfileState {
+  state: UserProfile;
+  err: UserProfileError
+}
+
 export type UserProfile = {
   username?: string;
   firstName?: string;
@@ -196,20 +211,12 @@ export type UserProfile = {
   dateOfBirth?: string;
   gender?: string;
 };
+
+
 export type UserProfileError = {
   error?: string;
-  usernmae?: string;
+  username?: string;
   firstName?: string;
   lastName?: string;
   dateOfBirth?: string;
 };
-export const UserProfileSchema = z.object({
-  username: z
-    .string()
-    .min(5, "Username is too short")
-    .max(15, "Username too long"),
-  firstName: z.string(),
-  lastName: z.string(),
-  dateOfBirth: z.string(),
-  gender: z.string(),
-});

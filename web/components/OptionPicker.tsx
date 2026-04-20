@@ -17,15 +17,13 @@ export default function OptionPicker({
   selected,
   fieldName,
 }: {
-  options?: { key: string; name: string }[];
+  options?: OptionType[];
   placeHolder?: string;
   selected?: OptionType;
   fieldName?: string;
   label?: string;
 }) {
-  const [item, setItem] = useState<{ key: string; name: string } | undefined>(
-    selected,
-  );
+  const [item, setItem] = useState<OptionType | undefined>(selected);
 
   const inputId = `option-${fieldName}`;
 
@@ -41,7 +39,7 @@ export default function OptionPicker({
         ></Input>
         <DropdownMenuTrigger asChild>
           <Button variant="outline">
-            {placeHolder || item?.name || "Select"}
+            {item?.name || placeHolder || "Select"}
           </Button>
         </DropdownMenuTrigger>
 
