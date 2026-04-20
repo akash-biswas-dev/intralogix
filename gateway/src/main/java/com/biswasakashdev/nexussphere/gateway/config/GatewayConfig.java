@@ -43,7 +43,7 @@ public class GatewayConfig {
                         .filters(f -> f.filter(refreshTokenFilter))
                         .uri(registeredServiceURLs.userService())
                 )
-                .route("profile-update-token", r -> r
+                .route("setup-profile", r -> r
                         .method(HttpMethod.GET, HttpMethod.POST)
                         .and()
                         .path("/api/v1/auth/setup-profile")
