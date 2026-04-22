@@ -15,20 +15,14 @@ public class GatewayConfig {
 
     private final JwtAuthorizationFilter jwtAuthorizationFilter;
     private final ServiceURLConfig.RegisteredServiceURLs registeredServiceURLs;
-    private final CookieAuthorizationFilter refreshTokenFilter;
-    private final CookieAuthorizationFilter profileUpdateTokenFilter;
 
 
     public GatewayConfig(
             JwtAuthorizationFilter jwtAuthorizationFilter,
-            ServiceURLConfig.RegisteredServiceURLs registeredServiceURLs,
-            @Qualifier(value = "generateAuthorizationFilter") CookieAuthorizationFilter refreshTokenFilter,
-            @Qualifier(value = "profileUpdateTokenFilter") CookieAuthorizationFilter profileUpdateTokenFilter
+            ServiceURLConfig.RegisteredServiceURLs registeredServiceURLs
     ) {
         this.jwtAuthorizationFilter = jwtAuthorizationFilter;
         this.registeredServiceURLs = registeredServiceURLs;
-        this.refreshTokenFilter = refreshTokenFilter;
-        this.profileUpdateTokenFilter = profileUpdateTokenFilter;
     }
 
 
