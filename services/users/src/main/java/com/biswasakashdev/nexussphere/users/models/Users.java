@@ -22,8 +22,8 @@ public class Users {
     private String password;
     @Indexed(name = "joined_on")
     private Instant joinedOn;
-    @Indexed(name = "is_account_enabled")
-    private Boolean accountEnabled;
+    @Indexed(name = "is_profile_completed")
+    private Boolean isProfileCompleted;
     @Indexed(name = "is_account_locked")
     private Boolean accountLocked;
 

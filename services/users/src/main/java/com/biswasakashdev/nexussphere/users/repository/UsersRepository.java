@@ -13,6 +13,8 @@ public interface UsersRepository {
 
     Mono<Users> saveUser(Users users);
 
+    Mono<Boolean> isProfileCompleted(String userId);
+
     Mono<Users> findByEmailOrUsername(String emailOrUsername);
 
     Mono<Users> findById(String userId);

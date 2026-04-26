@@ -2,13 +2,10 @@ package com.biswasakashdev.nexussphere.gateway.config;
 
 
 import com.biswasakashdev.nexussphere.gateway.filters.JwtAuthorizationFilter;
-import com.biswasakashdev.nexussphere.gateway.filters.CookieAuthorizationFilter;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 
 @Configuration
 public class GatewayConfig {
@@ -30,37 +27,24 @@ public class GatewayConfig {
     RouteLocator routeLocator(RouteLocatorBuilder routeLocatorBuilder) {
 
         return routeLocatorBuilder.routes()
-                .route("generate-authorization", r -> r
-                        .method(HttpMethod.POST)
-                        .and()
-                        .path("/api/v1/auth/generate-authorization")
-                        .filters(f -> f.filter(refreshTokenFilter))
-                        .uri(registeredServiceURLs.userService())
-                )
-                .route("setup-profile", r -> r
-                        .method(HttpMethod.GET, HttpMethod.POST)
-                        .and()
-                        .path("/api/v1/auth/setup-profile")
-                        .filters(f -> f.filter(profileUpdateTokenFilter))
-                        .uri(registeredServiceURLs.userService())
-                )
                 .route("auth", (r) -> r
-                        .path("/api/v1/auth/**")
+                        .path(
+                                "/api/v1/auth/register",
+                                "/api/v1/auth"
+                        )
                         .uri(registeredServiceURLs.userService())
                 )
                 .route("user-route", r -> r
-                        .path("/api/v1/users/**")
+                        // Routes part of users service where Authorization filter applied.
+                        .path(
+                                "/api/v1/users/**",
+                                "/api/v1/auth/refresh-authorization"
+                        )
                         .filters(f -> f.filter(jwtAuthorizationFilter))
                         .uri(registeredServiceURLs.userService())
                 )
-                .route("secured-endpoint", r -> r
-                        .method(HttpMethod.GET)
-                        .and()
-                        .path("/api/v1/secured")
-                        .filters(f->f.filter(jwtAuthorizationFilter))
-                        .uri(registeredServiceURLs.userService())
-                )
                 .route("workspace_route", r -> r
+                        // Routes part of workspace service where Authorization filter applied.
                         .path(
                                 "/api/v1/workspaces/**"
                         )

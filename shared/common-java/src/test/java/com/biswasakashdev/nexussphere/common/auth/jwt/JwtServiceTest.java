@@ -1,5 +1,7 @@
 package com.biswasakashdev.nexussphere.common.auth.jwt;
 
+import com.biswasakashdev.nexussphere.common.auth.AccountStatus;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import org.junit.jupiter.api.BeforeEach;
@@ -8,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Duration;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -28,11 +31,11 @@ class JwtServiceTest {
     @Test
     void shouldThrowExpiredJwtExceptionWhenPassAExpiredToken() throws InterruptedException {
         String userId= "user-id";
-        String token = jwtService.generateSession(userId, Duration.ofMillis(100L));
+        String token = jwtService.buildToken(userId, Duration.ofMillis(100L), Map.of());
         Thread.sleep(100L);
 
         assertThrows(ExpiredJwtException.class,()->{
-           jwtService.getUserId(token);
+           jwtService.extractAllClaims(token);
         });
 
     }
@@ -43,5 +46,17 @@ class JwtServiceTest {
        assertThrows(MalformedJwtException.class,()->{
            jwtService.getUserId(token);
        });
+    }
+
+
+    @Test
+    void shouldHaveAValidToken(){
+        String userId = "a-long-userId";
+
+        String token = jwtService.buildToken(userId, Duration.ofHours(1), Map.of("account_status", AccountStatus.INACTIVE));
+
+        Claims claims = jwtService.extractAllClaims(token);
+
+        assertEquals(userId, claims.getSubject());
     }
 }

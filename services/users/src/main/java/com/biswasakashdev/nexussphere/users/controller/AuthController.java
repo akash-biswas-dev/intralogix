@@ -1,8 +1,7 @@
 package com.biswasakashdev.nexussphere.users.controller;
 
 
-import com.biswasakashdev.nexussphere.common.auth.SessionCookies;
-import com.biswasakashdev.nexussphere.users.exception.AccountNotEnabledException;
+import com.biswasakashdev.nexussphere.common.auth.AccountStatus;
 import com.biswasakashdev.nexussphere.common.auth.jwt.JwtService;
 import com.biswasakashdev.nexussphere.common.response.ClientResponse;
 import com.biswasakashdev.nexussphere.users.dtos.requests.NewUserRequest;
@@ -10,11 +9,13 @@ import com.biswasakashdev.nexussphere.users.dtos.requests.UserCredentials;
 import com.biswasakashdev.nexussphere.users.dtos.requests.UserProfileRequest;
 import com.biswasakashdev.nexussphere.users.dtos.response.Authorization;
 import com.biswasakashdev.nexussphere.users.exception.InvalidCredentialException;
+import com.biswasakashdev.nexussphere.users.exception.UserNotFoundException;
 import com.biswasakashdev.nexussphere.users.models.Users;
 import com.biswasakashdev.nexussphere.users.services.AuthService;
 import com.biswasakashdev.nexussphere.users.services.UserService;
 import com.biswasakashdev.nexussphere.users.utils.UsersUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -25,8 +26,10 @@ import reactor.core.publisher.Mono;
 import javax.security.auth.login.AccountLockedException;
 import java.time.Duration;
 import java.util.HashMap;
+import java.util.Map;
 
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(value = "/api/v1/auth")
@@ -50,144 +53,76 @@ public class AuthController {
     @PostMapping
     public Mono<ResponseEntity<ClientResponse<Authorization>>> login(
             @RequestBody UserCredentials credentials,
-            @RequestParam(name = "rememberMe", required = false, defaultValue = "false") boolean rememberMe,
-            ServerWebExchange exchange
+            @RequestParam(name = "rememberMe", required = false, defaultValue = "false") boolean rememberMe
     ) {
 
 //        How many days the generated session token valid.
-        int ageInDays = rememberMe ? 15 : SESSION_AGE;
+        Duration duration = rememberMe ? Duration.ofDays(15) : Duration.ofDays(1);
 
         Mono<Users> usersMono = authService.validateUser(credentials);
 
         return usersMono
                 .map(users -> {
 
-                    String authorizationToken =
-                            jwtService.generateAuthorization(users.getId(), new HashMap<>());
-                    String session = jwtService.generateSession(users.getId(), Duration.ofDays(ageInDays));
-
+                    String token = jwtService.buildToken(
+                            users.getId(),
+                            Duration.ofHours(1),
+                            new HashMap<>()
+                    );
                     Authorization authorization = new Authorization(
-                            authorizationToken,
+                            token,
+                            duration.toSeconds(),
                             UsersUtils.getUserResponse(users)
                     );
 
-                    ResponseCookie sessionCookie = generateCookie(session, ageInDays);
-
-                    exchange.getResponse().addCookie(sessionCookie);
-                    return ResponseEntity.status(HttpStatus.CREATED)
-                            .body(new ClientResponse<>(true, authorization, null));
-                })
-                .onErrorResume(AccountNotEnabledException.class, (err) -> {
-                    String temporaryProfileUpdateSession = jwtService.generateSession(err.getUserId(), Duration.ofHours(1));
-                    ResponseCookie profileUpdateCookie = ResponseCookie
-                            .from(SessionCookies.COOKIE_SETUP_PROFILE.getCookieName())
-                            .value(temporaryProfileUpdateSession)
-                            .maxAge(Duration.ofHours(1))
-                            .path(SessionCookies.COOKIE_SETUP_PROFILE.getPath())
-                            .httpOnly(true)
-                            .build();
-                    exchange.getResponse().addCookie(profileUpdateCookie);
-
-                    return Mono.just(ResponseEntity
-                            .status(HttpStatus.TEMPORARY_REDIRECT)
-                            .build());
-                })
-                .onErrorResume(AccountLockedException.class, (_err) ->
-                        Mono.just(
-                                ResponseEntity
-                                        .status(HttpStatus.FORBIDDEN)
-                                        .body(new ClientResponse<>(false, null, "")))
-                )
-                .onErrorResume(InvalidCredentialException.class,err-> Mono.just(
-                        ResponseEntity.badRequest().body(new ClientResponse<>(
-                                false,
-                                null,
-                                err.getMessage()
-                        ))
-                ))
-                .onErrorResume(err -> Mono.just(
-                        ResponseEntity
-                                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                .body(new ClientResponse<>(false, null, "Something went wrong."))
-                ));
-    }
-
-    @PostMapping(value = "/generate-authorization")
-    public Mono<ResponseEntity<?>> refreshAuthorization(
-            @RequestHeader(name = "Authentication-Info") String userId
-    ) {
-
-        Mono<Users> usersMono = userService.findUserById(userId);
-        return usersMono
-                .map(users -> {
-                    String token = jwtService
-                            .generateAuthorization(users.getId(), new HashMap<>());
-
                     return ResponseEntity
                             .status(HttpStatus.CREATED)
-                            .body(new Authorization(token,
-                                    UsersUtils.getUserResponse(users)
-                            ));
+                            .body(new ClientResponse<>(true, authorization, null));
                 });
     }
 
+//    After updating the profile user generate new Authorization.
 
-    @GetMapping(value = "/setup-profile")
-    public Mono<ResponseEntity<?>> getProfileInfo(
-            @RequestHeader(name = "Authentication-Info") String userId
+    @PostMapping("/refresh-authorization")
+    public Mono<ResponseEntity<ClientResponse<Authorization>>> refreshAuthorization(
+            @RequestHeader("Authentication-Info") String userId
     ) {
-        Mono<Boolean> isAccountEnabledMono = userService.isAccountEnabled(userId);
-        return isAccountEnabledMono.map(isExists -> {
-            if (!isExists) {
-                return ResponseEntity
-                        .ok()
-                        .build();
-            }
+        Mono<Users> userMono = userService.findUserById(userId);
 
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .build();
-        });
-    }
+        return userMono
+                .map(user -> {
+                    if (!user.getIsProfileCompleted()) {
+                        ClientResponse<Authorization> userResp = new ClientResponse<>(
+                                false,
+                                null,
+                                "User profile not completed"
+                        );
+                        return ResponseEntity
+                                .status(HttpStatus.FORBIDDEN)
+                                .body(userResp);
+                    }
 
+                    Duration expiration = Duration.ofDays(1);
 
-    @PostMapping(value = "/setup-profile")
-    public Mono<ResponseEntity<ClientResponse<Object>>> setupProfile(
-            @RequestHeader(name = "Authentication-Info") String userId,
-            @RequestBody UserProfileRequest userProfileRequest,
-            ServerWebExchange exchange) {
-        Mono<Users> usersMono = userService.updateUserProfile(userId, userProfileRequest);
+                    String token = jwtService.buildToken(
+                            user.getId(),
+                            expiration,
+                            new HashMap<>()
+                    );
 
-        return usersMono
-                .map(users -> {
-                    ResponseCookie deleteProfileCookie = ResponseCookie
-                            .from(SessionCookies.COOKIE_SETUP_PROFILE.getCookieName(), null)
-                            .path(SessionCookies.COOKIE_SETUP_PROFILE.getPath())
-                            .httpOnly(true)
-                            .build();
-                    exchange.getResponse().addCookie(deleteProfileCookie);
+                    Authorization authorization = new Authorization(
+                            token,
+                            expiration.toSeconds(),
+                            UsersUtils.getUserResponse(user)
+                    );
 
-                    // After profile update add session details.
-                    String session = jwtService.generateSession(users.getId(), Duration.ofDays(SESSION_AGE));
-                    ResponseCookie sessionCookie = generateCookie(session, SESSION_AGE);
-                    exchange.getResponse().addCookie(sessionCookie);
                     return ResponseEntity
-                            .accepted()
-                            .body(new ClientResponse<>(true, null, null));
-                }).onErrorResume(Exception.class, (_err) ->
-                        Mono.just(ResponseEntity
-                                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                .body(new ClientResponse<>(false, null, "Something went wrong."))
-                        ));
-    }
-
-    private static ResponseCookie generateCookie(String session, int ageInDays) {
-        return ResponseCookie
-                .from(SessionCookies.COOKIE_SESSION.getCookieName())
-                .value(session)
-                .path(SessionCookies.COOKIE_SESSION.getPath())
-                .httpOnly(true)
-                .maxAge(Duration.ofDays(ageInDays))
-                .build();
+                            .status(HttpStatus.CREATED)
+                            .body(new ClientResponse<>(
+                                    true,
+                                    authorization,
+                                    null
+                            ));
+                });
     }
 }

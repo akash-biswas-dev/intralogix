@@ -20,9 +20,7 @@ import {
 } from "./ui/field";
 import { Input } from "./ui/input";
 
-import {
-  updateProfile
-} from "@/app/setup-profile/action";
+import { updateProfile } from "@/app/setup-profile/action";
 
 const UserProfileUpdate = ({ initialData }: { initialData?: UserProfile }) => {
   const genderOptions: OptionType[] = [
@@ -198,10 +196,9 @@ const UserProfileUpdate = ({ initialData }: { initialData?: UserProfile }) => {
 
 export default UserProfileUpdate;
 
-
 export interface UpdateProfileState {
   state: UserProfile;
-  err: UserProfileError
+  err: UserProfileError;
 }
 
 export type UserProfile = {
@@ -211,7 +208,6 @@ export type UserProfile = {
   dateOfBirth?: string;
   gender?: string;
 };
-
 
 export type UserProfileError = {
   error?: string;

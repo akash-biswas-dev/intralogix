@@ -58,14 +58,10 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public String generateSession(String userId, Duration expiry) {
-        return createToken(userId, expiry.toMillis(), new HashMap<>());
-    }
-
-    @Override
-    public String generateAuthorization(String userId, Map<String, Object> extraClaims) {
+    public String buildToken(String userId, Duration expiry, Map<String, Object> extraClaims) {
         return createToken(userId, expiry.toMillis(), extraClaims);
     }
+
 
     @Override
     public String getUserId(String token) throws ExpiredJwtException,MalformedJwtException {

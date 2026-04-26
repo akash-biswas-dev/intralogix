@@ -4,6 +4,7 @@ import com.biswasakashdev.nexussphere.common.response.UserResponse;
 
 public record Authorization (
         String token,
+        long maxAge, // Token valid in seconds.
         UserResponse user
 ){
 }

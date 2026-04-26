@@ -29,6 +29,19 @@ public class UserRepositoryImpl implements UsersRepository {
     }
 
     @Override
+    public Mono<Boolean> isProfileCompleted(String userId) {
+        Query query = new Query(Criteria.where("id").is(userId));
+        query
+                .fields()
+                .include("isProfileCompleted")
+                .exclude("_id");
+
+        return mongoTemplate
+                .findOne(query, Users.class)
+                .map(Users::getIsProfileCompleted);
+    }
+
+    @Override
     public Mono<Users> findByEmailOrUsername(String emailOrUsername) {
         Query query = new Query(
                 new Criteria().orOperator(

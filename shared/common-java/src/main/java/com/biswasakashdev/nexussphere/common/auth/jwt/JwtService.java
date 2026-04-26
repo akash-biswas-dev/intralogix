@@ -10,9 +10,7 @@ import java.util.Map;
 
 public interface JwtService {
 
-    String generateSession(String userId, Duration expiry);
-
-    String generateAuthorization(String userId, Map<String,Object> extraClaims);
+    String buildToken(String userId, Duration expiry, Map<String,Object> extraClaims);
 
     String getUserId(String token) throws ExpiredJwtException, MalformedJwtException;
 

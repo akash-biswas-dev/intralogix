@@ -35,11 +35,16 @@ export default function Auth() {
     FormData
   >(login, {});
 
+  // Track the previous error state to know when the action has returned new errors
+  const [prevServerErrors, setPrevServerErrors] = useState(errorStatus);
   const [errors, setErrors] = useState(errorStatus);
 
-  useLayoutEffect(() => {
-    setErrors({ ...errorStatus });
-  }, [errorStatus]);
+  // Update state directly during render instead of using useEffect.
+  // This prevents an unnecessary double re-render when the server returns a new state.
+  if (errorStatus !== prevServerErrors) {
+    setPrevServerErrors(errorStatus);
+    setErrors(errorStatus);
+  }
 
   return (
     <Card className="w-full max-w-md top-1/2 left-1/2 -translate-1/2 absolute">
@@ -150,10 +155,8 @@ export default function Auth() {
   );
 }
 
-
 export interface LoginFormError {
-    error?: string,
-    emailOrUsername?: string,
-    password?: string
+  error?: string;
+  emailOrUsername?: string;
+  password?: string;
 }
-

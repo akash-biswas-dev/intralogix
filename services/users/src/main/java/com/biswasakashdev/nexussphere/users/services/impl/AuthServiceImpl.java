@@ -1,8 +1,8 @@
 package com.biswasakashdev.nexussphere.users.services.impl;
 
-import com.biswasakashdev.nexussphere.users.exception.AccountNotEnabledException;
 import com.biswasakashdev.nexussphere.users.dtos.requests.UserCredentials;
 import com.biswasakashdev.nexussphere.users.exception.InvalidCredentialException;
+import com.biswasakashdev.nexussphere.users.exception.ProfileNotCompleteException;
 import com.biswasakashdev.nexussphere.users.exception.UserNotFoundException;
 import com.biswasakashdev.nexussphere.users.models.Users;
 import com.biswasakashdev.nexussphere.users.repository.UsersRepository;
@@ -40,9 +40,10 @@ public class AuthServiceImpl implements AuthService {
                         log.error("Found invalid password for user: {}", credentials.emailOrUsername());
                         return Mono.error(new InvalidCredentialException("Invalid username or password"));
                     }
-                    if (!users.getAccountEnabled()) {
-                        log.warn("Account not enabled for user: {}", credentials.emailOrUsername());
-                        return Mono.error(new AccountNotEnabledException(users.getId(), "Account not enabled."));
+
+                    if (!users.getIsProfileCompleted()) {
+                        log.error("User profile not completed with userId : {}", users.getId());
+                        return Mono.error(new ProfileNotCompleteException(users.getId()));
                     }
 
                     if (users.getAccountLocked()) {
@@ -53,39 +54,8 @@ public class AuthServiceImpl implements AuthService {
                 })
                 .switchIfEmpty(Mono.error(() -> {
                     log.error("User not exists with credential: {}", credentials.emailOrUsername());
-                    return new UserNotFoundException("Invalid username.");
+                    return new UserNotFoundException("User doesn't exist.");
                 }));
     }
-/*
-    @Override
-    public AuthToken login(UserCredentials userCredentials, Boolean rememberMe) {
-        final Users users;
-        try {
-            users = userService.findUserByEmailOrUsername(userCredentials.usernameOrEmail());
-        } catch (NoSuchElementException e) {
-            String msg = String.format("User not found with username %s", userCredentials.usernameOrEmail());
-            log.error(msg);
-            throw new UserNotFoundException(msg);
-        }
 
-        if (!passwordEncoder.matches(userCredentials.password(), users.getPassword())) {
-            throw new BadCredentialsException("Invalid username or password");
-        }
-        return jwtService.generateAuthorization(users.getId(), rememberMe);
-    }
-
-    @Override
-    public String refreshAccessToken(String userId) {
-        final Users users;
-        try{
-            users = userService.findUserById(userId);
-        }catch (NoSuchElementException e){
-            log.error("User not found with user id {}", userId);
-            throw new UserNotFoundException("User not found");
-        }
-        if(!users.isEnabled()){
-            throw new AccountNotEnabledException(userId);
-        }
-        return jwtService.generateAccessToken(users, new HashMap<>());
-    }*/
 }

@@ -1,1 +1,2 @@
-# Add the test related database configurations.
+application:
+  db: mongodb://test:password@localhost:27017/testdb?authSource=admin

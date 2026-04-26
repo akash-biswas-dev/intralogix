@@ -6,8 +6,6 @@ import { redirect } from 'next/navigation';
 import * as z from 'zod';
 
 
-
-
 export async function updateProfile(perState: UpdateProfileState, formData: FormData) {
 
     const data = {
@@ -44,13 +42,17 @@ export async function updateProfile(perState: UpdateProfileState, formData: Form
 
     const axios = await getAxiosWithAuthorization();
 
-    const res = await axios.post('/api/v1/auth/setup-profile', {
+    const res = await axios.post('/api/v1/users/profile', {
         username,
         firstName,
         lastName,
         dateOfBirth,
         gender,
     });
+
+    const { status } = res;
+
+
 
     redirect('/dashboard');
 }
