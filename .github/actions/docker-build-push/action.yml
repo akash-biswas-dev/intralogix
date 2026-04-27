@@ -29,7 +29,7 @@ runs:
       with:
         context: .
           # Using env.APP_NAME for the Dockerfile path
-        file: ./${{ inputs.app-name }}/Dockerfile
+        file: infra/docker/${{ inputs.app-name }}.Dockerfile
         push: ${{ inputs.branch == 'main' || inputs.branch == 'staging' }}
         tags: |
           ${{ inputs.branch == 'main' && format('{0}/nexussphere-{1}:latest', inputs.docker-username , inputs.app-name) || '' }}

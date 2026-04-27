@@ -1,20 +1,17 @@
-FROM node:24.14 AS builder
+FROM node:20-alpine
 
 WORKDIR /app
 
-COPY . .
+# Copy only necessary files for production build
+COPY web/package.json web/package-lock.json ./
+COPY web/public ./public
+COPY web/.next ./.next
 
-RUN npm install
+# set node env for production so only dependencies install and ignore dev dependencies
+ENV NODE_ENV=production
 
-RUN npm run build
+RUN npm ci
 
-FROM nginx:latest
+EXPOSE 3000
 
-RUN rm -r /etc/nginx/conf.d/default.conf
-
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-WORKDIR /usr/share/nginx/html
-
-COPY --from=builder /app/out .
-
+CMD ["npm", "start"]

@@ -1,122 +1,87 @@
 # Configurations related to test workflows.
 act_cmd=act -P ubuntu-latest=catthehacker/ubuntu:act-latest --bind --env GITHUB_REF_NAME=dev --container-architecture linux/arm64 --secret-file .secrets -W
 
-workflow-users-test:
+users-action:
 	 $(act_cmd) .github/workflows/users.yml
 
-workflow-workspace-test:
+workspace-action:
 	 $(act_cmd) .github/workflows/workspaces.yml
 
-workflow-gateway-test:
+gateway-action:
 	 $(act_cmd) .github/workflows/gateway.yml
 
-workflow-access-manager-test:
+access-manager-action:
 	 $(act_cmd) .github/workflows/access-manager.yml
+
+web-action:
+	 $(act_cmd) .github/workflows/web.yml
 
 gen-code-java:
 	buf generate --template java-proto-modules/buf.gen.yaml
 
 
-# Service with version versions
-
-users=users
-users_version=$(users):local
-
-gateway=gateway
-gateway_version=$(gateway):0.0.1
-
-workspace=workspace
-workspace_version=$(workspace):0.0.1
-
-access_manager=access-manager
-access_manager_version=$(access_manager):0.0.1
-
-web=web
-web_version=$(web):0.0.1
-
 # Docker hub username
 APP_NAME=biswasakash/nexussphere
 
 # Command
-DOCKER_BUILD_CMD=docker build --platform linux/amd64,linux/arm64  -t $(APP_NAME)
+DOCKER_BUILD_CMD=docker build --platform linux/amd64,linux/arm64 -t $(APP_NAME)
 DOCKER_TAG_CMD=docker tag $(APP_NAME)
+
+users-build:
+	$(DOCKER_BUILD_CMD)-users:local -f services/users/Dockerfile .
+
+workspace-build:
+	$(DOCKER_BUILD_CMD)-workspaces:local -f services/workspaces/Dockerfile .
+
+gateway-build:
+	$(DOCKER_BUILD_CMD)-gateway:local -f services/gateway/Dockerfile .
+
+access-manager-build:
+	$(DOCKER_BUILD_CMD)-access_manager:local -f services/access-manager/Dockerfile .
+
+web-build:
+	$(DOCKER_BUILD_CMD)-web:local -f web/Dockerfile .
+
+
+build-all: users-build gateway-build workspace-build access-manager-build web-build 
+
+
 DOCKER_PUSH_CMD=docker push $(APP_NAME)
 
-# Build config
-build-docker-proxy:
-	$(DOCKER_BUILD_CMD)-docker-proxy:latest -f docker/proxy.Dockerfile .
-
-build-users:
-	$(DOCKER_BUILD_CMD)-$(users):local -f users/local.Dockerfile .
-
-build-workspace:
-	$(DOCKER_BUILD_CMD)-$(workspace):latest  -f docker/$(workspace).Dockerfile .
-
-	$(DOCKER_TAG_CMD)-$(workspace):latest $(APP_NAME)-$(workspace_version)
-
-build-gateway:
-
-	$(DOCKER_BUILD_CMD)-$(gateway):latest  -f docker/$(gateway).Dockerfile .
-
-	$(DOCKER_TAG_CMD)-$(gateway):latest $(APP_NAME)-$(gateway_version)
-
-
-build-access-manager:
-
-	$(DOCKER_BUILD_CMD)-$(access_manager):latest  -f docker/$(access_manager).Dockerfile .
-
-	$(DOCKER_TAG_CMD)-$(access_manager):latest $(APP_NAME)-$(access_manager_version)
-
-build-web:
-
-	$(DOCKER_BUILD_CMD)-$(web):latest  -f docker/$(web).Dockerfile web
-
-	$(DOCKER_TAG_CMD)-$(web):latest $(APP_NAME)-$(web_version)
-
-
-build-all: build-users build-gateway build-workspace build-access-manager build-web 
-
 # Container registry push config
-push-docker-proxy:
-	$(DOCKER_PUSH_CMD)-docker-proxy:latest
+users-push:
+	$(DOCKER_PUSH_CMD)-users:local
 
-push-users:
-	$(DOCKER_PUSH_CMD)-$(users_version)
+gateway-push:
+	$(DOCKER_PUSH_CMD)-gateway:local
 
-push-gateway:
-	$(DOCKER_PUSH_CMD)-$(gateway_version)
+access-manager-push:
+	$(DOCKER_PUSH_CMD)-access-manager:local
 
-push-access-manager:
-	$(DOCKER_PUSH_CMD)-$(access_manager_version)
+workspace-push:
+	$(DOCKER_PUSH_CMD)-workspaces:local
 
-push-workspace:
-	$(DOCKER_PUSH_CMD)-$(workspace_version)
+web-push:
+	$(DOCKER_PUSH_CMD)-web:local
 
-push-web:
-	$(DOCKER_PUSH_CMD)-$(web_version)
-	$(DOCKER_PUSH_CMD)-$(web):latest
-
-push-all: push-users push-gateway push-workspace push-access-manager push-web
+push-all: users-push gateway-push workspace-push access-manager-push web-push
 
 # Delete containers config.
-delete-docker-proxy:
-	docker rmi -f $(APP_NAME)-docker-proxy:latest
+users-delete:
+	docker rmi -f $(APP_NAME)-users:local
 
-delete-users:
-	docker rmi -f $(APP_NAME)-$(users_version)
+gateway-delete:
+	docker rmi -f $(APP_NAME)-gateway:local
 
-delete-gateway:
-	docker rmi -f $(APP_NAME)-$(gateway):latest $(APP_NAME)-$(gateway_version)
+workspace-delete:
+	docker rmi -f $(APP_NAME)-workspace:local
 
-delete-workspace:
-	docker rmi -f $(APP_NAME)-$(workspace):latest $(APP_NAME)-$(workspace_version)
+access-manager-delete:
+	docker rmi -f $(APP_NAME)-access-manager:local
 
-delete-access-manager:
-	docker rmi -f $(APP_NAME)-$(access_manager):latest $(APP_NAME)-$(access_manager_version)
+web-delete:
+	docker rmi -f $(APP_NAME)-web:local
 
-delete-web:
-	docker rmi -f $(APP_NAME)-$(web):latest $(APP_NAME)-$(web_version)
-
-delete-all: delete-users delete-gateway delete-access-manager delete-workspace delete-web
+delete-all: users-delete gateway-delete access-manager-delete workspace-delete web-delete
 
 

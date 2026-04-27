@@ -8,4 +8,4 @@ plugins:
   - remote: buf.build/community/salesforce-reactive-grpc:v1.2.4
     out: src/main/java
 inputs:
-  - directory: ../proto
+  - directory: ../../proto

@@ -1,4 +1,4 @@
-name: Users CI pipeline
+name: Web CI pipeline
 
 on:
   push:
@@ -7,15 +7,11 @@ on:
       - '.github/actions/setup-java-env/action.yml'
       - '.github/actions/docker-build-push/action.yml'
       - '.github/workflows/users.yml'
-      - 'services/users/**' # Note: Changed from workspace/** to users/** to match context
-      - 'shared/common-java/**'
-      - 'shared/proto-gen-java/**'
+      - 'web/**' # Note: Changed from workspace/** to users/** to match context
   pull_request:
     branches: ["main", "staging"]
     paths:
-      - 'services/users/**'
-      - 'shared/common-java/**'
-      - 'shared/proto-gen-java/**'
+      - 'web/**'
   workflow_dispatch:
     inputs:
       reason:
@@ -25,22 +21,35 @@ on:
 
 # GLOBAL VARIABLES
 env:
-  APP_NAME: users
+  APP_NAME: web
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    
+    defaults:
+      run:
+        working-directory: web
     steps:
       - name: Clone the repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4 
 
-      - name: Setup env
-        uses: ./.github/actions/setup-java-env
+      # 🔹 Setup Node
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
 
-      - name: Package Application
-        # Using env.APP_NAME to target the correct directory
-        run: mvn clean package -f services/${{ env.APP_NAME }}/pom.xml -DskipTests
-      
+
+      # 🔹 Install deps
+      - name: Install dependencies
+        run: npm ci
+
+      # 🔹 Build Next.js
+      - name: Build Next.js app
+        run: npm run build
+
+     
       - name: Build and Push the image
         uses: ./.github/actions/docker-build-push
         with:

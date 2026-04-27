@@ -1,26 +1,15 @@
 services:
   # This proxy only need when running the application using docker-compose.
-  proxy:
-    container_name: nexus-proxy
-    image: biswasakash/nexussphere-docker-proxy:latest
-    ports:
-      - "8000:80"
-    networks:
-      - proxy-network
-    depends_on:
-      - web
-      - gateway
-
   web:
     container_name: nexus-web
-    image: biswasakash/nexussphere-web:latest
+    image: biswasakash/nexussphere-web:local
     networks:
       - proxy-network
 
   # Authentication gateway for the services.
   gateway:
     container_name: nexus-gateway
-    image: biswasakash/nexussphere-gateway:latest
+    image: biswasakash/nexussphere-gateway:local
     networks:
       - service-network
       - proxy-network
@@ -31,7 +20,7 @@ services:
 
   users:
     container_name: nexus-users
-    image: biswasakash/nexussphere-users:latest
+    image: biswasakash/nexussphere-users:local
     networks:
       - service-network
       - mongo-network
