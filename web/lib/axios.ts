@@ -9,7 +9,7 @@ console.log(API)
 
 const baseAxios = axios.create({
     baseURL: API,
-    validateStatus: () => false
+    validateStatus: () => true
 })
 
 

@@ -1,2 +1,3 @@
-application:
-  db: mongodb://test:password@localhost:27017/testdb?authSource=admin
+spring:
+  mongodb:
+    uri: mongodb://test:password@localhost:27017/testdb?authSource=admin

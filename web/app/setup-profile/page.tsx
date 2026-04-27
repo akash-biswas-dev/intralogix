@@ -6,16 +6,20 @@ import { SETUP_PROFILE_SESSION } from "@/lib/constants";
 export default async function SetupProfile() {
     const axios = await getAxiosWithCookie(SETUP_PROFILE_SESSION);
 
-    const res = await axios.post('/api/v1/auth/setup-profile');
-    const { status, data } = res;
+    const res = await axios.get('/api/v1/users/profile');
+    const { status } = res;
 
-    if (status !== 200) {
+
+    if (status === 200) {
+        redirect('/dashboard', 'replace')
+    }
+
+    if (status !== 403) {
         redirect('/auth');
     }
 
-    if (data?.data?.isCompleted) {
-        redirect('/dashboard');
-    }
+    return <div className="min-h-screen">
 
-    return <UserProfileUpdate />;
+        <UserProfileUpdate />
+    </div>
 }

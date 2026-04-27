@@ -61,7 +61,7 @@ export async function signUp(error: SignUpForm, formData: FormData): Promise<Sig
 
     const axios = getBaseAxios();
 
-    const res = await axios.post('/api/v1/auth/sign-up', {
+    const res = await axios.post('/api/v1/auth/register', {
         email,
         password,
     })

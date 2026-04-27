@@ -49,9 +49,9 @@ public class JwtAuthorizationFilter implements GatewayFilter {
 
             String userId = claims.getSubject();
 
-            AccountStatus accountStatus = claims.get("account_status", AccountStatus.class);
+            String accountStatus = claims.get("account_status", String.class);
 
-            if (!isPathMatchesToUpdateProfile(request) && accountStatus == AccountStatus.INACTIVE) {
+            if (!isPathMatchesToUpdateProfile(request) && Objects.equals(accountStatus, AccountStatus.INACTIVE.name())) {
                 throw new ProfileNotCompletedException("Profile not completed");
             }
 

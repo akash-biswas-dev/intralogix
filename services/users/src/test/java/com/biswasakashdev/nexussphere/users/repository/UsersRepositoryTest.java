@@ -1,10 +1,9 @@
 package com.biswasakashdev.nexussphere.users.repository;
 
 import com.biswasakashdev.nexussphere.users.config.AuthConfig;
-import com.biswasakashdev.nexussphere.users.config.MongoConfig;
 import com.biswasakashdev.nexussphere.users.models.Users;
 import com.biswasakashdev.nexussphere.users.repository.impl.UserRepositoryImpl;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.mongodb.test.autoconfigure.DataMongoTest;
@@ -17,13 +16,14 @@ import reactor.test.StepVerifier;
 
 import java.time.Instant;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 
 @DataMongoTest
 @ActiveProfiles("test")
 @Import(value = {
         UserRepositoryImpl.class,
         AuthConfig.class,
-        MongoConfig.class
 })
 class UsersRepositoryTest {
 
@@ -36,10 +36,11 @@ class UsersRepositoryTest {
     @Autowired
     private ReactiveMongoTemplate mongoTemplate;
 
-    @BeforeEach
+    @AfterEach
     void clean() {
         mongoTemplate.dropCollection(Users.class).block();
     }
+
 
     @Test
     void shouldSaveUser() {
@@ -49,12 +50,16 @@ class UsersRepositoryTest {
                 .email(email)
                 .password(passwordEncoder.encode(userPassword))
                 .joinedOn(Instant.now())
+                .joinedOn(Instant.now())
                 .build();
         usersRepository.saveUser(user)
-                .then(usersRepository.findByEmailOrUsername(email))
-                .as(StepVerifier::create)
-                .expectNextCount(1)
-                .verifyComplete();
+            .then(usersRepository.findByEmailOrUsername(email))
+            .as(StepVerifier::create)
+            .consumeNextWith(savedUser -> {
+                assertEquals(email, savedUser.getEmail());
+                assertNotNull(savedUser.getJoinedOn());
+            })
+            .verifyComplete();
     }
 
     @Test

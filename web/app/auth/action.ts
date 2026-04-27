@@ -58,7 +58,8 @@ export async function login(prev: LoginFormError, formData: FormData) {
         {
             params: {
                 rememberMe: credentials.rememberMe
-            }
+            },
+            maxRedirects: 0
         }
     );
 
@@ -72,13 +73,15 @@ export async function login(prev: LoginFormError, formData: FormData) {
     // TODO: handle the response if user newly created.
 
     if (status === 307) {
-        cookieStore.set(SETUP_PROFILE_SESSION, data.data.token, {
+        cookieStore.set(SETUP_PROFILE_SESSION, data.token, {
             httpOnly: true,
-            maxAge: data.data.expiration,
+            maxAge: data.maxAge,
             path: '/setup-profile'
         })
-        redirect('/setup-profile')
+        redirect('/setup-profile', 'replace')
     }
+
+    console.log("Setup Profile Token", data);
 
 
     // If the user isn't exist or some error occurred at server.

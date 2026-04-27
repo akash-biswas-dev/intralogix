@@ -1,15 +1,11 @@
 package com.biswasakashdev.nexussphere.users.controller;
 
 
-import com.biswasakashdev.nexussphere.common.auth.AccountStatus;
 import com.biswasakashdev.nexussphere.common.auth.jwt.JwtService;
 import com.biswasakashdev.nexussphere.common.response.ClientResponse;
 import com.biswasakashdev.nexussphere.users.dtos.requests.NewUserRequest;
 import com.biswasakashdev.nexussphere.users.dtos.requests.UserCredentials;
-import com.biswasakashdev.nexussphere.users.dtos.requests.UserProfileRequest;
 import com.biswasakashdev.nexussphere.users.dtos.response.Authorization;
-import com.biswasakashdev.nexussphere.users.exception.InvalidCredentialException;
-import com.biswasakashdev.nexussphere.users.exception.UserNotFoundException;
 import com.biswasakashdev.nexussphere.users.models.Users;
 import com.biswasakashdev.nexussphere.users.services.AuthService;
 import com.biswasakashdev.nexussphere.users.services.UserService;
@@ -17,16 +13,12 @@ import com.biswasakashdev.nexussphere.users.utils.UsersUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import javax.security.auth.login.AccountLockedException;
 import java.time.Duration;
 import java.util.HashMap;
-import java.util.Map;
 
 
 @Slf4j

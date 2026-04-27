@@ -3,6 +3,9 @@ spring:
     name: users
   profiles:
     active: dev
+  data:
+    mongodb:
+      auto-index-creation: true
 server:
   port: 8501
 jwt:
