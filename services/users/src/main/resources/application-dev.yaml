@@ -1,3 +1,3 @@
 spring:
   mongodb:
-    uri: mongodb://dev:password@localhost:27017/users?authSource=admin
+    uri: mongodb://dev:password@localhost:27017/docker?authSource=admin

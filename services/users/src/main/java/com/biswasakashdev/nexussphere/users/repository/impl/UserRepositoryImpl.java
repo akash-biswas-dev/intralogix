@@ -33,7 +33,7 @@ public class UserRepositoryImpl implements UsersRepository {
         Query query = new Query(Criteria.where("id").is(userId));
         query
                 .fields()
-                .include("isProfileCompleted")
+                .include("profileCompleted")
                 .exclude("_id");
 
         return mongoTemplate

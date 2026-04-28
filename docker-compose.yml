@@ -30,23 +30,23 @@ services:
       - mongo
 
   mongo:
-    container_name: nexus-mongo-docker
+    container_name: nexus-mongo
     image: mongo:8.0-noble
     environment:
       - MONGO_INITDB_ROOT_USERNAME=dev
-      - MONGO_INITDB_ROOT_PASSWORD=password 
+      - MONGO_INITDB_ROOT_PASSWORD=password
     ports:
       - "27017:27017"
     networks:
       - mongo-network
+
   postgres:
-    container_name: nexus-postgres-dev
+    container_name: nexus-postgres
     image: postgres:18.3-bookworm
     environment:
-      POSTGRES_USER: admin
+      POSTGRES_USER: dev
       POSTGRES_PASSWORD: password
-    volumes:
-      - ./scripts/postgres:/docker-entrypoint-initdb.d
+      POSTGRES_DB: docker
     ports:
       - "5432:5432"
     networks:

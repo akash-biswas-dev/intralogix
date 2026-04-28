@@ -38,7 +38,6 @@ public class WorkspaceServiceImpl implements WorkspaceService {
 
         return workspaceRepository
                 .save(workspaces)
-                .switchIfEmpty(()-> Mono.error(new NullO))
                 .flatMap(savedWorkspace -> {
                     UsersOnWorkspace usersOnWorkspace = UsersOnWorkspace
                             .builder()
@@ -60,6 +59,11 @@ public class WorkspaceServiceImpl implements WorkspaceService {
 
     @Override
     public Mono<Boolean> isWorkspaceNameExists(String workspaceId, String userId) {
+        return null;
+    }
+
+    @Override
+    public Mono<Page<User>> findAllUsersInWorkspace(String workspaceId, Integer page, Integer pageSize, Sort.Direction direction) {
         return null;
     }
 
