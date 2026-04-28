@@ -107,7 +107,7 @@ export default function Auth() {
                     setErrors((pre) => ({
                       ...pre,
                       error: undefined,
-                      emailOrUsername: undefined,
+                      password: undefined,
                     }))
                   }
                 />

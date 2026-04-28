@@ -25,7 +25,7 @@ public class Users {
     @Indexed(name = "joined_on")
     private Instant joinedOn;
     @Indexed(name = "is_profile_completed")
-    private Boolean isProfileCompleted;
+    private Boolean profileCompleted;
     @Indexed(name = "is_account_locked")
     private Boolean accountLocked;
 

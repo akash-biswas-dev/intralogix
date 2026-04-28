@@ -1,70 +1,72 @@
-'use server';
+"use server";
 
-import { UpdateProfileState, UserProfileError } from '@/components/UserProfileUpdate';
-import { getAxiosWithAuthorization } from '@/lib/axios.server';
-import { redirect } from 'next/navigation';
-import * as z from 'zod';
+import {
+  UpdateProfileState,
+  UserProfileError,
+} from "@/components/UserProfileUpdate";
+import { getAxiosWithCookie } from "@/lib/axios.server";
+import { SESSION, SETUP_PROFILE_SESSION } from "@/lib/constants";
+import { validateUserProfile } from "@/schema/user";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
+export async function setUpProfile(
+  pre: UpdateProfileState,
+  formData: FormData,
+): Promise<UpdateProfileState> {
+  const axios = await getAxiosWithCookie(SETUP_PROFILE_SESSION);
 
-export async function updateProfile(perState: UpdateProfileState, formData: FormData) {
+  const { fields, err } = validateUserProfile(formData);
 
-    const data = {
-        username: formData.get("username")?.toString(),
-        firstName: formData.get("firstName")?.toString(),
-        lastName: formData.get("lastName")?.toString(),
-        dateOfBirth: formData.get("dateOfBirth")?.toString(),
-        gender: formData.get("gender")?.toString(),
+  console.log(fields);
+
+  if (err && !fields) {
+    return {
+      state: fields,
+      err: err,
     };
+  }
 
-    const result = UserProfileSchema.safeParse(data);
+  // Make request to update the profile.
+  const res = await axios.put("/api/v1/users/profile", fields);
 
-    if (!result.success) {
-        const err: UserProfileError = {};
-        const issues = result.error.issues
+  const { status, data } = res;
 
-        for (const issue of issues) {
-            err[issue.path[0] as keyof UserProfileError] = issue.message;
-        }
+  console.log(status, data);
 
-        return {
-            state: {
-                username: data.username,
-                firstName: data.firstName,
-                lastName: data.lastName,
-                dateOfBirth: data.dateOfBirth,
-                gender: data.gender,
-            }, err: err
-        }
+  // If failed then return the error.
+  if (status !== 204) {
+    const err: UserProfileError = {};
+
+    if (data.error) {
+      err.error = data.error;
+    } else {
+      err.error = "Something went wrong. Please try again later.";
     }
+    return {
+      state: fields,
+      err: err,
+    };
+  }
 
+  const cookieStore = await cookies();
 
-    const { username, firstName, lastName, dateOfBirth, gender } = result.data;
+  const refreshRes = await axios.get("/api/v1/auth/refresh-authorization");
 
-    const axios = await getAxiosWithAuthorization();
+  cookieStore.delete({
+    name: SETUP_PROFILE_SESSION,
+    path: "/setup-profile",
+  });
 
-    const res = await axios.post('/api/v1/users/profile', {
-        username,
-        firstName,
-        lastName,
-        dateOfBirth,
-        gender,
-    });
+  //   If failed to refresh the token.
+  if (refreshRes.status !== 200) {
+    redirect("/auth", "replace");
+  }
 
-    const { status } = res;
-
-
-
-    redirect('/dashboard');
+  const { token, maxAge } = refreshRes.data;
+  cookieStore.set(SESSION, token, {
+    httpOnly: true,
+    maxAge: maxAge,
+  });
+  redirect("/dashboard", "replace");
 }
-
-
-export const UserProfileSchema = z.object({
-    username: z
-        .string()
-        .min(5, "Username is too short")
-        .max(15, "Username too long"),
-    firstName: z.string(),
-    lastName: z.string(),
-    dateOfBirth: z.string(),
-    gender: z.string(),
-});

@@ -38,7 +38,7 @@ public class UserRepositoryImpl implements UsersRepository {
 
         return mongoTemplate
                 .findOne(query, Users.class)
-                .map(Users::getIsProfileCompleted);
+                .map(Users::getProfileCompleted);
     }
 
     @Override

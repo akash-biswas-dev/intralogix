@@ -36,7 +36,6 @@ export function DatePicker({
       <Input
         ref={ref}
         name={name}
-        value={defaultValue}
         type="date"
         defaultValue={date && date.toISOString().slice(0, 10)}
         className="hidden"

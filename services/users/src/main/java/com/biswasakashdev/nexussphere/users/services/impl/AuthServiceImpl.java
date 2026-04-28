@@ -41,7 +41,7 @@ public class AuthServiceImpl implements AuthService {
                         return Mono.error(new InvalidCredentialException("Invalid username or password"));
                     }
 
-                    if (!users.getIsProfileCompleted()) {
+                    if (!users.getProfileCompleted()) {
                         log.error("User profile not completed with userId : {}", users.getId());
                         return Mono.error(new ProfileNotCompleteException(users.getId()));
                     }

@@ -29,7 +29,7 @@ public class UserServiceImpl implements UserService {
                 .email(newUser.email())
                 .password(passwordEncoder.encode(newUser.password()))
                 .joinedOn(Instant.now())
-                .isProfileCompleted(false)
+                .profileCompleted(false)
                 .accountLocked(false)
                 .build();
         return usersRepository.saveUser(user);
@@ -72,7 +72,7 @@ public class UserServiceImpl implements UserService {
                             userId,
                             UserRepositoryImpl.UserUpdates.builder()
                                     .username(profileRequest.username())
-                                    .isAccountEnabled(true)
+                                    .isProfileCompleted(true)
                                     .build(),
                             true
                     );
@@ -107,7 +107,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Mono<Boolean> isAccountEnabled(String userId) {
         Mono<Users> userMono = usersRepository.findById(userId);
-        return userMono.map(Users::getIsProfileCompleted);
+        return userMono.map(Users::getProfileCompleted);
     }
 
 }

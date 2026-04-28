@@ -27,7 +27,7 @@ public interface UsersRepository {
             String email,
             String password,
             boolean isAccountLocked,
-            boolean isAccountEnabled
+            boolean isProfileCompleted
     ) {
 
     }

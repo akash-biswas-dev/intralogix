@@ -70,7 +70,7 @@ class UsersRepositoryTest {
                 .email(email)
                 .password(passwordEncoder.encode(userPassword))
                 .joinedOn(Instant.now())
-                .isProfileCompleted(false)
+                .profileCompleted(false)
                 .accountLocked(false)
                 .build();
         Mono<Users> usersMono = usersRepository.saveUser(user);

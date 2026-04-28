@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useState } from "react";
 import { DatePicker } from "./DatePicker";
 import OptionPicker, { OptionType } from "./OptionPicker";
 import { Button } from "./ui/button";
@@ -20,9 +20,16 @@ import {
 } from "./ui/field";
 import { Input } from "./ui/input";
 
-import { updateProfile } from "@/app/setup-profile/action";
-
-const UserProfileUpdate = ({ initialData }: { initialData?: UserProfile }) => {
+const UserProfileUpdate = ({
+  initialData,
+  action,
+}: {
+  initialData?: UserProfile;
+  action: (
+    pre: UpdateProfileState,
+    formData: FormData,
+  ) => Promise<UpdateProfileState>;
+}) => {
   const genderOptions: OptionType[] = [
     {
       key: "MALE",
@@ -41,9 +48,9 @@ const UserProfileUpdate = ({ initialData }: { initialData?: UserProfile }) => {
   const [preState, formAction, isLoading] = useActionState<
     UpdateProfileState,
     FormData
-  >(updateProfile, { state: initialData || {}, err: {} });
+  >(action, { state: initialData || {}, err: {} });
 
-  const { state } = preState;
+  const { state, err } = preState;
 
   // Track the previous error state to know when the action has returned new errors
   const [prevServerErrors, setPrevServerErrors] = useState(preState.err);
@@ -51,12 +58,12 @@ const UserProfileUpdate = ({ initialData }: { initialData?: UserProfile }) => {
 
   // Update state directly during render instead of using useEffect.
   // This prevents an unnecessary double re-render when the server returns a new state.
-  if (preState.err !== prevServerErrors) {
+  if (err !== prevServerErrors) {
     setPrevServerErrors(preState.err);
     setErrors(preState.err);
   }
 
-  const selectedGender: OptionType | undefined = state.gender
+  const selectedGender: OptionType | undefined = state?.gender
     ? genderOptions.find((opt) => state.gender === opt.key)
     : undefined;
 
@@ -64,7 +71,13 @@ const UserProfileUpdate = ({ initialData }: { initialData?: UserProfile }) => {
     <Card className="max-w-md w-full absolute top-1/2 left-1/2 -translate-1/2">
       <CardHeader>
         <CardTitle>Intralogix</CardTitle>
-        <CardDescription>Setup your profile</CardDescription>
+        <CardDescription>
+          {errors?.error ? (
+            <span className="text-red-600">{errors.error}</span>
+          ) : (
+            <span>Setup your profile</span>
+          )}
+        </CardDescription>
       </CardHeader>
 
       <CardContent>
@@ -79,7 +92,7 @@ const UserProfileUpdate = ({ initialData }: { initialData?: UserProfile }) => {
 
                 {/*Username*/}
                 <Input
-                  defaultValue={state.username}
+                  defaultValue={state?.username}
                   id="username"
                   type="text"
                   name="username"
@@ -104,7 +117,7 @@ const UserProfileUpdate = ({ initialData }: { initialData?: UserProfile }) => {
                 <Field>
                   <FieldLabel htmlFor="firstname">First Name</FieldLabel>
                   <Input
-                    defaultValue={state.firstName}
+                    defaultValue={state?.firstName}
                     id="firstName"
                     type="text"
                     name="firstName"
@@ -128,7 +141,7 @@ const UserProfileUpdate = ({ initialData }: { initialData?: UserProfile }) => {
                 <Field>
                   <FieldLabel htmlFor="lastname">Last Name</FieldLabel>
                   <Input
-                    defaultValue={state.lastName}
+                    defaultValue={state?.lastName}
                     id="lastname"
                     type="text"
                     name="lastName"
@@ -152,7 +165,7 @@ const UserProfileUpdate = ({ initialData }: { initialData?: UserProfile }) => {
                 {/*Date of birth  */}
                 <Field>
                   <DatePicker
-                    defaultValue={state.dateOfBirth}
+                    defaultValue={state?.dateOfBirth}
                     name="dateOfBirth"
                     label="Date of Birth"
                     onFocusAction={() =>
@@ -197,22 +210,23 @@ const UserProfileUpdate = ({ initialData }: { initialData?: UserProfile }) => {
 export default UserProfileUpdate;
 
 export interface UpdateProfileState {
-  state: UserProfile;
-  err: UserProfileError;
+  state?: UserProfile;
+  err?: UserProfileError;
 }
 
-export type UserProfile = {
+export interface UserProfile {
   username?: string;
   firstName?: string;
   lastName?: string;
   dateOfBirth?: string;
   gender?: string;
-};
+}
 
-export type UserProfileError = {
+export interface UserProfileError {
   error?: string;
   username?: string;
   firstName?: string;
   lastName?: string;
   dateOfBirth?: string;
-};
+  gender?: string;
+}

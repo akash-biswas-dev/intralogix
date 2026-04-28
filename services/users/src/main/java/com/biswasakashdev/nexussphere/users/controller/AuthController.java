@@ -75,23 +75,19 @@ public class AuthController {
 
 //    After updating the profile user generate new Authorization.
 
-    @PostMapping("/refresh-authorization")
-    public Mono<ResponseEntity<ClientResponse<Authorization>>> refreshAuthorization(
+    @GetMapping("/refresh-authorization")
+    public Mono<ResponseEntity<Authorization>> refreshAuthorization(
             @RequestHeader("Authentication-Info") String userId
     ) {
         Mono<Users> userMono = userService.findUserById(userId);
 
         return userMono
                 .map(user -> {
-                    if (!user.getIsProfileCompleted()) {
-                        ClientResponse<Authorization> userResp = new ClientResponse<>(
-                                false,
-                                null,
-                                "User profile not completed"
-                        );
+                    if (!user.getProfileCompleted()) {
+
                         return ResponseEntity
                                 .status(HttpStatus.FORBIDDEN)
-                                .body(userResp);
+                                .build();
                     }
 
                     Duration expiration = Duration.ofDays(1);
@@ -109,12 +105,8 @@ public class AuthController {
                     );
 
                     return ResponseEntity
-                            .status(HttpStatus.CREATED)
-                            .body(new ClientResponse<>(
-                                    true,
-                                    authorization,
-                                    null
-                            ));
+                            .status(HttpStatus.OK)
+                            .body(authorization);
                 });
     }
 }
