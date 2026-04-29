@@ -5,8 +5,8 @@ import { redirect } from "next/navigation";
 
 import * as z from "zod";
 
-import { SETUP_PROFILE_SESSION, SESSION } from "@/lib/constants";
 import { getBaseAxios } from "@/lib/axios";
+import { SESSION } from "@/lib/constants";
 import { LoginFormError } from "./page";
 
 const UserCredential = z.object({
@@ -24,15 +24,15 @@ export async function login(prev: LoginFormError, formData: FormData) {
     rememberMe: formData.get("rememberMe") ? "true" : "false",
   };
 
-  const parsedObject = UserCredential.safeParse({
+  const result = UserCredential.safeParse({
     emailOrUsername: credentials.emailOrUsername,
     password: credentials.password,
   });
 
-  if (!parsedObject.success) {
+  if (!result.success) {
     const err: LoginFormError = {};
 
-    const issues = parsedObject.error.issues;
+    const issues = result.error.issues;
 
     for (const issue of issues) {
       err[issue.path[0] as keyof LoginFormError] = issue.message;
@@ -43,13 +43,15 @@ export async function login(prev: LoginFormError, formData: FormData) {
 
   // Send the credentials to the server.
 
+  const { emailOrUsername, password } = result.data;
+
   const axios = getBaseAxios();
 
   const res = await axios.post(
     "/api/v1/auth",
     {
-      emailOrUsername: credentials.emailOrUsername,
-      password: credentials.password,
+      emailOrUsername,
+      password,
     },
     {
       params: {
@@ -65,18 +67,7 @@ export async function login(prev: LoginFormError, formData: FormData) {
 
   // TODO: handle the response if user newly created.
 
-  if (status === 307) {
-    cookieStore.set(SETUP_PROFILE_SESSION, data.token, {
-      httpOnly: true,
-      maxAge: data.maxAge,
-      path: "/setup-profile",
-    });
-    redirect("/setup-profile", "replace");
-  }
-
-  // If the user isn't exist or some error occurred at server.
-
-  if (status !== 201) {
+  if (status !== 201 && status !== 307) {
     if (data?.error) {
       return {
         error: data.error,
@@ -88,12 +79,16 @@ export async function login(prev: LoginFormError, formData: FormData) {
     };
   }
 
-  cookieStore.set(SESSION, data.data.token, {
+  cookieStore.set(SESSION, data.token, {
     httpOnly: true,
-    maxAge: data.data.expiration, // Age in seconds.
+    maxAge: data.maxAge,
   });
 
-  redirect("/dashboard");
+  const url = status === 307 ? "/profile" : "/dashboard";
+
+  // If the user isn't exist or some error occurred at server.
+
+  redirect(url);
 }
 
 // Logout user.
@@ -101,7 +96,6 @@ export async function login(prev: LoginFormError, formData: FormData) {
 export async function logout() {
   const cookieStore = await cookies();
 
-  cookieStore.delete(SETUP_PROFILE_SESSION);
   cookieStore.delete(SESSION);
   redirect("/auth");
 }

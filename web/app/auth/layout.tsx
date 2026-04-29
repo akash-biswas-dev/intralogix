@@ -1,22 +1,18 @@
-import { cookies } from "next/headers"
+import { getAxiosWithAuthorization } from "@/lib/axios.server";
 import { redirect } from "next/navigation";
 
-
-
-
-export default async function AuthLayout({ children }: {
-    children: React.ReactNode
+export default async function AuthLayout({
+  children,
+}: {
+  children: React.ReactNode;
 }) {
+  const axios = await getAxiosWithAuthorization();
 
-    const cookieStore = await cookies()
+  const res = await axios.get("/api/v1/users");
 
-    const isUserLoggedIn = false;
+  if (res.status === 200) {
+    redirect("/dashboard");
+  }
 
-
-    if (isUserLoggedIn) redirect('/dashboard')
-
-
-    return (
-        <div className="w-full min-h-screen relative">{children}</div>
-    )
+  return <div className="w-full min-h-screen relative">{children}</div>;
 }

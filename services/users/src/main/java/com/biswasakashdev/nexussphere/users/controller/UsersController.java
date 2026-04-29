@@ -1,6 +1,7 @@
 package com.biswasakashdev.nexussphere.users.controller;
 
 
+import com.biswasakashdev.nexussphere.common.response.UserResponse;
 import com.biswasakashdev.nexussphere.users.dtos.requests.UserProfileRequest;
 import com.biswasakashdev.nexussphere.users.dtos.response.UserProfileResponse;
 import com.biswasakashdev.nexussphere.users.models.Users;
@@ -21,24 +22,21 @@ public class UsersController {
 
 
     //    Returns profile if profile completed otherwise return 404.
-    @GetMapping(value = "/profile")
-    @ResponseStatus(HttpStatus.OK)
-    public Mono<ResponseEntity<UserProfileResponse>> getProfileInfo(
+    @GetMapping
+    public Mono<UserResponse> getUser(
             @RequestHeader(name = "Authentication-Info") String userId
     ) {
         Mono<Users> usersMono = userService.findUserById(userId);
+        return usersMono.map(UsersUtils::getUserResponse);
+    }
 
-        return usersMono.map(users -> {
-            if (!users.getProfileCompleted()) {
-                return ResponseEntity
-                        .status(HttpStatus.FORBIDDEN)
-                        .build();
-            }
 
-            return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .body(UsersUtils.getUserProfileResponse(users));
-        });
+    @GetMapping("/profile")
+    public Mono<UserProfileResponse> getUserProfile(
+            @RequestHeader(name = "Authentication-Info") String userId
+    ){
+        Mono<Users> usersMono = userService.findUserById(userId);
+        return usersMono.map(UsersUtils::getUserProfileResponse);
     }
 
 
@@ -50,7 +48,6 @@ public class UsersController {
             @RequestBody UserProfileRequest userProfileRequest
     ) {
         Mono<Users> usersMono = userService.updateUserProfile(userId, userProfileRequest);
-
         return usersMono.then();
     }
 

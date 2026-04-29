@@ -41,15 +41,6 @@ public class AuthServiceImpl implements AuthService {
                         return Mono.error(new InvalidCredentialException("Invalid username or password"));
                     }
 
-                    if (!users.getProfileCompleted()) {
-                        log.error("User profile not completed with userId : {}", users.getId());
-                        return Mono.error(new ProfileNotCompleteException(users.getId()));
-                    }
-
-                    if (users.getAccountLocked()) {
-                        log.warn("Account locked for user: {}", credentials.emailOrUsername());
-                        return Mono.error(new AccountLockedException("Account locked, contact to administrator."));
-                    }
                     return Mono.just(users);
                 })
                 .switchIfEmpty(Mono.error(() -> {

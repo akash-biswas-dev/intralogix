@@ -7,6 +7,7 @@ import com.biswasakashdev.nexussphere.common.dtos.ErrorResponse;
 import com.biswasakashdev.nexussphere.users.dtos.response.Authorization;
 import com.biswasakashdev.nexussphere.users.exception.InvalidCredentialException;
 import com.biswasakashdev.nexussphere.users.exception.ProfileNotCompleteException;
+import com.biswasakashdev.nexussphere.users.exception.UserAlreadyExistsException;
 import com.biswasakashdev.nexussphere.users.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -43,8 +44,11 @@ public class AuthExceptionHandler {
 
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(InvalidCredentialException.class)
-    public Mono<ErrorResponse> handleInvalidCredentialsException(InvalidCredentialException ex) {
+    @ExceptionHandler(value = {
+            InvalidCredentialException.class,
+            UserAlreadyExistsException.class
+    })
+    public Mono<ErrorResponse> handleInvalidCredentialsException(RuntimeException ex) {
         return Mono.just(new ErrorResponse(ex.getMessage()));
     }
 
@@ -59,13 +63,12 @@ public class AuthExceptionHandler {
 
         Authorization authorization = new Authorization(
                 token,
-                Duration.ofHours(1).toSeconds(),
-                null
+                Duration.ofHours(1).toSeconds()
         );
 
         return Mono.just(ResponseEntity
                 .status(HttpStatus.TEMPORARY_REDIRECT)
-                .location(URI.create("/setup-profile"))
+                .location(URI.create("/profile"))
                 .body(authorization)
         );
     }

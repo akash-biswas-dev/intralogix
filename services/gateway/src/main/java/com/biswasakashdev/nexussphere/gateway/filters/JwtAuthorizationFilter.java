@@ -2,7 +2,6 @@ package com.biswasakashdev.nexussphere.gateway.filters;
 
 import com.biswasakashdev.nexussphere.common.auth.AccountStatus;
 import com.biswasakashdev.nexussphere.common.auth.jwt.JwtService;
-import com.biswasakashdev.nexussphere.gateway.exceptions.ProfileNotCompletedException;
 import com.biswasakashdev.nexussphere.gateway.exceptions.ResourceNotAllowedException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -16,11 +15,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import java.util.Objects;
+import java.util.List;
 
 @Component
 @Slf4j
@@ -28,6 +26,17 @@ import java.util.Objects;
 public class JwtAuthorizationFilter implements GatewayFilter {
 
     private final JwtService jwtService;
+
+
+    private static final List<String> ALLOWED_PATHS_ACCOUNT_INACTIVE = List.of(
+            "/api/v1/users/profile",
+            "/api/v1/auth/refresh-authorization"
+    );
+
+    private static final List<String> NOT_ALLOWED_PATHS_ACCOUNT_ACTIVE = List.of(
+            "/api/v1/auth/refresh-authorization"
+    );
+
 
     @NonNull
     @Override
@@ -54,14 +63,13 @@ public class JwtAuthorizationFilter implements GatewayFilter {
             String accountStatus = claims.get("account_status", String.class);
 
 
-//           Prevent access the endpoints which only available when user profile not created.
-            if (isPathMatchesToRefreshAuthorization(request) && Objects.isNull(accountStatus)) {
-                throw new ResourceNotAllowedException("Resource not allowed.", userId);
+//           Prevent access the endpoints which only available when user profile created.
+            if (!isResourceAllowedWhenUserAccountStatusInactive(request, accountStatus)) {
+                throw new ResourceNotAllowedException(userId, "Try to access the resource when user account is inactive.");
             }
 
-//           Prevent access the endpoints which only available when user profile created.
-            if (!isPathMatchesToUpdateProfile(request) && Objects.equals(accountStatus, AccountStatus.INACTIVE.name())) {
-                throw new ProfileNotCompletedException(claims.getSubject());
+            if (!isResourceAllowedWhenUserAccountStatusActive(request,accountStatus)) {
+                throw new ResourceNotAllowedException(userId, "Try to access the resource when user account is active.");
             }
 
             ServerHttpRequest modifiedRequest = request.mutate()
@@ -69,13 +77,8 @@ public class JwtAuthorizationFilter implements GatewayFilter {
 
             return chain.filter(exchange.mutate().request(modifiedRequest).build());
 
-        } catch (ProfileNotCompletedException ex) {
-            log.error("Profile not completed for user with id: {}", ex.getUserId());
-            response.setStatusCode(HttpStatus.FORBIDDEN);
-            response.getHeaders().set("WWW-Authenticate", "Profile not completed.");
-            return response.setComplete();
         } catch (ResourceNotAllowedException ex) {
-            log.error("Resource not allowed for user with id: {} at {}", ex.getUserId(), request.getPath());
+            log.error("Resource not allowed for user with id: {} at {} with message: {}", ex.getUserId(), request.getPath(), ex.getMessage());
             response.setStatusCode(HttpStatus.FORBIDDEN);
             response.getHeaders().set("WWW-Authenticate", "Resource not allowed.");
             return response.setComplete();
@@ -91,16 +94,24 @@ public class JwtAuthorizationFilter implements GatewayFilter {
         return response.setComplete();
     }
 
-
-    private static boolean isPathMatchesToUpdateProfile(ServerHttpRequest req) {
-        String currentPath = req.getPath().value();
-        return Objects.equals("/api/v1/users/profile", currentPath) ||
-                Objects.equals("/api/v1/auth/refresh-authorization", currentPath);
+    private boolean isResourceAllowedWhenUserAccountStatusActive(
+            ServerHttpRequest request,
+            String accountStatus
+    ) {
+        String currentPath = request.getPath().value();
+        boolean isPresent = NOT_ALLOWED_PATHS_ACCOUNT_ACTIVE.stream().anyMatch(allowedPath -> allowedPath.equals(currentPath)) ;
+        return isPresent && accountStatus.equals(AccountStatus.ACTIVE.name());
     }
 
-    private static boolean isPathMatchesToRefreshAuthorization(ServerHttpRequest req) {
+
+    private static boolean isResourceAllowedWhenUserAccountStatusInactive(
+            ServerHttpRequest req,
+            String accountStatus
+    ) {
         String currentPath = req.getPath().value();
-        return Objects.equals("/api/v1/auth/refresh-authorization", currentPath);
+        boolean isPresent = ALLOWED_PATHS_ACCOUNT_INACTIVE.stream().anyMatch(allowedPath -> allowedPath.equals(currentPath));
+
+        return isPresent && accountStatus.equals(AccountStatus.INACTIVE.name());
     }
 
 

@@ -1,9 +1,11 @@
 package com.biswasakashdev.nexussphere.users.controller;
 
 import com.biswasakashdev.nexussphere.common.auth.jwt.JwtService;
+import com.biswasakashdev.nexussphere.users.dtos.requests.NewUserRequest;
 import com.biswasakashdev.nexussphere.users.dtos.requests.UserCredentials;
 import com.biswasakashdev.nexussphere.users.exception.InvalidCredentialException;
 import com.biswasakashdev.nexussphere.users.exception.ProfileNotCompleteException;
+import com.biswasakashdev.nexussphere.users.exception.UserAlreadyExistsException;
 import com.biswasakashdev.nexussphere.users.exception.UserNotFoundException;
 import com.biswasakashdev.nexussphere.users.services.AuthService;
 import com.biswasakashdev.nexussphere.users.services.UserService;
@@ -37,6 +39,29 @@ class AuthControllerTest {
 
     @MockitoBean
     private JwtService jwtService;
+
+    @Test
+    void shouldReturn400IfTryCreateAUserWithAnExistingEmail() {
+        NewUserRequest request = new NewUserRequest(
+                "abc@email.com",
+                "password",
+                "John",
+                "Doe"
+        );
+
+        when(userService.createUser(request))
+                .thenReturn(Mono.error(new UserAlreadyExistsException(request.email(),
+                        "User already exists.")));
+
+        webClient
+                .post()
+                .uri("/api/v1/auth/register")
+                .bodyValue(request)
+                .exchange()
+                .expectStatus()
+                .isBadRequest();
+
+    }
 
     @Test
     void shouldReturn404WhenSendAnInvalidUsername() {

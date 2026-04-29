@@ -1,10 +1,12 @@
 package com.biswasakashdev.nexussphere.users.repository.impl;
 
+import com.biswasakashdev.nexussphere.users.exception.UserAlreadyExistsException;
 import com.biswasakashdev.nexussphere.users.models.Users;
 import com.biswasakashdev.nexussphere.users.repository.UsersRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -25,7 +27,9 @@ public class UserRepositoryImpl implements UsersRepository {
 
     @Override
     public Mono<Users> saveUser(Users users) {
-        return mongoTemplate.insert(users);
+        return mongoTemplate
+                .insert(users);
+
     }
 
     @Override

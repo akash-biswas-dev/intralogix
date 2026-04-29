@@ -19,13 +19,16 @@ public class UsersUtils {
     public static UserProfileResponse getUserProfileResponse(Users users) {
         UserProfile profile = users.getUserProfile();
 
+        String dateOfBirth = profile.getDateOfBirth() != null ? profile.getDateOfBirth().toString() : null;
+        String gender = profile.getGender() != null ? profile.getGender().name() : null;
+
         return new UserProfileResponse(
                 users.getUsername(),
                 users.getEmail(),
                 profile.getFirstName(),
                 profile.getLastName(),
-                profile.getDateOfBirth().toString(),
-                profile.getGender().name()
+                dateOfBirth,
+                gender
         );
     }
 }

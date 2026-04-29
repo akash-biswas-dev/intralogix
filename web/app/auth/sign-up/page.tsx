@@ -30,24 +30,22 @@ export default function SignUp() {
 
   const { state, error } = signUpForm;
 
-  const [formErrors, setFormErrors] = useState(error);
+  const [errors, setErrors] = useState(error);
   const [preFormErrors, setPreFormErrors] = useState(error);
 
   if (preFormErrors !== error) {
-    setFormErrors(error);
+    setErrors(error);
     setPreFormErrors(error);
   }
-
-
 
   return (
     <Card className="w-full max-w-md top-1/2 left-1/2 -translate-1/2 absolute">
       <CardHeader>
         <CardTitle>NexusSphere</CardTitle>
         <CardDescription
-          className={formErrors.error ? "text-red-600 font-bold" : ""}
+          className={errors.error ? "text-red-600 font-bold" : ""}
         >
-          {formErrors.error ? formErrors.error : "Enter your deatails."}
+          {errors.error ? errors.error : "Enter your deatails."}
         </CardDescription>
         <CardAction>
           <Link href="/auth">
@@ -70,33 +68,85 @@ export default function SignUp() {
                   type="text"
                   defaultValue={state.email}
                   onFocus={() =>
-                    setFormErrors((pre) => ({ ...pre, email: undefined }))
+                    setErrors((pre) => ({ ...pre, email: undefined }))
                   }
                   required={true}
                 />
-                {formErrors.email && (
+                {errors.email && (
                   <FieldDescription className="text-red-600 font-bold">
-                    {formErrors.email}
+                    {errors.email}
                   </FieldDescription>
                 )}
               </Field>
+
+              <div className="flex gap-2">
+                {/*First Name*/}
+                <Field>
+                  <FieldLabel htmlFor="firstname">First Name</FieldLabel>
+                  <Input
+                    defaultValue={state.firstName}
+                    id="firstName"
+                    type="text"
+                    name="firstName"
+                    className={errors?.firstName ? "outline-red-600" : ""}
+                    onFocus={() =>
+                      setErrors((pre) => ({
+                        ...pre,
+                        error: undefined,
+                        firstName: undefined,
+                      }))
+                    }
+                  />
+                  {errors?.firstName && (
+                    <FieldDescription className="text-red-600 font-bold">
+                      {errors?.firstName}
+                    </FieldDescription>
+                  )}
+                </Field>
+
+                {/*Last Name*/}
+                <Field>
+                  <FieldLabel htmlFor="lastname">Last Name</FieldLabel>
+                  <Input
+                    defaultValue={state?.lastName}
+                    id="lastname"
+                    type="text"
+                    name="lastName"
+                    className={errors?.lastName ? "outline-red-600" : ""}
+                    onFocus={() =>
+                      setErrors((pre) => ({
+                        ...pre,
+                        error: undefined,
+                        lastName: undefined,
+                      }))
+                    }
+                  />
+                  {errors?.lastName && (
+                    <FieldDescription className="text-red-600 font-bold">
+                      {errors?.lastName}
+                    </FieldDescription>
+                  )}
+                </Field>
+              </div>
+
               <div className="flex gap-4">
                 {/* Password */}
                 <Field>
                   <FieldLabel htmlFor="user-password">Password</FieldLabel>
                   <Input
+                    defaultValue={state.password}
                     id="user-password"
                     name="password"
                     type="password"
-                    className={formErrors.password ? "outline-red-600" : ""}
+                    className={errors.password ? "outline-red-600" : ""}
                     onFocus={() =>
-                      setFormErrors((pre) => ({ ...pre, password: undefined }))
+                      setErrors((pre) => ({ ...pre, password: undefined }))
                     }
                     required={true}
                   />
-                  {formErrors.password && (
+                  {errors.password && (
                     <FieldDescription className="text-red-600 font-bold">
-                      {formErrors.password}
+                      {errors.password}
                     </FieldDescription>
                   )}
                 </Field>
@@ -107,17 +157,21 @@ export default function SignUp() {
                     Confirm Password
                   </FieldLabel>
                   <PasswordInputWithToggle
+                    defaultValue={state.confirmPassword}
                     name="confirmPassword"
                     id="user-confirm-password"
-                    className={formErrors.confirmPassword ? "outline-red-600" : ""}
+                    className={errors.confirmPassword ? "outline-red-600" : ""}
                     onFocus={() =>
-                      setFormErrors((pre) => ({ ...pre, confirmPassword: undefined }))
+                      setErrors((pre) => ({
+                        ...pre,
+                        confirmPassword: undefined,
+                      }))
                     }
                     required={true}
                   />
-                  {formErrors.confirmPassword && (
+                  {errors.confirmPassword && (
                     <FieldDescription className="text-red-600 font-bold">
-                      {formErrors.confirmPassword}
+                      {errors.confirmPassword}
                     </FieldDescription>
                   )}
                 </Field>
@@ -133,7 +187,6 @@ export default function SignUp() {
   );
 }
 
-
 export interface SignUpForm {
   state: SignUpFormState;
   error: SignUpErrors;
@@ -141,11 +194,17 @@ export interface SignUpForm {
 
 export interface SignUpFormState {
   email?: string;
+  firstName?: string;
+  lastName?: string;
+  password?: string;
+  confirmPassword?: string;
 }
 
 export interface SignUpErrors {
   error?: string;
   email?: string;
+  firstName?: string;
+  lastName?: string;
   password?: string;
   confirmPassword?: string;
 }

@@ -19,15 +19,9 @@ import {
   FieldSet,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import {
-  useActionState,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
-import { login } from "./action";
 import Link from "next/link";
+import { useActionState, useState } from "react";
+import { login } from "./action";
 
 export default function Auth() {
   const [errorStatus, formAction, isLoading] = useActionState<
@@ -130,7 +124,7 @@ export default function Auth() {
               {/* Submit button */}
               <Field orientation="horizontal">
                 <Button type="submit">
-                  <span>Sign-in</span>
+                  {isLoading ? "Saving..." : "Save Profile"}
                 </Button>
               </Field>
 

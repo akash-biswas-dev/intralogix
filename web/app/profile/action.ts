@@ -3,7 +3,7 @@
 import {
   UpdateProfileState,
   UserProfileError,
-} from "@/components/UserProfileUpdate";
+} from "@/app/profile/UserProfileUpdate";
 import { getAxiosWithCookie } from "@/lib/axios.server";
 import { SESSION, SETUP_PROFILE_SESSION } from "@/lib/constants";
 import { validateUserProfile } from "@/schema/user";
@@ -31,8 +31,6 @@ export async function setUpProfile(
   const res = await axios.put("/api/v1/users/profile", fields);
 
   const { status, data } = res;
-
-  console.log(status, data);
 
   // If failed then return the error.
   if (status !== 204) {

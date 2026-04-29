@@ -1,24 +1,24 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { DatePicker } from "./DatePicker";
-import OptionPicker, { OptionType } from "./OptionPicker";
-import { Button } from "./ui/button";
+import { DatePicker } from "@/components/DatePicker";
+import OptionPicker, { OptionType } from "@/components/OptionPicker";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "./ui/card";
+} from "@/components/ui/card";
 import {
   Field,
   FieldDescription,
   FieldGroup,
   FieldLabel,
   FieldSet,
-} from "./ui/field";
-import { Input } from "./ui/input";
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 
 const UserProfileUpdate = ({
   initialData,
@@ -63,14 +63,16 @@ const UserProfileUpdate = ({
     setErrors(preState.err);
   }
 
-  const selectedGender: OptionType | undefined = state?.gender
+  const selectedGender: OptionType | undefined = state.gender
     ? genderOptions.find((opt) => state.gender === opt.key)
     : undefined;
 
   return (
     <Card className="max-w-md w-full absolute top-1/2 left-1/2 -translate-1/2">
       <CardHeader>
-        <CardTitle>Intralogix</CardTitle>
+        <CardTitle>
+          Welcome {state.firstName} {state.lastName}
+        </CardTitle>
         <CardDescription>
           {errors?.error ? (
             <span className="text-red-600">{errors.error}</span>
@@ -92,7 +94,7 @@ const UserProfileUpdate = ({
 
                 {/*Username*/}
                 <Input
-                  defaultValue={state?.username}
+                  defaultValue={state.username}
                   id="username"
                   type="text"
                   name="username"
@@ -117,7 +119,7 @@ const UserProfileUpdate = ({
                 <Field>
                   <FieldLabel htmlFor="firstname">First Name</FieldLabel>
                   <Input
-                    defaultValue={state?.firstName}
+                    defaultValue={state.firstName}
                     id="firstName"
                     type="text"
                     name="firstName"
@@ -161,11 +163,12 @@ const UserProfileUpdate = ({
                   )}
                 </Field>
               </div>
+
               <div className="flex gap-2">
                 {/*Date of birth  */}
                 <Field>
                   <DatePicker
-                    defaultValue={state?.dateOfBirth}
+                    defaultValue={state.dateOfBirth}
                     name="dateOfBirth"
                     label="Date of Birth"
                     onFocusAction={() =>
@@ -210,7 +213,7 @@ const UserProfileUpdate = ({
 export default UserProfileUpdate;
 
 export interface UpdateProfileState {
-  state?: UserProfile;
+  state: UserProfile;
   err?: UserProfileError;
 }
 

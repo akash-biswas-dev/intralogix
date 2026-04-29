@@ -3,13 +3,13 @@
 import {
   UpdateProfileState,
   UserProfileError,
-} from "@/components/UserProfileUpdate";
+} from "@/app/profile/UserProfileUpdate";
 import { getAxiosWithAuthorization } from "@/lib/axios.server";
 import { validateUserProfile } from "@/schema/user";
 import { redirect } from "next/navigation";
 
 export async function updateProfile(
-  perState: UpdateProfileState,
+  _perState: UpdateProfileState,
   formData: FormData,
 ): Promise<UpdateProfileState> {
   const { fields, err } = validateUserProfile(formData);

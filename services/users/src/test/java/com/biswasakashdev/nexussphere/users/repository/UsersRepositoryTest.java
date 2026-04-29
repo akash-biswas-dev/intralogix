@@ -1,6 +1,7 @@
 package com.biswasakashdev.nexussphere.users.repository;
 
 import com.biswasakashdev.nexussphere.users.config.AuthConfig;
+import com.biswasakashdev.nexussphere.users.exception.UserAlreadyExistsException;
 import com.biswasakashdev.nexussphere.users.models.Users;
 import com.biswasakashdev.nexussphere.users.repository.impl.UserRepositoryImpl;
 import org.junit.jupiter.api.AfterEach;
@@ -63,6 +64,21 @@ class UsersRepositoryTest {
     }
 
     @Test
+    void shouldThrowUserAlreadyExistExceptionWhenTheEmailAlreadyExist(){
+        Users users = Users.builder()
+                .email("abc@gmail.com")
+                .password(passwordEncoder.encode("password"))
+                .joinedOn(Instant.now())
+                .build();
+        usersRepository
+                .saveUser(users)
+                .then(usersRepository.saveUser(users))
+                .as(StepVerifier::create)
+                .expectError(UserAlreadyExistsException.class)
+                .verify();
+    }
+
+    @Test
     void shouldReturnFalseIfUserProfileNotCompleted() {
         String userPassword = "password";
         String email = "abc@gmail.com";
@@ -80,6 +96,15 @@ class UsersRepositoryTest {
                 .expectComplete()
                 .verify();
 
+    }
+
+
+    @Test
+    void shouldReturnEmptyMonoIfUserNotFound() {
+        Mono<Users> usersMono = usersRepository.findByEmailOrUsername("abc@gmail.com");
+        usersMono.as(StepVerifier::create)
+                .expectNextCount(0)
+                .verifyComplete();
     }
 
 

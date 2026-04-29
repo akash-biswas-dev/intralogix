@@ -1,4 +1,4 @@
-import { UserProfile, UserProfileError } from "@/components/UserProfileUpdate";
+import { UserProfile, UserProfileError } from "@/app/profile/UserProfileUpdate";
 import * as z from "zod";
 
 export const UserProfileSchema = z.object({
@@ -42,3 +42,40 @@ export function validateUserProfile(formData: FormData): {
     fields: fields,
   };
 }
+
+export const SignUpSchema = z
+  .object({
+    email: z.email("Invalid Email"),
+    firstName: z.string(),
+    lastName: z.string(),
+    password: z
+      .string()
+      .min(8, "Password must be at least 8 characters long")
+      .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+      .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+      .regex(/\d/, "Password must contain at least one number")
+      .regex(
+        /[^A-Za-z0-9]/,
+        "Password must contain at least one special character",
+      ),
+    confirmPassword: z
+      .string()
+      .min(8, "Confirm password must be at least 8 characters long")
+      .regex(
+        /[A-Z]/,
+        "Confirm password must contain at least one uppercase letter",
+      )
+      .regex(
+        /[a-z]/,
+        "Confirm password must contain at least one lowercase letter",
+      )
+      .regex(/\d/, "Confirm password must contain at least one number")
+      .regex(
+        /[^A-Za-z0-9]/,
+        "Confirm password must contain at least one special character",
+      ),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });

@@ -1,15 +1,15 @@
 package com.biswasakashdev.nexussphere.users.controller;
 
 
+import com.biswasakashdev.nexussphere.common.auth.AccountStatus;
 import com.biswasakashdev.nexussphere.common.auth.jwt.JwtService;
-import com.biswasakashdev.nexussphere.common.response.ClientResponse;
 import com.biswasakashdev.nexussphere.users.dtos.requests.NewUserRequest;
 import com.biswasakashdev.nexussphere.users.dtos.requests.UserCredentials;
 import com.biswasakashdev.nexussphere.users.dtos.response.Authorization;
+import com.biswasakashdev.nexussphere.users.exception.ProfileNotCompleteException;
 import com.biswasakashdev.nexussphere.users.models.Users;
 import com.biswasakashdev.nexussphere.users.services.AuthService;
 import com.biswasakashdev.nexussphere.users.services.UserService;
-import com.biswasakashdev.nexussphere.users.utils.UsersUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -19,6 +19,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.HashMap;
+import java.util.Map;
 
 
 @Slf4j
@@ -35,15 +36,18 @@ public class AuthController {
     private static final int SESSION_AGE = 1;
 
     @PostMapping(value = "/register")
-    public Mono<ResponseEntity<Void>> registerUser(
+    @ResponseStatus(HttpStatus.CREATED)
+    public Mono<Void> registerUser(
             @RequestBody NewUserRequest newUser
     ) {
-        return userService.createUser(newUser)
-                .thenReturn(new ResponseEntity<>(HttpStatus.CREATED));
+        return userService
+                .createUser(newUser)
+                .then();
     }
 
     @PostMapping
-    public Mono<ResponseEntity<ClientResponse<Authorization>>> login(
+    @ResponseStatus(HttpStatus.CREATED)
+    public Mono<Authorization> login(
             @RequestBody UserCredentials credentials,
             @RequestParam(name = "rememberMe", required = false, defaultValue = "false") boolean rememberMe
     ) {
@@ -54,22 +58,27 @@ public class AuthController {
         Mono<Users> usersMono = authService.validateUser(credentials);
 
         return usersMono
-                .map(users -> {
+                .flatMap(users -> {
+
+                    if (!users.getProfileCompleted()) {
+                        log.error("User profile not completed with userId : {}", users.getId());
+                        return Mono.error(new ProfileNotCompleteException(users.getId()));
+                    }
 
                     String token = jwtService.buildToken(
                             users.getId(),
                             Duration.ofHours(1),
-                            new HashMap<>()
-                    );
-                    Authorization authorization = new Authorization(
-                            token,
-                            duration.toSeconds(),
-                            UsersUtils.getUserResponse(users)
+                            Map.of("account_status", AccountStatus.ACTIVE)
                     );
 
-                    return ResponseEntity
-                            .status(HttpStatus.CREATED)
-                            .body(new ClientResponse<>(true, authorization, null));
+
+                    Authorization authorization = new Authorization(
+                            token,
+                            duration.toSeconds()
+                    );
+
+
+                    return Mono.just(authorization);
                 });
     }
 
@@ -100,8 +109,7 @@ public class AuthController {
 
                     Authorization authorization = new Authorization(
                             token,
-                            expiration.toSeconds(),
-                            UsersUtils.getUserResponse(user)
+                            expiration.toSeconds()
                     );
 
                     return ResponseEntity
