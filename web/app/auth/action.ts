@@ -3,9 +3,9 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
+import { getAxios } from "@/lib/axios";
 import * as z from "zod";
 
-import { getBaseAxios } from "@/lib/axios";
 import { SESSION } from "@/lib/constants";
 import { LoginFormError } from "./page";
 
@@ -45,7 +45,7 @@ export async function login(prev: LoginFormError, formData: FormData) {
 
   const { emailOrUsername, password } = result.data;
 
-  const axios = getBaseAxios();
+  const axios = getAxios();
 
   const res = await axios.post(
     "/api/v1/auth",
@@ -82,6 +82,7 @@ export async function login(prev: LoginFormError, formData: FormData) {
   cookieStore.set(SESSION, data.token, {
     httpOnly: true,
     maxAge: data.maxAge,
+    path: "/",
   });
 
   const url = status === 307 ? "/profile" : "/dashboard";

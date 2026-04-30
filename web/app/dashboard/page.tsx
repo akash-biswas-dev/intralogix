@@ -12,7 +12,5 @@ export default async function DashboardPage() {
     redirect("/auth");
   }
 
-  console.log(data);
-
   return <h1>Dashboard</h1>;
 }

@@ -1,10 +1,10 @@
 "use server";
 
-import * as z from "zod";
-import { SignUpErrors, SignUpForm } from "./page";
-import { getBaseAxios } from "@/lib/axios";
-import { redirect } from "next/navigation";
 import { SignUpSchema } from "@/schema/user";
+import { redirect } from "next/navigation";
+import { SignUpErrors, SignUpForm } from "./page";
+
+import { getAxios } from "@/lib/axios";
 
 export async function signUp(
   _error: SignUpForm,
@@ -39,7 +39,7 @@ export async function signUp(
 
   const { email, password, firstName, lastName } = result.data;
 
-  const axios = getBaseAxios();
+  const axios = getAxios();
 
   const res = await axios.post("/api/v1/auth/register", {
     email,

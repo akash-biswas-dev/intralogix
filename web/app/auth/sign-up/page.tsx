@@ -1,5 +1,6 @@
 "use client";
 
+import PasswordInputWithToggle from "@/components/PasswordInputWithToggel";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -20,7 +21,6 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { useActionState, useState } from "react";
 import { signUp } from "./action";
-import PasswordInputWithToggle from "@/components/PasswordInputWithToggel";
 
 export default function SignUp() {
   const [signUpForm, formAction, isLoading] = useActionState<

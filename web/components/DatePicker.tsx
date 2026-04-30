@@ -26,10 +26,10 @@ export function DatePicker({
 }) {
   const initialDate: Date | undefined = defaultValue
     ? new Date(defaultValue)
-    : undefined;
+    : new Date();
 
   const [open, setOpen] = useState(false);
-  const [date, setDate] = useState<undefined | Date>(initialDate);
+  const [date, setDate] = useState<Date | undefined>(initialDate);
 
   return (
     <>
@@ -53,7 +53,7 @@ export function DatePicker({
             className="w-48 justify-between font-normal"
             onFocus={(eve) => onFocusAction && onFocusAction(eve)}
           >
-            {date ? date.toLocaleDateString() : "Select date"}
+            {date ? date.toLocaleDateString("en-GB") : "Select date"}
             <ChevronDownIcon />
           </Button>
         </PopoverTrigger>

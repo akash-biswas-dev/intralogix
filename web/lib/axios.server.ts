@@ -1,25 +1,23 @@
-'use server';
+"use server";
 
-import { getBaseAxios } from "./axios";
 import { cookies } from "next/headers";
+import { SESSION } from "@/lib/constants";
 
-const axios = getBaseAxios();
+import axios from "axios";
+const API = process.env.SERVER_URL;
 
 export async function getAxiosWithAuthorization() {
-    return getAxiosWithCookie('sessionid');
-}
+  const cookieStore = await cookies();
+  const cookie = cookieStore.get(SESSION);
 
-export async function getAxiosWithCookie(name: string) {
+  const instance = axios.create({
+    baseURL: API,
+    validateStatus: () => true,
+  });
 
-    const instance = axios;
-    const cookieStore = await cookies();
+  if (cookie?.value) {
+    instance.defaults.headers.Authorization = `Bearer ${cookie.value}`;
+  }
 
-    const cookie = cookieStore.get(name);
-
-
-    if (cookie && cookie.value) {
-        instance.defaults.headers.Authorization = `Bearer ${cookie.value}`
-    }
-
-    return instance;
+  return instance;
 }

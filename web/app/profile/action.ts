@@ -4,7 +4,7 @@ import {
   UpdateProfileState,
   UserProfileError,
 } from "@/app/profile/UserProfileUpdate";
-import { getAxiosWithCookie } from "@/lib/axios.server";
+import { getAxiosWithAuthorization } from "@/lib/axios.server";
 import { SESSION, SETUP_PROFILE_SESSION } from "@/lib/constants";
 import { validateUserProfile } from "@/schema/user";
 import { cookies } from "next/headers";
@@ -14,7 +14,7 @@ export async function setUpProfile(
   pre: UpdateProfileState,
   formData: FormData,
 ): Promise<UpdateProfileState> {
-  const axios = await getAxiosWithCookie(SETUP_PROFILE_SESSION);
+  const axios = await getAxiosWithAuthorization();
 
   const { fields, err } = validateUserProfile(formData);
 

@@ -63,13 +63,14 @@ public class JwtAuthorizationFilter implements GatewayFilter {
             String accountStatus = claims.get("account_status", String.class);
 
 
-//           Prevent access the endpoints which only available when user profile created.
-            if (!isResourceAllowedWhenUserAccountStatusInactive(request, accountStatus)) {
-                throw new ResourceNotAllowedException(userId, "Try to access the resource when user account is inactive.");
+//            If user account status is active and wants to access inactive resources.
+            if (accountStatus.equals(AccountStatus.ACTIVE.name()) && isCurrentPathMatchesInactiveResource(request)) {
+                throw new ResourceNotAllowedException(userId, "User account status is active and wants to access inactive resources.");
             }
 
-            if (!isResourceAllowedWhenUserAccountStatusActive(request,accountStatus)) {
-                throw new ResourceNotAllowedException(userId, "Try to access the resource when user account is active.");
+//            If user account status is inactive and wants to access active resources.
+            if (accountStatus.equals(AccountStatus.INACTIVE.name()) && !isPathAllowedWhenUserAccountStatusInactive(request)) {
+                throw new ResourceNotAllowedException(userId, "User account status is inactive and wants to access active resources.");
             }
 
             ServerHttpRequest modifiedRequest = request.mutate()
@@ -94,24 +95,19 @@ public class JwtAuthorizationFilter implements GatewayFilter {
         return response.setComplete();
     }
 
-    private boolean isResourceAllowedWhenUserAccountStatusActive(
-            ServerHttpRequest request,
-            String accountStatus
+    private boolean isCurrentPathMatchesInactiveResource(
+            ServerHttpRequest request
     ) {
         String currentPath = request.getPath().value();
-        boolean isPresent = NOT_ALLOWED_PATHS_ACCOUNT_ACTIVE.stream().anyMatch(allowedPath -> allowedPath.equals(currentPath)) ;
-        return isPresent && accountStatus.equals(AccountStatus.ACTIVE.name());
+        return NOT_ALLOWED_PATHS_ACCOUNT_ACTIVE.stream().anyMatch(allowedPath -> allowedPath.equals(currentPath));
     }
 
 
-    private static boolean isResourceAllowedWhenUserAccountStatusInactive(
-            ServerHttpRequest req,
-            String accountStatus
+    private static boolean isPathAllowedWhenUserAccountStatusInactive(
+            ServerHttpRequest request
     ) {
-        String currentPath = req.getPath().value();
-        boolean isPresent = ALLOWED_PATHS_ACCOUNT_INACTIVE.stream().anyMatch(allowedPath -> allowedPath.equals(currentPath));
-
-        return isPresent && accountStatus.equals(AccountStatus.INACTIVE.name());
+        String currentPath = request.getPath().value();
+        return ALLOWED_PATHS_ACCOUNT_INACTIVE.stream().anyMatch(allowedPath -> allowedPath.equals(currentPath));
     }
 
 

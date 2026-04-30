@@ -1,21 +1,11 @@
-
-
 import axios from "axios";
 
+const API = process.env.SERVER_URL;
 
-const API = process.env.SERVER_URL
-
-console.log(API)
-
-const baseAxios = axios.create({
+export function getAxios() {
+  const instance = axios.create({
     baseURL: API,
-    validateStatus: () => true
-})
-
-
-export function getBaseAxios() {
-    return baseAxios;
+    validateStatus: () => true,
+  });
+  return instance;
 }
-
-
-

@@ -10,7 +10,9 @@ export default async function SetupProfile() {
 
   const { status, data } = res;
 
-  console.log(status);
+  if (status !== 200) {
+    redirect("/auth");
+  }
 
   return (
     <div className="min-h-screen">
