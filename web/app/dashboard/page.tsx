@@ -1,16 +1,36 @@
-import { getAxiosWithAuthorization } from "@/lib/axios.server";
-import { redirect } from "next/navigation";
+import Gretings from "@/components/dashboard/gretings";
+import { QuickActions } from "@/components/dashboard/quick-actions";
+import { RecentActivity } from "@/components/dashboard/recent-activity";
+import { StatsRow } from "@/components/dashboard/stats-row";
+import { WorkspaceGrid } from "@/components/dashboard/workspace-grid";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 
-export default async function DashboardPage() {
-  const axios = await getAxiosWithAuthorization();
+export default function DashboardPage({}) {
+  // Replace with your actual session/user fetch
 
-  const res = await axios.get("/api/v1/users");
+  return (
+    <div className="p-7 flex flex-col gap-6 max-w-6xl mx-auto">
+      {/* Page header */}
+      <div className="flex items-start justify-between">
+        <Gretings />
+        <Button size="sm" className="gap-1.5 text-xs h-8">
+          <Plus className="h-3.5 w-3.5" />
+          New workspace
+        </Button>
+      </div>
 
-  const { status, data } = res;
+      {/* Stats */}
+      <StatsRow />
 
-  if (status !== 200) {
-    redirect("/auth");
-  }
+      {/* Workspace cards */}
+      <WorkspaceGrid />
 
-  return <h1>Dashboard</h1>;
+      {/* Bottom row */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <RecentActivity />
+        <QuickActions />
+      </div>
+    </div>
+  );
 }

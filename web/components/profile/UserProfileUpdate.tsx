@@ -1,8 +1,8 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { DatePicker } from "@/components/DatePicker";
-import OptionPicker, { OptionType } from "@/components/OptionPicker";
+import { DatePicker } from "@/components/date-picker";
+import OptionPicker, { OptionType } from "@/components/option-picker";
 import { Button } from "@/components/ui/button";
 import {
   Card,

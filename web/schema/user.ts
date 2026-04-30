@@ -1,4 +1,7 @@
-import { UserProfile, UserProfileError } from "@/app/profile/UserProfileUpdate";
+import {
+  UserProfile,
+  UserProfileError,
+} from "@/components/profile/UserProfileUpdate";
 import * as z from "zod";
 
 export const UserProfileSchema = z.object({

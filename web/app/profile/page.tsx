@@ -1,4 +1,4 @@
-import UserProfileUpdate from "@/app/profile/UserProfileUpdate";
+import UserProfileUpdate from "@/components/profile/UserProfileUpdate";
 import { getAxiosWithAuthorization } from "@/lib/axios.server";
 import { redirect } from "next/navigation";
 import { setUpProfile } from "./action";

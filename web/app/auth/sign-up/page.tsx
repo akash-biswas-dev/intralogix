@@ -1,6 +1,6 @@
 "use client";
 
-import PasswordInputWithToggle from "@/components/PasswordInputWithToggel";
+import PasswordInputWithToggle from "@/components/password-input-toggle";
 import { Button } from "@/components/ui/button";
 import {
   Card,

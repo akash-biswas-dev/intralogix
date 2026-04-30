@@ -3,7 +3,7 @@
 import {
   UpdateProfileState,
   UserProfileError,
-} from "@/app/profile/UserProfileUpdate";
+} from "@/components/profile/UserProfileUpdate";
 import { getAxiosWithAuthorization } from "@/lib/axios.server";
 import { SESSION, SETUP_PROFILE_SESSION } from "@/lib/constants";
 import { validateUserProfile } from "@/schema/user";
