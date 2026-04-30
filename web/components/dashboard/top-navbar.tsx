@@ -10,9 +10,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Bell, Settings, LogOut, ChevronDown } from "lucide-react";
+import { Bell, Settings, LogOut, ChevronDown, User } from "lucide-react";
 import { logout } from "@/app/auth/action";
 import useUserContext from "@/context/user-context";
+import Link from "next/link";
 
 export function TopNavbar() {
   const user = useUserContext();
@@ -74,6 +75,13 @@ export function TopNavbar() {
               </p>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+
+            <DropdownMenuItem>
+              <Link href={"/profile"} className="flex gap-4 items-center">
+                <User className="h-3.5 w-3.5 shrink-0" />
+                Profile
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuItem>
               <Settings className="mr-2 h-3.5 w-3.5" />
               Settings

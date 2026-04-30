@@ -1,7 +1,11 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { Users, Store, GitBranch, ShoppingBag } from "lucide-react";
+import { Users, Store, GitBranch, ShoppingBag, Plus } from "lucide-react";
 import Link from "next/link";
+import { Button } from "../ui/button";
+import SectionHeading from "../section-heading";
+import { Field } from "../ui/field";
+import { Input } from "../ui/input";
 
 interface Workspace {
   id: string;
@@ -65,9 +69,29 @@ const roleBadge: Record<string, string> = {
 export function WorkspaceGrid({
   workspaces = defaultWorkspaces,
 }: WorkspaceGridProps) {
+  const workspaceCount = 3;
+  const description =
+    workspaceCount > 0
+      ? `You have total ${workspaceCount} workspace`
+      : " You have no workspace";
+
   return (
     <div>
-      <h2 className="text-sm font-medium mb-3">Your workspaces</h2>
+      <div className="flex justify-between items-center px-2 py-4">
+        {/* <h2 className="text-2xl font-medium mb-3">Your workspaces</h2> */}
+        <SectionHeading heading="Your workspaces" description={description} />
+
+        <div className="flex items-center w-fit gap-6">
+          <Field orientation="horizontal">
+            <Input type="search" placeholder="Search..." />
+          </Field>
+          <Button size="sm" className="gap-1.5 text-xs h-8">
+            <Plus className="h-3.5 w-3.5" />
+            New workspace
+          </Button>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         {workspaces.map((ws) => (
           <Link key={ws.id} href={`/dashboard/workspace/${ws.id}`}>

@@ -23,10 +23,7 @@ export default async function DashboardLayout({
     <div className="flex flex-col h-screen overflow-hidden">
       <UserContextProvider user={data}>
         <TopNavbar />
-        <div className="flex flex-1 overflow-hidden">
-          <Sidebar />
-          <main className="flex-1 overflow-y-auto bg-muted/30">{children}</main>
-        </div>
+        {children}
       </UserContextProvider>
     </div>
   );
