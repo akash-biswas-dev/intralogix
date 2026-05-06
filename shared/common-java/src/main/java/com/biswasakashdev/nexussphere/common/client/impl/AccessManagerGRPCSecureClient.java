@@ -23,7 +23,7 @@ public class AccessManagerGRPCClient implements AccessManagerClient {
     }
 
     @Override
-    public Mono<Boolean> createPrimarySecurityGroup(String userId,String workspaceId) {
+    public Mono<Void> createPrimarySecurityGroup(String userId,String workspaceId) {
         CreateSecurityGroupRequest request = CreateSecurityGroupRequest.newBuilder()
                 .setWorkspaceId(workspaceId)
                 .setUserId(userId)
