@@ -12,35 +12,35 @@ public final class UserGRPCServiceGrpc {
   public static final java.lang.String SERVICE_NAME = "users.v1.UserGRPCService";
 
   // Static method descriptors that strictly reflect the proto.
-  private static volatile io.grpc.MethodDescriptor<com.biswasakashdev.nexussphere.protogen.users.v1.IsUserExistRequest,
-      com.biswasakashdev.nexussphere.protogen.users.v1.IsUserExistResponse> getIsUserExistMethod;
+  private static volatile io.grpc.MethodDescriptor<com.biswasakashdev.nexussphere.protogen.users.v1.GetUsersRequest,
+      com.biswasakashdev.nexussphere.protogen.users.v1.GetUsersResponse> getGetUsersMethod;
 
   @io.grpc.stub.annotations.RpcMethod(
-      fullMethodName = SERVICE_NAME + '/' + "IsUserExist",
-      requestType = com.biswasakashdev.nexussphere.protogen.users.v1.IsUserExistRequest.class,
-      responseType = com.biswasakashdev.nexussphere.protogen.users.v1.IsUserExistResponse.class,
+      fullMethodName = SERVICE_NAME + '/' + "GetUsers",
+      requestType = com.biswasakashdev.nexussphere.protogen.users.v1.GetUsersRequest.class,
+      responseType = com.biswasakashdev.nexussphere.protogen.users.v1.GetUsersResponse.class,
       methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
-  public static io.grpc.MethodDescriptor<com.biswasakashdev.nexussphere.protogen.users.v1.IsUserExistRequest,
-      com.biswasakashdev.nexussphere.protogen.users.v1.IsUserExistResponse> getIsUserExistMethod() {
-    io.grpc.MethodDescriptor<com.biswasakashdev.nexussphere.protogen.users.v1.IsUserExistRequest, com.biswasakashdev.nexussphere.protogen.users.v1.IsUserExistResponse> getIsUserExistMethod;
-    if ((getIsUserExistMethod = UserGRPCServiceGrpc.getIsUserExistMethod) == null) {
+  public static io.grpc.MethodDescriptor<com.biswasakashdev.nexussphere.protogen.users.v1.GetUsersRequest,
+      com.biswasakashdev.nexussphere.protogen.users.v1.GetUsersResponse> getGetUsersMethod() {
+    io.grpc.MethodDescriptor<com.biswasakashdev.nexussphere.protogen.users.v1.GetUsersRequest, com.biswasakashdev.nexussphere.protogen.users.v1.GetUsersResponse> getGetUsersMethod;
+    if ((getGetUsersMethod = UserGRPCServiceGrpc.getGetUsersMethod) == null) {
       synchronized (UserGRPCServiceGrpc.class) {
-        if ((getIsUserExistMethod = UserGRPCServiceGrpc.getIsUserExistMethod) == null) {
-          UserGRPCServiceGrpc.getIsUserExistMethod = getIsUserExistMethod =
-              io.grpc.MethodDescriptor.<com.biswasakashdev.nexussphere.protogen.users.v1.IsUserExistRequest, com.biswasakashdev.nexussphere.protogen.users.v1.IsUserExistResponse>newBuilder()
+        if ((getGetUsersMethod = UserGRPCServiceGrpc.getGetUsersMethod) == null) {
+          UserGRPCServiceGrpc.getGetUsersMethod = getGetUsersMethod =
+              io.grpc.MethodDescriptor.<com.biswasakashdev.nexussphere.protogen.users.v1.GetUsersRequest, com.biswasakashdev.nexussphere.protogen.users.v1.GetUsersResponse>newBuilder()
               .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
-              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "IsUserExist"))
+              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "GetUsers"))
               .setSampledToLocalTracing(true)
               .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  com.biswasakashdev.nexussphere.protogen.users.v1.IsUserExistRequest.getDefaultInstance()))
+                  com.biswasakashdev.nexussphere.protogen.users.v1.GetUsersRequest.getDefaultInstance()))
               .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  com.biswasakashdev.nexussphere.protogen.users.v1.IsUserExistResponse.getDefaultInstance()))
-              .setSchemaDescriptor(new UserGRPCServiceMethodDescriptorSupplier("IsUserExist"))
+                  com.biswasakashdev.nexussphere.protogen.users.v1.GetUsersResponse.getDefaultInstance()))
+              .setSchemaDescriptor(new UserGRPCServiceMethodDescriptorSupplier("GetUsers"))
               .build();
         }
       }
     }
-    return getIsUserExistMethod;
+    return getGetUsersMethod;
   }
 
   /**
@@ -108,9 +108,9 @@ public final class UserGRPCServiceGrpc {
 
     /**
      */
-    default void isUserExist(com.biswasakashdev.nexussphere.protogen.users.v1.IsUserExistRequest request,
-        io.grpc.stub.StreamObserver<com.biswasakashdev.nexussphere.protogen.users.v1.IsUserExistResponse> responseObserver) {
-      io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getIsUserExistMethod(), responseObserver);
+    default void getUsers(com.biswasakashdev.nexussphere.protogen.users.v1.GetUsersRequest request,
+        io.grpc.stub.StreamObserver<com.biswasakashdev.nexussphere.protogen.users.v1.GetUsersResponse> responseObserver) {
+      io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getGetUsersMethod(), responseObserver);
     }
   }
 
@@ -143,10 +143,10 @@ public final class UserGRPCServiceGrpc {
 
     /**
      */
-    public void isUserExist(com.biswasakashdev.nexussphere.protogen.users.v1.IsUserExistRequest request,
-        io.grpc.stub.StreamObserver<com.biswasakashdev.nexussphere.protogen.users.v1.IsUserExistResponse> responseObserver) {
+    public void getUsers(com.biswasakashdev.nexussphere.protogen.users.v1.GetUsersRequest request,
+        io.grpc.stub.StreamObserver<com.biswasakashdev.nexussphere.protogen.users.v1.GetUsersResponse> responseObserver) {
       io.grpc.stub.ClientCalls.asyncUnaryCall(
-          getChannel().newCall(getIsUserExistMethod(), getCallOptions()), request, responseObserver);
+          getChannel().newCall(getGetUsersMethod(), getCallOptions()), request, responseObserver);
     }
   }
 
@@ -168,9 +168,9 @@ public final class UserGRPCServiceGrpc {
 
     /**
      */
-    public com.biswasakashdev.nexussphere.protogen.users.v1.IsUserExistResponse isUserExist(com.biswasakashdev.nexussphere.protogen.users.v1.IsUserExistRequest request) throws io.grpc.StatusException {
+    public com.biswasakashdev.nexussphere.protogen.users.v1.GetUsersResponse getUsers(com.biswasakashdev.nexussphere.protogen.users.v1.GetUsersRequest request) throws io.grpc.StatusException {
       return io.grpc.stub.ClientCalls.blockingV2UnaryCall(
-          getChannel(), getIsUserExistMethod(), getCallOptions(), request);
+          getChannel(), getGetUsersMethod(), getCallOptions(), request);
     }
   }
 
@@ -192,9 +192,9 @@ public final class UserGRPCServiceGrpc {
 
     /**
      */
-    public com.biswasakashdev.nexussphere.protogen.users.v1.IsUserExistResponse isUserExist(com.biswasakashdev.nexussphere.protogen.users.v1.IsUserExistRequest request) {
+    public com.biswasakashdev.nexussphere.protogen.users.v1.GetUsersResponse getUsers(com.biswasakashdev.nexussphere.protogen.users.v1.GetUsersRequest request) {
       return io.grpc.stub.ClientCalls.blockingUnaryCall(
-          getChannel(), getIsUserExistMethod(), getCallOptions(), request);
+          getChannel(), getGetUsersMethod(), getCallOptions(), request);
     }
   }
 
@@ -216,14 +216,14 @@ public final class UserGRPCServiceGrpc {
 
     /**
      */
-    public com.google.common.util.concurrent.ListenableFuture<com.biswasakashdev.nexussphere.protogen.users.v1.IsUserExistResponse> isUserExist(
-        com.biswasakashdev.nexussphere.protogen.users.v1.IsUserExistRequest request) {
+    public com.google.common.util.concurrent.ListenableFuture<com.biswasakashdev.nexussphere.protogen.users.v1.GetUsersResponse> getUsers(
+        com.biswasakashdev.nexussphere.protogen.users.v1.GetUsersRequest request) {
       return io.grpc.stub.ClientCalls.futureUnaryCall(
-          getChannel().newCall(getIsUserExistMethod(), getCallOptions()), request);
+          getChannel().newCall(getGetUsersMethod(), getCallOptions()), request);
     }
   }
 
-  private static final int METHODID_IS_USER_EXIST = 0;
+  private static final int METHODID_GET_USERS = 0;
 
   private static final class MethodHandlers<Req, Resp> implements
       io.grpc.stub.ServerCalls.UnaryMethod<Req, Resp>,
@@ -242,9 +242,9 @@ public final class UserGRPCServiceGrpc {
     @java.lang.SuppressWarnings("unchecked")
     public void invoke(Req request, io.grpc.stub.StreamObserver<Resp> responseObserver) {
       switch (methodId) {
-        case METHODID_IS_USER_EXIST:
-          serviceImpl.isUserExist((com.biswasakashdev.nexussphere.protogen.users.v1.IsUserExistRequest) request,
-              (io.grpc.stub.StreamObserver<com.biswasakashdev.nexussphere.protogen.users.v1.IsUserExistResponse>) responseObserver);
+        case METHODID_GET_USERS:
+          serviceImpl.getUsers((com.biswasakashdev.nexussphere.protogen.users.v1.GetUsersRequest) request,
+              (io.grpc.stub.StreamObserver<com.biswasakashdev.nexussphere.protogen.users.v1.GetUsersResponse>) responseObserver);
           break;
         default:
           throw new AssertionError();
@@ -265,12 +265,12 @@ public final class UserGRPCServiceGrpc {
   public static final io.grpc.ServerServiceDefinition bindService(AsyncService service) {
     return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor())
         .addMethod(
-          getIsUserExistMethod(),
+          getGetUsersMethod(),
           io.grpc.stub.ServerCalls.asyncUnaryCall(
             new MethodHandlers<
-              com.biswasakashdev.nexussphere.protogen.users.v1.IsUserExistRequest,
-              com.biswasakashdev.nexussphere.protogen.users.v1.IsUserExistResponse>(
-                service, METHODID_IS_USER_EXIST)))
+              com.biswasakashdev.nexussphere.protogen.users.v1.GetUsersRequest,
+              com.biswasakashdev.nexussphere.protogen.users.v1.GetUsersResponse>(
+                service, METHODID_GET_USERS)))
         .build();
   }
 
@@ -319,7 +319,7 @@ public final class UserGRPCServiceGrpc {
         if (result == null) {
           serviceDescriptor = result = io.grpc.ServiceDescriptor.newBuilder(SERVICE_NAME)
               .setSchemaDescriptor(new UserGRPCServiceFileDescriptorSupplier())
-              .addMethod(getIsUserExistMethod())
+              .addMethod(getGetUsersMethod())
               .build();
         }
       }

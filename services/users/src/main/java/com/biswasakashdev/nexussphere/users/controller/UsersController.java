@@ -1,7 +1,7 @@
 package com.biswasakashdev.nexussphere.users.controller;
 
 
-import com.biswasakashdev.nexussphere.common.response.UserResponse;
+import com.biswasakashdev.nexussphere.users.dtos.response.UserResponse;
 import com.biswasakashdev.nexussphere.users.dtos.requests.UserProfileRequest;
 import com.biswasakashdev.nexussphere.users.dtos.response.UserProfileResponse;
 import com.biswasakashdev.nexussphere.users.models.Users;
@@ -9,7 +9,6 @@ import com.biswasakashdev.nexussphere.users.services.UserService;
 import com.biswasakashdev.nexussphere.users.utils.UsersUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 

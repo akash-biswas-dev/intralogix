@@ -1,4 +1,10 @@
 spring:
-  jpa:
-    hibernate:
-      ddl-auto: create-drop
+  r2dbc:
+    url: r2dbc:postgres://localhost:5432/test_db
+    username: test
+    password: testpassword
+  sql:
+    init:
+      mode: always
+      schema-locations:
+        - classpath:db/schema/schema.sql

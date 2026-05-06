@@ -1,7 +1,11 @@
 spring:
   r2dbc:
-    url: r2dbc:postgres://localhost:5432/workspaces_db
+    url: r2dbc:postgres://localhost:5432/dev_db
     username: dev
-    password: password
+    password: devpassword
+  sql:
+    init:
+      schema-locations:
+        - classpath:db/schema/schema.sql
 services:
-  accessManager: localhost:15002
+  accessManager: localhost:15003

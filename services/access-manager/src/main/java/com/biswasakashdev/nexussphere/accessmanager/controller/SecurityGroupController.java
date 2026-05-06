@@ -3,7 +3,6 @@ package com.biswasakashdev.nexussphere.accessmanager.controller;
 
 import com.biswasakashdev.nexussphere.accessmanager.dtos.request.SecurityGroupRequest;
 import com.biswasakashdev.nexussphere.accessmanager.service.SecurityGroupService;
-import com.biswasakashdev.nexussphere.common.response.ClientResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

@@ -1,7 +1,9 @@
 package com.biswasakashdev.nexussphere.common.exceptions;
 
-public class DataSourceException extends RuntimeException {
-    public DataSourceException(String message) {
+public class DataSourceOperationFailedException extends RuntimeException {
+
+
+    public DataSourceOperationFailedException(String message) {
         super(message);
     }
 }

@@ -7,6 +7,7 @@ import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -15,13 +16,14 @@ import java.time.LocalDate;
 @Builder
 public class Workspaces {
 
-    @Id
     private String id;
-
     private String name;
-
+    private String ownedBy;
     private String description;
     private LocalDate createdOn;
+    private LocalDateTime lastActive;
+    private Long userCount;
+    private Long groupCount;
 
 }
 

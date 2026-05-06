@@ -3,7 +3,7 @@ package com.biswasakashdev.nexussphere.users.exception.handlers;
 
 import com.biswasakashdev.nexussphere.common.auth.AccountStatus;
 import com.biswasakashdev.nexussphere.common.auth.jwt.JwtService;
-import com.biswasakashdev.nexussphere.common.dtos.ErrorResponse;
+import com.biswasakashdev.nexussphere.common.response.ErrorResponse;
 import com.biswasakashdev.nexussphere.users.dtos.response.Authorization;
 import com.biswasakashdev.nexussphere.users.exception.InvalidCredentialException;
 import com.biswasakashdev.nexussphere.users.exception.ProfileNotCompleteException;

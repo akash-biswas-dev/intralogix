@@ -27,15 +27,15 @@ public final class Main extends com.google.protobuf.GeneratedFile {
         (com.google.protobuf.ExtensionRegistryLite) registry);
   }
   static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_users_v1_IsUserExistRequest_descriptor;
+    internal_static_users_v1_GetUsersRequest_descriptor;
   static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_users_v1_IsUserExistRequest_fieldAccessorTable;
+      internal_static_users_v1_GetUsersRequest_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_users_v1_IsUserExistResponse_descriptor;
+    internal_static_users_v1_GetUsersResponse_descriptor;
   static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_users_v1_IsUserExistResponse_fieldAccessorTable;
+      internal_static_users_v1_GetUsersResponse_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -45,32 +45,34 @@ public final class Main extends com.google.protobuf.GeneratedFile {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\023users/v1/main.proto\022\010users.v1\"-\n\022IsUse" +
-      "rExistRequest\022\027\n\007user_id\030\001 \001(\tR\006userId\"-" +
-      "\n\023IsUserExistResponse\022\026\n\006exists\030\001 \001(\010R\006e" +
-      "xists2]\n\017UserGRPCService\022J\n\013IsUserExist\022" +
-      "\034.users.v1.IsUserExistRequest\032\035.users.v1" +
-      ".IsUserExistResponseB4\n0com.biswasakashd" +
-      "ev.nexussphere.protogen.users.v1P\001b\006prot" +
-      "o3"
+      "\n\023users/v1/main.proto\022\010users.v1\032\024users/v" +
+      "1/types.proto\"*\n\017GetUsersRequest\022\027\n\007user" +
+      "_id\030\001 \003(\tR\006userId\"E\n\020GetUsersResponse\0221\n" +
+      "\005users\030\001 \003(\0132\033.users.v1.UserDetailesProt" +
+      "oR\005users2T\n\017UserGRPCService\022A\n\010GetUsers\022" +
+      "\031.users.v1.GetUsersRequest\032\032.users.v1.Ge" +
+      "tUsersResponseB4\n0com.biswasakashdev.nex" +
+      "ussphere.protogen.users.v1P\001b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
+          com.biswasakashdev.nexussphere.protogen.users.v1.Types.getDescriptor(),
         });
-    internal_static_users_v1_IsUserExistRequest_descriptor =
+    internal_static_users_v1_GetUsersRequest_descriptor =
       getDescriptor().getMessageType(0);
-    internal_static_users_v1_IsUserExistRequest_fieldAccessorTable = new
+    internal_static_users_v1_GetUsersRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_users_v1_IsUserExistRequest_descriptor,
+        internal_static_users_v1_GetUsersRequest_descriptor,
         new java.lang.String[] { "UserId", });
-    internal_static_users_v1_IsUserExistResponse_descriptor =
+    internal_static_users_v1_GetUsersResponse_descriptor =
       getDescriptor().getMessageType(1);
-    internal_static_users_v1_IsUserExistResponse_fieldAccessorTable = new
+    internal_static_users_v1_GetUsersResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_users_v1_IsUserExistResponse_descriptor,
-        new java.lang.String[] { "Exists", });
+        internal_static_users_v1_GetUsersResponse_descriptor,
+        new java.lang.String[] { "Users", });
     descriptor.resolveAllFeaturesImmutable();
+    com.biswasakashdev.nexussphere.protogen.users.v1.Types.getDescriptor();
   }
 
   // @@protoc_insertion_point(outer_class_scope)

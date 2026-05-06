@@ -1,11 +1,10 @@
 version: v2
-clean: true
+#clean: true
 plugins:
   - remote: buf.build/protocolbuffers/java:v34.1
-    out: src/main/java
+    out: shared/proto-gen-java/src/main/java
   - remote: buf.build/grpc/java:v1.80.0
-    out: src/main/java
+    out: shared/proto-gen-java/src/main/java
   - remote: buf.build/community/salesforce-reactive-grpc:v1.2.4
-    out: src/main/java
-inputs:
-  - directory: ../../proto
+    out: shared/proto-gen-java/src/main/java
+

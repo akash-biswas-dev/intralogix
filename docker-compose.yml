@@ -44,11 +44,13 @@ services:
     container_name: nexus-postgres
     image: postgres:18.3-bookworm
     environment:
-      POSTGRES_USER: dev
+      POSTGRES_USER: docker
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: docker
+      POSTGRES_DB: postgres
     ports:
       - "5432:5432"
+    volumes:
+      - ./scripts/postgres/setup.sql:/docker-entrypoint-initdb.d/setup.sql
     networks:
       - postgres-network
 

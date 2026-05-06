@@ -1,6 +1,6 @@
 package com.biswasakashdev.nexussphere.users.exception.handlers;
 
-import com.biswasakashdev.nexussphere.common.dtos.ErrorResponse;
+import com.biswasakashdev.nexussphere.common.response.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;

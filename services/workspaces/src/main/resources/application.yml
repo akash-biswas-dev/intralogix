@@ -1,4 +1,7 @@
 spring:
+  sql:
+    init:
+      mode: always
   application:
     name: workspaces
   profiles:
@@ -6,6 +9,6 @@ spring:
 server:
   port: 8502
 grpc:
-  port: 50092
+  port: 15002
 
 

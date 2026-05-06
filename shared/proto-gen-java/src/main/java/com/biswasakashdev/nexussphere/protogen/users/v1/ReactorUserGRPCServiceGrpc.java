@@ -35,35 +35,35 @@ public final class ReactorUserGRPCServiceGrpc {
             return new ReactorUserGRPCServiceStub(channel, callOptions);
         }
 
-        public reactor.core.publisher.Mono<com.biswasakashdev.nexussphere.protogen.users.v1.IsUserExistResponse> isUserExist(reactor.core.publisher.Mono<com.biswasakashdev.nexussphere.protogen.users.v1.IsUserExistRequest> reactorRequest) {
-            return com.salesforce.reactorgrpc.stub.ClientCalls.oneToOne(reactorRequest, delegateStub::isUserExist, getCallOptions());
+        public reactor.core.publisher.Mono<com.biswasakashdev.nexussphere.protogen.users.v1.GetUsersResponse> getUsers(reactor.core.publisher.Mono<com.biswasakashdev.nexussphere.protogen.users.v1.GetUsersRequest> reactorRequest) {
+            return com.salesforce.reactorgrpc.stub.ClientCalls.oneToOne(reactorRequest, delegateStub::getUsers, getCallOptions());
         }
 
-        public reactor.core.publisher.Mono<com.biswasakashdev.nexussphere.protogen.users.v1.IsUserExistResponse> isUserExist(com.biswasakashdev.nexussphere.protogen.users.v1.IsUserExistRequest reactorRequest) {
-           return com.salesforce.reactorgrpc.stub.ClientCalls.oneToOne(reactor.core.publisher.Mono.just(reactorRequest), delegateStub::isUserExist, getCallOptions());
+        public reactor.core.publisher.Mono<com.biswasakashdev.nexussphere.protogen.users.v1.GetUsersResponse> getUsers(com.biswasakashdev.nexussphere.protogen.users.v1.GetUsersRequest reactorRequest) {
+           return com.salesforce.reactorgrpc.stub.ClientCalls.oneToOne(reactor.core.publisher.Mono.just(reactorRequest), delegateStub::getUsers, getCallOptions());
         }
 
     }
 
     public static abstract class UserGRPCServiceImplBase implements io.grpc.BindableService {
 
-        public reactor.core.publisher.Mono<com.biswasakashdev.nexussphere.protogen.users.v1.IsUserExistResponse> isUserExist(com.biswasakashdev.nexussphere.protogen.users.v1.IsUserExistRequest request) {
-            return isUserExist(reactor.core.publisher.Mono.just(request));
+        public reactor.core.publisher.Mono<com.biswasakashdev.nexussphere.protogen.users.v1.GetUsersResponse> getUsers(com.biswasakashdev.nexussphere.protogen.users.v1.GetUsersRequest request) {
+            return getUsers(reactor.core.publisher.Mono.just(request));
         }
 
-        public reactor.core.publisher.Mono<com.biswasakashdev.nexussphere.protogen.users.v1.IsUserExistResponse> isUserExist(reactor.core.publisher.Mono<com.biswasakashdev.nexussphere.protogen.users.v1.IsUserExistRequest> request) {
+        public reactor.core.publisher.Mono<com.biswasakashdev.nexussphere.protogen.users.v1.GetUsersResponse> getUsers(reactor.core.publisher.Mono<com.biswasakashdev.nexussphere.protogen.users.v1.GetUsersRequest> request) {
             throw new io.grpc.StatusRuntimeException(io.grpc.Status.UNIMPLEMENTED);
         }
 
         @java.lang.Override public final io.grpc.ServerServiceDefinition bindService() {
             return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor())
                     .addMethod(
-                            com.biswasakashdev.nexussphere.protogen.users.v1.UserGRPCServiceGrpc.getIsUserExistMethod(),
+                            com.biswasakashdev.nexussphere.protogen.users.v1.UserGRPCServiceGrpc.getGetUsersMethod(),
                             asyncUnaryCall(
                                     new MethodHandlers<
-                                            com.biswasakashdev.nexussphere.protogen.users.v1.IsUserExistRequest,
-                                            com.biswasakashdev.nexussphere.protogen.users.v1.IsUserExistResponse>(
-                                            this, METHODID_IS_USER_EXIST)))
+                                            com.biswasakashdev.nexussphere.protogen.users.v1.GetUsersRequest,
+                                            com.biswasakashdev.nexussphere.protogen.users.v1.GetUsersResponse>(
+                                            this, METHODID_GET_USERS)))
                     .build();
         }
 
@@ -76,7 +76,7 @@ public final class ReactorUserGRPCServiceGrpc {
         }
     }
 
-    public static final int METHODID_IS_USER_EXIST = 0;
+    public static final int METHODID_GET_USERS = 0;
 
     private static final class MethodHandlers<Req, Resp> implements
             io.grpc.stub.ServerCalls.UnaryMethod<Req, Resp>,
@@ -95,10 +95,10 @@ public final class ReactorUserGRPCServiceGrpc {
         @java.lang.SuppressWarnings("unchecked")
         public void invoke(Req request, io.grpc.stub.StreamObserver<Resp> responseObserver) {
             switch (methodId) {
-                case METHODID_IS_USER_EXIST:
-                    com.salesforce.reactorgrpc.stub.ServerCalls.oneToOne((com.biswasakashdev.nexussphere.protogen.users.v1.IsUserExistRequest) request,
-                            (io.grpc.stub.StreamObserver<com.biswasakashdev.nexussphere.protogen.users.v1.IsUserExistResponse>) responseObserver,
-                            serviceImpl::isUserExist, serviceImpl::onErrorMap);
+                case METHODID_GET_USERS:
+                    com.salesforce.reactorgrpc.stub.ServerCalls.oneToOne((com.biswasakashdev.nexussphere.protogen.users.v1.GetUsersRequest) request,
+                            (io.grpc.stub.StreamObserver<com.biswasakashdev.nexussphere.protogen.users.v1.GetUsersResponse>) responseObserver,
+                            serviceImpl::getUsers, serviceImpl::onErrorMap);
                     break;
                 default:
                     throw new java.lang.AssertionError();

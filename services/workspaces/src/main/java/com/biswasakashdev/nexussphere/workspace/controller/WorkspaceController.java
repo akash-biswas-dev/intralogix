@@ -1,16 +1,17 @@
 package com.biswasakashdev.nexussphere.workspace.controller;
 
-import com.biswasakashdev.nexussphere.common.response.ClientResponse;
 import com.biswasakashdev.nexussphere.common.response.PageResponse;
 import com.biswasakashdev.nexussphere.common.response.UserResponse;
 import com.biswasakashdev.nexussphere.workspace.dtos.requests.NewWorkspaceRequest;
+import com.biswasakashdev.nexussphere.workspace.dtos.response.IsNameExists;
 import com.biswasakashdev.nexussphere.workspace.dtos.response.WorkspaceResponse;
+import com.biswasakashdev.nexussphere.workspace.models.Workspaces;
 import com.biswasakashdev.nexussphere.workspace.services.WorkspaceService;
+import com.biswasakashdev.nexussphere.workspace.utils.WorkspacesUtils;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -36,52 +37,49 @@ public class WorkspaceController {
 
 
     @PostMapping
-    public Mono<ResponseEntity<ClientResponse<Object>>> createNewWorkspace(
+    @ResponseStatus(HttpStatus.CREATED)
+    public Mono<Void> createNewWorkspace(
             @RequestHeader("Authentication-Info") String userId,
             @RequestBody NewWorkspaceRequest newWorkspace) {
-        Mono<Void> isWorkspaceCreated = workspaceService.createWorkspace(userId, newWorkspace);
-        return isWorkspaceCreated
-                .then(Mono.just(
-                        ResponseEntity
-                                .status(HttpStatus.CREATED)
-                                .body(new ClientResponse<>(
-                                        true,
-                                        null,
-                                        null
-                                ))
-                ))
-                .onErrorResume(RuntimeException.class, e -> {
-                    ClientResponse<Object> clientResponse = new ClientResponse<>(false,null,e.getMessage());
-                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(clientResponse));
-                });
+        Mono<Workspaces> workspacesMono = workspaceService.createWorkspace(userId, newWorkspace);
+        return workspacesMono
+                .then();
     }
 
     @GetMapping
-    public Mono<ResponseEntity<PageResponse<WorkspaceResponse>>> getAllWorkspace(
+    public Mono<PageResponse<WorkspaceResponse>> getAllWorkspace(
             @RequestHeader("Authentication-Info") String userId,
             @RequestParam(name = "page", required = false, defaultValue = "20") Integer page,
             @RequestParam(name = "size", required = false, defaultValue = "20") Integer pageSize,
             @RequestParam(name = "direction", required = false, defaultValue = "ASC") Sort.Direction direction
     ) {
-
-        return Mono.empty();
+        return workspaceService
+                .findAllWorkspace(userId, page, pageSize, direction)
+                .map(workspacesPageResponse -> PageResponse.pageResponse(workspacesPageResponse, WorkspacesUtils::buildWorkspaceResponse));
     }
 
-    @GetMapping(value = "exists/{workspaceId}")
-    public Mono<ResponseEntity<Boolean>> getWorkspace(
-            @PathVariable String workspaceId,
-            @RequestHeader("Authentication-Info") String userId) {
-        return Mono.just(ResponseEntity.ok(true));
+    @GetMapping(value = "/exists")
+    public Mono<IsNameExists> getWorkspace(
+            @RequestHeader("Authentication-Info") String userId,
+            @RequestParam(name = "workspaceName") String workspaceName
+    ) {
+        return workspaceService
+                .isWorkspaceNameExists(userId, workspaceName)
+                .map(IsNameExists::new);
     }
 
 
-    @GetMapping(value = "{workspaceId}/users")
-    public Mono<ResponseEntity<PageResponse<UserResponse>>> getAllUserWithWorkspace(
-            @PathVariable String workspaceId,
+    @GetMapping(value = "/users")
+    public Mono<PageResponse<UserResponse>> getAllUserWithWorkspace(
+            @RequestHeader("Authentication-Info") String userId,
+            @RequestParam(name = "workspaceId") String workspaceId,
             @RequestParam(name = "page", required = false, defaultValue = "1") Integer page,
             @RequestParam(name = "pageSize", required = false, defaultValue = "20") Integer size,
             @RequestParam(name = "direction", required = false, defaultValue = "ASC") Sort.Direction direction
     ) {
-        return Mono.just(ResponseEntity.ok(null));
+        return workspaceService
+                .findAllUsersInWorkspace(workspaceId, page, size, direction)
+                .map(userPageResponse -> PageResponse.pageResponse(userPageResponse, UserUtils::buildUserResponse));
     }
+
 }

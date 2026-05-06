@@ -1,6 +1,6 @@
 package com.biswasakashdev.nexussphere.users.utils;
 
-import com.biswasakashdev.nexussphere.common.response.UserResponse;
+import com.biswasakashdev.nexussphere.users.dtos.response.UserResponse;
 import com.biswasakashdev.nexussphere.users.dtos.response.UserProfileResponse;
 import com.biswasakashdev.nexussphere.users.models.UserProfile;
 import com.biswasakashdev.nexussphere.users.models.Users;
@@ -11,6 +11,7 @@ public class UsersUtils {
         UserProfile profile = users.getUserProfile();
         return new UserResponse(
                 users.getUsername(),
+                users.getEmail(),
                 profile.getFirstName(),
                 profile.getLastName()
         );

@@ -7,4 +7,8 @@ public interface WorkspaceRepository {
 
     Mono<Workspaces> save(Workspaces workspaces);
 
+    Mono<Workspaces> findById(String id);
+
+    Mono<Boolean> deleteById(String id);
+
 }

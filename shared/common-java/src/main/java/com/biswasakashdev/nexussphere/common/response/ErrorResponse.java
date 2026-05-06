@@ -1,4 +1,4 @@
-package com.biswasakashdev.nexussphere.common.dtos;
+package com.biswasakashdev.nexussphere.common.response;
 
 
 public record ErrorResponse(
