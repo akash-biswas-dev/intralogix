@@ -1,0 +1,60 @@
+name: Web CI pipeline
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - '.github/actions/setup-java-env/action.yml'
+      - '.github/actions/docker-build-push/action.yml'
+      - '.github/workflows/users.yml'
+      - 'web/**' # Note: Changed from workspace/** to users/** to match context
+  pull_request:
+    branches: ["main"]
+    paths:
+      - 'web/**'
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'To check some changes that do not trigger the workflow.'
+        required: false
+        default: 'Manual trigger'
+
+# GLOBAL VARIABLES
+env:
+  APP_NAME: web
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - name: Clone the repository
+        uses: actions/checkout@v4 
+
+      # 🔹 Setup Node
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+
+      # 🔹 Install deps
+      - name: Install dependencies
+        run: npm ci
+
+      # 🔹 Build Next.js
+      - name: Build Next.js app
+        run: npm run build
+
+     
+      - name: Build and Push the image
+        uses: ./.github/actions/docker-build-push
+        with:
+          docker-username: ${{ secrets.DOCKER_USERNAME }}
+          docker-password: ${{ secrets.DOCKER_PASSWORD }}
+          branch: ${{ github.ref_name }}
+          app-name: ${{ env.APP_NAME }}
+          build-hash: ${{ github.sha }}

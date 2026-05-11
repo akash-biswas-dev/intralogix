@@ -1,69 +1,90 @@
 
-# Service with version versions
 
-users=users
-users_version=$(users):0.0.1
+# Config to generate code using buf.
+gen-code-java:
+	rm -rf shared/proto-gen-java/src
+	buf generate --template shared/proto-gen-java/buf.gen.yaml
 
-gateway=gateway
-gateway_version=$(gateway):0.0.1
+# Configurations related to test workflows.
+act_cmd=act -P ubuntu-latest=catthehacker/ubuntu:act-latest --bind --env GITHUB_REF_NAME=dev --container-architecture linux/arm64 --secret-file .secrets -W
 
-client=client
-client_version=$(client):0.0.1
+users-workflow:
+	 $(act_cmd) .github/workflows/users.yml
+
+workspace-workflow:
+	 $(act_cmd) .github/workflows/workspaces.yml
+
+gateway-workflow:
+	 $(act_cmd) .github/workflows/gateway.yml
+
+access-manager-workflow:
+	 $(act_cmd) .github/workflows/access-manager.yml
+
+web-workflow:
+	 $(act_cmd) .github/workflows/web.yml
 
 # Docker hub username
 APP_NAME=biswasakash/nexussphere
-# Command
 
-DOCKER_BUILD_CMD=docker build --platform linux/amd64 -t $(APP_NAME)
+# Command
+DOCKER_BUILD_CMD=docker build --platform linux/amd64,linux/arm64 -t $(APP_NAME)
 DOCKER_TAG_CMD=docker tag $(APP_NAME)
+
+users-build:
+	$(DOCKER_BUILD_CMD)-users:local -f services/users/Dockerfile .
+
+workspace-build:
+	$(DOCKER_BUILD_CMD)-workspaces:local -f services/workspaces/Dockerfile .
+
+gateway-build:
+	$(DOCKER_BUILD_CMD)-gateway:local -f services/gateway/Dockerfile .
+
+access-manager-build:
+	$(DOCKER_BUILD_CMD)-access_manager:local -f services/access-manager/Dockerfile .
+
+web-build:
+	$(DOCKER_BUILD_CMD)-web:local -f web/Dockerfile .
+
+
+build-all: users-build gateway-build workspace-build access-manager-build web-build 
+
+
 DOCKER_PUSH_CMD=docker push $(APP_NAME)
 
+# Container registry push config
+users-push:
+	$(DOCKER_PUSH_CMD)-users:local
 
-build-docker-proxy:
-	$(DOCKER_BUILD_CMD)-docker-proxy:latest -f proxy.Dockerfile .
+gateway-push:
+	$(DOCKER_PUSH_CMD)-gateway:local
 
-build-users:
+access-manager-push:
+	$(DOCKER_PUSH_CMD)-access-manager:local
 
-	$(DOCKER_BUILD_CMD)-$(users):latest  -f dockerfile/$(users).Dockerfile server
+workspace-push:
+	$(DOCKER_PUSH_CMD)-workspaces:local
 
-	$(DOCKER_TAG_CMD)-$(users):latest $(APP_NAME)-$(users_version)
+web-push:
+	$(DOCKER_PUSH_CMD)-web:local
 
-build-gateway:
+push-all: users-push gateway-push workspace-push access-manager-push web-push
 
-	$(DOCKER_BUILD_CMD)-$(gateway):latest  -f dockerfile/$(gateway).Dockerfile server
+# Delete containers config.
+users-delete:
+	docker rmi -f $(APP_NAME)-users:local
 
-	$(DOCKER_TAG_CMD)-$(gateway):latest $(APP_NAME)-$(gateway_version)
+gateway-delete:
+	docker rmi -f $(APP_NAME)-gateway:local
 
-build-client:
+workspace-delete:
+	docker rmi -f $(APP_NAME)-workspace:local
 
-	$(DOCKER_BUILD_CMD)-$(client):latest  -f dockerfile/$(client).Dockerfile client
-	$(DOCKER_TAG_CMD)-$(client):latest $(APP_NAME)-$(client_version)
+access-manager-delete:
+	docker rmi -f $(APP_NAME)-access-manager:local
+
+web-delete:
+	docker rmi -f $(APP_NAME)-web:local
+
+delete-all: users-delete gateway-delete access-manager-delete workspace-delete web-delete
 
 
-build-all: build-users build-gateway build-client
-
-push-docker-proxy:
-	$(DOCKER_PUSH_CMD)-docker-proxy:latest
-
-push-users:
-	$(DOCKER_PUSH_CMD)-$(users_version)
-	$(DOCKER_PUSH_CMD)-$(users):latest
-
-push-gateway:
-	$(DOCKER_PUSH_CMD)-$(gateway_version)
-	$(DOCKER_PUSH_CMD)-$(gateway):latest
-
-push-client:
-	$(DOCKER_PUSH_CMD)-$(client_version)
-	$(DOCKER_PUSH_CMD)-$(client):latest
-
-push-all: push-users push-gateway push-client
-
-delete-users:
-	docker rmi -f $(APP_NAME)-$(users):latest $(APP_NAME)-$(users_version)
-delete-gateway:
-	docker rmi -f $(APP_NAME)-$(gateway):latest $(APP_NAME)-$(gateway_version)
-delete-client:
-	docker rmi -f $(APP_NAME)-$(client):latest $(APP_NAME)-$(client_version)
-
-delete-all: delete-users delete-gateway delete-client

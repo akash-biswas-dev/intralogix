@@ -1,6 +1,0 @@
-spring:
-  data:
-    mongodb:
-      uri: mongodb://vector:password@localhost:27017/vector-db?authSource=admin
-server:
-  port: 8551

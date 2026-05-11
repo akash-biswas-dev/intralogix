@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: access-manager
+  profiles:
+    active: dev
+server:
+  port: 8503
+  grpc: 15002

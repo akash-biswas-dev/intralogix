@@ -1,26 +1,15 @@
 services:
   # This proxy only need when running the application using docker-compose.
-  proxy:
-    container_name: nexus-proxy
-    image: biswasakash/nexussphere-docker-proxy:latest
-    ports:
-      - "8000:80"
-    networks:
-      - proxy-network
-    depends_on:
-      - client
-      - gateway
-
-  client:
-    container_name: nexus-client 
-    image: biswasakash/nexussphere-client:latest 
+  web:
+    container_name: nexus-web
+    image: biswasakash/nexussphere-web:local
     networks:
       - proxy-network
 
   # Authentication gateway for the services.
   gateway:
     container_name: nexus-gateway
-    image: biswasakash/nexussphere-gateway:latest
+    image: biswasakash/nexussphere-gateway:local
     networks:
       - service-network
       - proxy-network
@@ -31,7 +20,7 @@ services:
 
   users:
     container_name: nexus-users
-    image: biswasakash/nexussphere-users:latest
+    image: biswasakash/nexussphere-users:local
     networks:
       - service-network
       - mongo-network
@@ -41,16 +30,29 @@ services:
       - mongo
 
   mongo:
-    container_name: nexus-mongo-docker
+    container_name: nexus-mongo
     image: mongo:8.0-noble
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=docker
-      - MONGO_INITDB_ROOT_PASSWORD=password 
+      - MONGO_INITDB_ROOT_USERNAME=dev
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    ports:
+      - "27017:27017"
     networks:
       - mongo-network
-    # Only to inspect the database.
+
+  postgres:
+    container_name: nexus-postgres
+    image: postgres:18.3-bookworm
+    environment:
+      POSTGRES_USER: docker
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: postgres
     ports:
-      - "27018:27017"
+      - "5432:5432"
+    volumes:
+      - ./scripts/postgres/setup.sql:/docker-entrypoint-initdb.d/setup.sql
+    networks:
+      - postgres-network
 
 networks:
   proxy-network:
